@@ -4,9 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Persistent data store of events collected by Yozio.
- * 
- * NOTE: implementations must be thread safe.
+ * Thread safe data store of events collected by Yozio.
  */
 interface YozioDataStore {
 	
@@ -20,7 +18,7 @@ interface YozioDataStore {
   /**
    * Get the number of events in the data store.
    * 
-   * @return the number of events in the data store.
+   * @return the number of events in the data store, or -1 if an error occurs.
    */
   int getNumEvents();
 	
@@ -29,16 +27,38 @@ interface YozioDataStore {
    * in the data store.
    * 
    * @param limit  the maximum number of events to return.
-   * @return a JSONArray of events, or nil if an error occurs.
+   * @return an {@link Events} object, or null if an error occurs.
    */
-  JSONArray getEvents(int limit);
+  Events getEvents(int limit);
 	
   /**
    * Remove events from the data store starting with the oldest event in the
-   * data store.
+   * data store and ending with the event with lastEventId (inclusive).
    * 
-   * @param limit  the maximum number of events to remove.
-   * @return the number of events in the data store after removing.
+   * @param lastEventId  the id of the last event to remove.
+   * @return true iff the events were removed successfully.
    */
-  int removeEvents(int limit);
+  boolean removeEvents(String lastEventId);
+  
+  /**
+   * Return value for getEvents.
+   */
+  class Events {
+    
+    private final JSONArray jsonArray;
+    private final String lastEventId;
+    
+    Events(JSONArray eventsArr, String lastEventId) {
+      this.jsonArray = eventsArr;
+      this.lastEventId = lastEventId;
+    }
+    
+    JSONArray asJsonArray() {
+      return jsonArray;
+    }
+    
+    String lastEventId() {
+      return lastEventId;
+    }
+  }
 }

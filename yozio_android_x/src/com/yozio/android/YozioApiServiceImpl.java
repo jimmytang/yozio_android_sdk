@@ -1,12 +1,18 @@
 package com.yozio.android;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,9 +20,10 @@ import android.util.Log;
 
 class YozioApiServiceImpl implements YozioApiService {
 
+  // TODO(jt): make the urls settable for tests
   // TODO(jt): use real BASE_URL
 //  public static final String BASE_URL = "http://yoz.io";
-  private static final String BASE_URL = "http://192.168.1.128:3000";
+  private static final String BASE_URL = "http://192.168.43.69:3000";
   private static final String GET_URL_BASE_URL = BASE_URL + "/api/v1/get_url";
   private static final String BATCH_EVENTS_BASE_URL = BASE_URL + "/api/v1/batch_events";
   
@@ -35,21 +42,14 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String BATCH_EVENTS_R_STATUS = "status";
   
   private final HttpClient httpClient;
-  private final ThreadPoolExecutor executor;
   
   /**
-   * Implementation of {@link YozioApiService} that talks to a Yozio backend.
+   * Implementation of {@link YozioApiService} that talks to a Yozio server.
    * 
    * @param httpClient  a thread safe HttpClient.
-   * @param executor  a ThreadPoolExecutor with a pool size of 1.
    */
-  public YozioApiServiceImpl(HttpClient httpClient, ThreadPoolExecutor executor) {
-    // In order to guarantee that repeated calls to sdk are executed serially,
-    // we must make sure the executor can only have 1 thread.
-    executor.setCorePoolSize(1);
-    executor.setMaximumPoolSize(1);
+  public YozioApiServiceImpl(HttpClient httpClient) {
     this.httpClient = httpClient;
-    this.executor = executor;
   }
   
   public String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl) {
@@ -59,16 +59,55 @@ class YozioApiServiceImpl implements YozioApiService {
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioPrivate.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
-    String uri = HttpUtils.urlWithParams(GET_URL_BASE_URL, params);
-    String response = HttpUtils.doGetRequest(httpClient, uri);
+    String response = doGetRequest(GET_URL_BASE_URL, params);
     return getJsonValue(response, GET_URL_R_URL);
   }
 
-  public void batchEvents(JSONObject payload, ThreadSafeCallback callback) {
+  public boolean batchEvents(JSONObject payload) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(BATCH_EVENTS_P_DATA, payload.toString()));
-    String uri = HttpUtils.urlWithParams(BATCH_EVENTS_BASE_URL, params);
-    executor.submit(new HttpGetTask(httpClient, uri, callback));
+    String response = doGetRequest(BATCH_EVENTS_BASE_URL, params);
+    String status = getJsonValue(response, BATCH_EVENTS_R_STATUS);
+    return status != null && status.equalsIgnoreCase("ok");
+  }
+  
+  /**
+   * Performs a blocking HTTP GET request to the specified uri.
+   * 
+   * @param httpClient  the client to execute the HTTP request.
+   * @param baseUrl  the base url to append the parameters to.
+   * @param params  the GET parameters.
+   * @return  the String response, or null if the request failed.
+   */
+  String doGetRequest(String baseUrl, List<NameValuePair> params) {
+    try {
+      HttpGet httpGet = new HttpGet(urlWithParams(baseUrl, params));
+      HttpResponse httpResponse = httpClient.execute(httpGet);
+      HttpEntity httpEntity = httpResponse.getEntity();
+      if (httpEntity != null) {
+        String responseString = EntityUtils.toString(httpEntity);
+        // Release the content.
+        httpEntity.consumeContent();
+        return responseString;
+      }
+    } catch (ClientProtocolException e) {
+      Log.e(LOGTAG, "doGetRequest", e);
+    } catch (IOException e) {
+      Log.e(LOGTAG, "doGetRequest", e);
+    }
+    return null;
+  }
+  
+  /**
+   * Constructs a URL with the GET parameters appended.
+   * 
+   * @param baseUrl  the base url to append the parameters to.
+   * @param params  the parameters to append to the baseUrl.
+   * @return the URL with the appended parameters.
+   */
+  String urlWithParams(String baseUrl, List<NameValuePair> params) {
+    String paramString = URLEncodedUtils.format(params, "utf-8");
+    return baseUrl + "?" + paramString;
   }
   
   /**
@@ -87,31 +126,5 @@ class YozioApiServiceImpl implements YozioApiService {
       }
     }
     return null;
-  }
-  
-  /**
-   * Task to fire off an sdk HTTP GET request.
-   */
-  private static class HttpGetTask implements Runnable {
-    
-    private final HttpClient httpClient;
-    private final String uri;
-    private final ThreadSafeCallback callback;
-    
-    HttpGetTask(HttpClient httpClient, String uri, ThreadSafeCallback callback) {
-      this.httpClient = httpClient;
-      this.uri = uri;
-      this.callback = callback;
-    }
-    
-    public void run() {
-      String response = HttpUtils.doGetRequest(httpClient, uri);
-      String status = getJsonValue(response, BATCH_EVENTS_R_STATUS);
-      if (status != null && status.equalsIgnoreCase("ok")) {
-        callback.onSuccess();
-      } else {
-        callback.onFailure();
-      }
-    }
   }
 }

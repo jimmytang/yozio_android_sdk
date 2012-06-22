@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,7 +15,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.util.Log;
 
-import com.yozio.android.YozioApiService.ThreadSafeCallback;
+import com.yozio.android.YozioDataStore.Events;
 
 class YozioPrivate {
   
@@ -39,6 +42,7 @@ class YozioPrivate {
   private final YozioDataStore dataStore;
   private final YozioApiService apiService;
   private final SimpleDateFormat dateFormat;
+  private final ThreadPoolExecutor executor;
   
   private Context context;
   private String appKey;
@@ -48,11 +52,15 @@ class YozioPrivate {
   // Keeps track of the number of times collect is called.
   private int collectCount;
   
+  // TODO: run collect and doFlush in separate threads
+  
   YozioPrivate(YozioDataStore dataStore, YozioApiService apiService) {
     this.dataStore = dataStore;
     this.apiService = apiService;
     this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    executor = new ThreadPoolExecutor(
+        1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
     this.collectCount = 0;
   }
   
@@ -66,10 +74,7 @@ class YozioPrivate {
   
   String getUrl(String linkName, String destinationUrl, String fallbackUrl) {
     String shortenedUrl = apiService.getUrl(appKey, yozioUdid, linkName, destinationUrl);
-    if (shortenedUrl == null) {
-      return fallbackUrl;
-    }
-    return shortenedUrl;
+    return shortenedUrl != null ? shortenedUrl : fallbackUrl;
   }
   
   void collect(int eventType, String linkName) {
@@ -107,22 +112,17 @@ class YozioPrivate {
   }
   
   private void doFlush() {
-    final JSONArray events = dataStore.getEvents(FLUSH_BATCH_MAX);
+    final Events events = dataStore.getEvents(FLUSH_BATCH_MAX);
     if (events == null) {
       return;
     }
-    JSONObject payload = buildPayload(events);
+    JSONObject payload = buildPayload(events.asJsonArray());
     if (payload == null) {
       return;
     }
-    apiService.batchEvents(payload, new ThreadSafeCallback() {
-      public void onSuccess() {
-        dataStore.removeEvents(events.length());
-      }
-      public void onFailure() {
-        // Don't do anything if the request fails.
-      }
-    });
+    if (apiService.batchEvents(payload)) {
+      dataStore.removeEvents(events.lastEventId());
+    }
   }
   
   private JSONObject buildEvent(int eventType, String linkName) {

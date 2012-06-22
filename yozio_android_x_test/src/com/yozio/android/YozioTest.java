@@ -8,6 +8,7 @@ public class YozioTest extends AndroidTestCase {
   public YozioTest() {
   }
 
+  @Override
   protected void setUp() throws Exception {
     super.setUp();
   }

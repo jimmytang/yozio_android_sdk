@@ -1,9 +1,5 @@
 package com.yozio.android;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -16,10 +12,11 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Entry point to the Yozio SDK.
+ * Public Yozio SDK.
  */
 public final class Yozio {
   
@@ -42,8 +39,9 @@ public final class Yozio {
    *                   by Yozio.
    */
   public static void configure(Context context, String appKey, String secretKey) {
-    getInstance().configure(context, appKey, secretKey);
-    if (!validateInstance()) {
+    initializeIfNeeded(context, appKey);
+    instance.configure(context, appKey, secretKey);
+    if (!validateInstanceConfig()) {
       return;
     }
     instance.collect(E_OPENED_APP, "");
@@ -61,7 +59,7 @@ public final class Yozio {
    * @param fallbackUrl  the URL to return if the HTTP request fails.
    */
   public static String getUrl(String linkName, String destinationUrl, String fallbackUrl) {
-    if (!validateInstance()) {
+    if (!validateInstanceConfig()) {
       return fallbackUrl;
     }
     return instance.getUrl(linkName, destinationUrl, fallbackUrl);
@@ -75,7 +73,7 @@ public final class Yozio {
    *                  Yozio web UI.
    */
   public static void viewedLink(String linkName) {
-    if (!validateInstance()) {
+    if (!validateInstanceConfig()) {
       return;
     }
     instance.collect(E_VIEWED_LINK, linkName);
@@ -89,25 +87,21 @@ public final class Yozio {
    *                  Yozio web UI.
    */
   public static void sharedLink(String linkName) {
-    if (!validateInstance()) {
+    if (!validateInstanceConfig()) {
       return;
     }
     instance.collect(E_SHARED_LINK, linkName);
   }
   
-  /**
-   * Should only be called by the configure method. All other methods should
-   * access the instance through the static variable.
-   */
-  private static YozioPrivate getInstance() {
-    if (instance == null) {
-      HttpClient httpClient = threadSafeHttpClient();
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(
-          1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-      YozioApiService apiService = new YozioApiServiceImpl(httpClient, executor); 
-      instance = new YozioPrivate(new YozioDataStoreImpl(), apiService);
+  private static void initializeIfNeeded(Context context, String appKey) {
+    if (instance != null) {
+      return;
     }
-    return instance;
+    HttpClient httpClient = threadSafeHttpClient();
+    YozioApiService apiService = new YozioApiServiceImpl(httpClient); 
+    SQLiteOpenHelper dbHelper = new YozioDataStoreImpl.DatabaseHelper(context);
+    YozioDataStore dataStore = new YozioDataStoreImpl(dbHelper, appKey);
+    instance = new YozioPrivate(dataStore, apiService);
   }
   
   private static HttpClient threadSafeHttpClient() {
@@ -121,7 +115,7 @@ public final class Yozio {
     return new DefaultHttpClient(cm, params);
   }
   
-  private static boolean validateInstance() {
+  private static boolean validateInstanceConfig() {
     if (instance == null) {
       Log.e(LOGTAG, "Yozio.configure() not called!");
       return false;

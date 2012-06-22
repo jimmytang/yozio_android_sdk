@@ -3,7 +3,7 @@ package com.yozio.android;
 import org.json.JSONObject;
 
 /**
- * Service that makes HTTP requests to the Yozio web api.
+ * Thread safe service that makes HTTP requests to the Yozio web api.
  */
 interface YozioApiService {
   
@@ -23,22 +23,10 @@ interface YozioApiService {
   String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl);
   
   /**
-   * Makes a non-blocking batch_events HTTP request to Yozio. Repeated calls
-   * to this method are guaranteed to execute serially (i.e. the previous
-   * async task must finish before the next one will start).
+   * Makes a blocking batch_events HTTP request to Yozio.
    * 
    * @param payload  the payload object.
-   * @param callback  the callback to call when the request is complete.
+   * @return true iff the request succeeded.
    */
-  void batchEvents(JSONObject payload, ThreadSafeCallback callback);
-  
-  /**
-   * Callback for the non-blocking batch_events HTTP request.
-   * 
-   * NOTE: implementation must be thread safe.
-   */
-  interface ThreadSafeCallback {
-    void onSuccess();
-    void onFailure();
-  }
+   boolean batchEvents(JSONObject payload);
 }
