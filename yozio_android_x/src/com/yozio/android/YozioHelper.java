@@ -39,7 +39,7 @@ class YozioHelper {
   // Minimum number of events before flushing.
   private static final int FLUSH_BATCH_MIN = 1;
   // Maximum number of events that can be batched.
-  private static final int FLUSH_BATCH_MAX = 5;
+  private static final int FLUSH_BATCH_MAX = 50;
   
   private final YozioDataStore dataStore;
   private final YozioApiService apiService;

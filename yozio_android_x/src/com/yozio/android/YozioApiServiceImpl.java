@@ -9,8 +9,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
@@ -59,30 +59,31 @@ class YozioApiServiceImpl implements YozioApiService {
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
-    String response = doGetRequest(GET_URL_BASE_URL, params);
+    String response = doPostRequest(GET_URL_BASE_URL, params);
     return getJsonValue(response, GET_URL_R_URL);
   }
 
   public boolean batchEvents(JSONObject payload) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(BATCH_EVENTS_P_DATA, payload.toString()));
-    String response = doGetRequest(BATCH_EVENTS_BASE_URL, params);
+    String response = doPostRequest(BATCH_EVENTS_BASE_URL, params);
     String status = getJsonValue(response, BATCH_EVENTS_R_STATUS);
     return status != null && status.equalsIgnoreCase("ok");
   }
   
   /**
-   * Performs a blocking HTTP GET request to the specified uri.
+   * Performs a blocking HTTP POST request to the specified uri.
    * 
    * @param httpClient  the client to execute the HTTP request.
    * @param baseUrl  the base url to append the parameters to.
    * @param params  the GET parameters.
    * @return  the String response, or null if the request failed.
    */
-  String doGetRequest(String baseUrl, List<NameValuePair> params) {
+  String doPostRequest(String baseUrl, List<NameValuePair> params) {
     try {
-      HttpGet httpGet = new HttpGet(urlWithParams(baseUrl, params));
-      HttpResponse httpResponse = httpClient.execute(httpGet);
+      HttpPost httpPost = new HttpPost(baseUrl);
+      httpPost.setEntity(new UrlEncodedFormEntity(params));
+      HttpResponse httpResponse = httpClient.execute(httpPost);
       HttpEntity httpEntity = httpResponse.getEntity();
       if (httpEntity != null) {
         String responseString = EntityUtils.toString(httpEntity);
@@ -96,18 +97,6 @@ class YozioApiServiceImpl implements YozioApiService {
       Log.e(LOGTAG, "doGetRequest", e);
     }
     return null;
-  }
-  
-  /**
-   * Constructs a URL with the GET parameters appended.
-   * 
-   * @param baseUrl  the base url to append the parameters to.
-   * @param params  the parameters to append to the baseUrl.
-   * @return the URL with the appended parameters.
-   */
-  String urlWithParams(String baseUrl, List<NameValuePair> params) {
-    String paramString = URLEncodedUtils.format(params, "utf-8");
-    return baseUrl + "?" + paramString;
   }
   
   /**
