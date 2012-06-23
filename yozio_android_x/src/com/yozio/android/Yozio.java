@@ -28,7 +28,7 @@ public final class Yozio {
   private static final int E_SHARED_LINK = 12;
   private static final int E_OPENED_APP = 13;
   
-  private static YozioPrivate instance;
+  private static YozioHelper helper;
   
   /**
    * Configures the Yozio SDK. Must be called when the app is initialized.
@@ -40,11 +40,11 @@ public final class Yozio {
    */
   public static void configure(Context context, String appKey, String secretKey) {
     initializeIfNeeded(context, appKey);
-    instance.configure(context, appKey, secretKey);
+    helper.configure(context, appKey, secretKey);
     if (!validateInstanceConfig()) {
       return;
     }
-    instance.collect(E_OPENED_APP, "");
+    helper.collect(E_OPENED_APP, "");
   }
   
   /**
@@ -62,7 +62,7 @@ public final class Yozio {
     if (!validateInstanceConfig()) {
       return fallbackUrl;
     }
-    return instance.getUrl(linkName, destinationUrl, fallbackUrl);
+    return helper.getUrl(linkName, destinationUrl, fallbackUrl);
   }
   
   /**
@@ -76,7 +76,7 @@ public final class Yozio {
     if (!validateInstanceConfig()) {
       return;
     }
-    instance.collect(E_VIEWED_LINK, linkName);
+    helper.collect(E_VIEWED_LINK, linkName);
   }
 
   /**
@@ -90,18 +90,18 @@ public final class Yozio {
     if (!validateInstanceConfig()) {
       return;
     }
-    instance.collect(E_SHARED_LINK, linkName);
+    helper.collect(E_SHARED_LINK, linkName);
   }
   
   private static void initializeIfNeeded(Context context, String appKey) {
-    if (instance != null) {
+    if (helper != null) {
       return;
     }
     HttpClient httpClient = threadSafeHttpClient();
     YozioApiService apiService = new YozioApiServiceImpl(httpClient); 
     SQLiteOpenHelper dbHelper = new YozioDataStoreImpl.DatabaseHelper(context);
     YozioDataStore dataStore = new YozioDataStoreImpl(dbHelper, appKey);
-    instance = new YozioPrivate(dataStore, apiService);
+    helper = new YozioHelper(dataStore, apiService);
   }
   
   private static HttpClient threadSafeHttpClient() {
@@ -116,15 +116,15 @@ public final class Yozio {
   }
   
   private static boolean validateInstanceConfig() {
-    if (instance == null) {
+    if (helper == null) {
       Log.e(LOGTAG, "Yozio.configure() not called!");
       return false;
     }
-    return instance.validate();
+    return helper.validate();
   }
   
   // For testing
-  static void setInstance(YozioPrivate instance) {
-    Yozio.instance = instance;
+  static void setHelper(YozioHelper helper) {
+    Yozio.helper = helper;
   }
 }

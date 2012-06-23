@@ -23,7 +23,7 @@ class YozioApiServiceImpl implements YozioApiService {
   // TODO(jt): make the urls settable for tests
   // TODO(jt): use real BASE_URL
 //  public static final String BASE_URL = "http://yoz.io";
-  private static final String BASE_URL = "http://192.168.43.69:3000";
+  private static final String BASE_URL = "http://192.168.1.128:3000";
   private static final String GET_URL_BASE_URL = BASE_URL + "/api/v1/get_url";
   private static final String BATCH_EVENTS_BASE_URL = BASE_URL + "/api/v1/batch_events";
   
@@ -56,7 +56,7 @@ class YozioApiServiceImpl implements YozioApiService {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
     params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
-    params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioPrivate.DEVICE_TYPE));
+    params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
     String response = doGetRequest(GET_URL_BASE_URL, params);
@@ -120,7 +120,10 @@ class YozioApiServiceImpl implements YozioApiService {
   private static String getJsonValue(String jsonString, String key) {
     if (jsonString != null) {
       try {
-        return new JSONObject(jsonString).getString(key);
+        JSONObject json = new JSONObject(jsonString);
+        if (json.has(key)) {
+          return json.getString(key);
+        }
       } catch (JSONException e) {
         Log.e(LOGTAG, "getJsonValue", e);
       }
