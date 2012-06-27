@@ -20,12 +20,9 @@ import android.util.Log;
 
 class YozioApiServiceImpl implements YozioApiService {
 
-  // TODO(jt): make the urls settable for tests
-  // TODO(jt): use real BASE_URL
-//  public static final String BASE_URL = "http://yoz.io";
-  private static final String BASE_URL = "http://192.168.1.128:3000";
-  private static final String GET_URL_BASE_URL = BASE_URL + "/api/v1/get_url";
-  private static final String BATCH_EVENTS_BASE_URL = BASE_URL + "/api/v1/batch_events";
+  private static final String DEFAULT_BASE_URL = "http://yoz.io";
+  private static final String GET_URL_ROUTE = "/api/v1/get_url";
+  private static final String BATCH_EVENTS_ROUTE = "/api/v1/batch_events";
   
   private static final String LOGTAG = "YozioApiServiceImpl";
   
@@ -42,6 +39,7 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String BATCH_EVENTS_R_STATUS = "status";
   
   private final HttpClient httpClient;
+  private String baseUrl;
   
   /**
    * Implementation of {@link YozioApiService} that talks to a Yozio server.
@@ -50,6 +48,7 @@ class YozioApiServiceImpl implements YozioApiService {
    */
   public YozioApiServiceImpl(HttpClient httpClient) {
     this.httpClient = httpClient;
+    baseUrl = DEFAULT_BASE_URL;
   }
   
   public String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl) {
@@ -59,14 +58,14 @@ class YozioApiServiceImpl implements YozioApiService {
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
-    String response = doPostRequest(GET_URL_BASE_URL, params);
+    String response = doPostRequest(baseUrl + GET_URL_ROUTE, params);
     return getJsonValue(response, GET_URL_R_URL);
   }
 
   public boolean batchEvents(JSONObject payload) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(BATCH_EVENTS_P_DATA, payload.toString()));
-    String response = doPostRequest(BATCH_EVENTS_BASE_URL, params);
+    String response = doPostRequest(baseUrl + BATCH_EVENTS_ROUTE, params);
     String status = getJsonValue(response, BATCH_EVENTS_R_STATUS);
     return status != null && status.equalsIgnoreCase("ok");
   }
@@ -97,6 +96,11 @@ class YozioApiServiceImpl implements YozioApiService {
       Log.e(LOGTAG, "doGetRequest", e);
     }
     return null;
+  }
+  
+  // For testing.
+  void setBaseUrl(String baseUrl) {
+    this.baseUrl = baseUrl;
   }
   
   /**
