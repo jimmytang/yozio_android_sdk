@@ -102,11 +102,11 @@ class YozioDataStoreImpl implements YozioDataStore {
             " ORDER BY _id ASC LIMIT " + limit, null);
         jsonArray = new JSONArray();
         while (cursor.moveToNext()) {
+          if (cursor.isLast()) {
+            lastEventId = cursor.getString(0);
+          }
           try {
             jsonArray.put(new JSONObject(cursor.getString(1)));
-            // Update lastEventId only after the event has been added successfully
-            // to the jsonArray.
-            lastEventId = cursor.getString(0);
           } catch (JSONException e) {
             // Ignore event.
           }
