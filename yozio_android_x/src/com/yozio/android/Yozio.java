@@ -108,6 +108,7 @@ public final class Yozio {
     HttpParams params = new BasicHttpParams();
     HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
     HttpProtocolParams.setContentCharset(params, "UTF-8");
+    // TODO(dounan): consider putting a more useful user agent based on device info
     HttpProtocolParams.setUserAgent(params, USER_AGENT);
     SchemeRegistry registry = new SchemeRegistry();
     registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
