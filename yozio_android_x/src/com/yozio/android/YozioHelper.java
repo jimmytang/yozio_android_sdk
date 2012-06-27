@@ -20,7 +20,7 @@ import com.yozio.android.YozioDataStore.Events;
 class YozioHelper {
   
   // Android device type is 3.
-  public static final String DEVICE_TYPE = "3";
+  static final String DEVICE_TYPE = "3";
   
   // For logging.
   private static final String LOGTAG = "YozioHelper";

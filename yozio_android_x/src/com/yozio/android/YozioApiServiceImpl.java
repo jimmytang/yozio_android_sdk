@@ -46,7 +46,7 @@ class YozioApiServiceImpl implements YozioApiService {
    * 
    * @param httpClient  a thread safe HttpClient.
    */
-  public YozioApiServiceImpl(HttpClient httpClient) {
+  YozioApiServiceImpl(HttpClient httpClient) {
     this.httpClient = httpClient;
     baseUrl = DEFAULT_BASE_URL;
   }
