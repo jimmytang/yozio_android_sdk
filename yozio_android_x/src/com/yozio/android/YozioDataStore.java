@@ -53,11 +53,11 @@ interface YozioDataStore {
       this.lastEventId = lastEventId;
     }
     
-    JSONArray asJsonArray() {
+    JSONArray getJsonArray() {
       return jsonArray;
     }
     
-    String lastEventId() {
+    String getLastEventId() {
       return lastEventId;
     }
   }

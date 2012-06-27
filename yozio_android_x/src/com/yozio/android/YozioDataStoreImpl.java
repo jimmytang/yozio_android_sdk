@@ -17,8 +17,8 @@ class YozioDataStoreImpl implements YozioDataStore {
 
   private static final String LOGTAG = "YozioDataStoreImpl";
   
-  private static final int DATABASE_VERSION = 1;
-  private static final String DATABASE_NAME = "yozio";
+  static final int DATABASE_VERSION = 1;
+  static final String DATABASE_NAME = "yozio";
   
   static final String EVENTS_TABLE = "events";
   static final String APP_KEY = "app_key";
@@ -102,11 +102,11 @@ class YozioDataStoreImpl implements YozioDataStore {
             " ORDER BY _id ASC LIMIT " + limit, null);
         jsonArray = new JSONArray();
         while (cursor.moveToNext()) {
-          if (cursor.isLast()) {
-            lastEventId = cursor.getString(0);
-          }
           try {
             jsonArray.put(new JSONObject(cursor.getString(1)));
+            // Update lastEventId only after the event has been added successfully
+            // to the jsonArray.
+            lastEventId = cursor.getString(0);
           } catch (JSONException e) {
             // Ignore event.
           }

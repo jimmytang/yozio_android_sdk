@@ -173,15 +173,15 @@ class YozioHelper {
     
     public void run() {
       final Events events = dataStore.getEvents(FLUSH_BATCH_MAX);
-      if (events == null) {
+      if (events == null || events.getJsonArray().length() == 0) {
         return;
       }
-      JSONObject payload = buildPayload(events.asJsonArray());
+      JSONObject payload = buildPayload(events.getJsonArray());
       if (payload == null) {
         return;
       }
       if (apiService.batchEvents(payload)) {
-        dataStore.removeEvents(events.lastEventId());
+        dataStore.removeEvents(events.getLastEventId());
       }
     }
   
