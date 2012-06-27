@@ -44,7 +44,8 @@ class YozioHelper {
   private final YozioDataStore dataStore;
   private final YozioApiService apiService;
   private final SimpleDateFormat dateFormat;
-  private final ThreadPoolExecutor executor;
+  // Executor for AddEvent and Flush tasks.
+  private final ThreadPoolExecutor addAndFlushExecutor;
   
   private Context context;
   private String appKey;
@@ -57,7 +58,7 @@ class YozioHelper {
     // TODO(jt): do we need timezone in timestamp?
     this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    executor = new ThreadPoolExecutor(
+    addAndFlushExecutor = new ThreadPoolExecutor(
         1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
   }
   
@@ -112,14 +113,14 @@ class YozioHelper {
     if (event == null) {
       return;
     }
-    executor.submit(new AddEventTask(event));
+    addAndFlushExecutor.submit(new AddEventTask(event));
   }
   
   /**
    * Forces a flush attempt to the Yozio server.
    */
   private void doFlush() {
-    executor.submit(new FlushTask());
+    addAndFlushExecutor.submit(new FlushTask());
   }
   
   private JSONObject buildEvent(int eventType, String linkName) {
@@ -152,15 +153,15 @@ class YozioHelper {
     }
     
     public void run() {
-      boolean success = dataStore.addEvent(event);
+      boolean eventAdded = dataStore.addEvent(event);
       // Flush if there are enough events.
       // Small optimization for the special case where FLUSH_BATCH_MIN == 1.
       boolean flushEligible =
-          (success && FLUSH_BATCH_MIN == 1) ||
+          (eventAdded && FLUSH_BATCH_MIN == 1) ||
           (dataStore.getNumEvents() >= FLUSH_BATCH_MIN);
       // Don't need to flush if there is there is at least one another task
       // waiting. The last task will flush all the unflushed events at once.
-      if (flushEligible && executor.getQueue().isEmpty()) {
+      if (flushEligible && addAndFlushExecutor.getQueue().isEmpty()) {
         doFlush();
       }
     }
