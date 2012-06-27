@@ -173,7 +173,7 @@ class YozioHelper {
     
     public void run() {
       final Events events = dataStore.getEvents(FLUSH_BATCH_MAX);
-      if (events == null || events.getJsonArray().length() == 0) {
+      if (events == null) {
         return;
       }
       JSONObject payload = buildPayload(events.getJsonArray());

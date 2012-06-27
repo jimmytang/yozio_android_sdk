@@ -117,7 +117,7 @@ class YozioDataStoreImpl implements YozioDataStore {
       } finally {
         dbHelper.close();
       }
-      if (jsonArray != null && jsonArray.length() > 0 && lastEventId != null) {
+      if (jsonArray != null && lastEventId != null) {
         return new Events(jsonArray, lastEventId);
       } else {
         return null;
