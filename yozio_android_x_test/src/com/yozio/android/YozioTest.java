@@ -24,4 +24,8 @@ public class YozioTest extends AndroidTestCase {
       Log.e("YozioTest", "testEndToEnd", e);
     }
   }
+  
+  public void testNotConfigured() {
+    // TODO
+  }
 }
