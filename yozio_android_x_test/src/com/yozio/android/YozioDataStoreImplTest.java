@@ -16,18 +16,15 @@ public class YozioDataStoreImplTest extends AndroidTestCase {
   private static final String APP_KEY = "test app key";
   private static final String EVENT_KEY = "event key";
   
+  private DatabaseHelper databaseHelper;
   private YozioDataStoreImpl dataStore;
   
   @Override
   protected void setUp() throws Exception {
     super.setUp();
     getContext().deleteDatabase(YozioDataStoreImpl.DATABASE_NAME);
-    dataStore = new YozioDataStoreImpl(new DatabaseHelper(getContext()), APP_KEY);
-  }
-  
-  public void testReadNoEvents() {
-    assertEquals(0, dataStore.getNumEvents());
-    assertNull(dataStore.getEvents(10));
+    databaseHelper = new DatabaseHelper(getContext());
+    dataStore = new YozioDataStoreImpl(databaseHelper, APP_KEY);
   }
   
   public void testAddEvent() {
@@ -60,6 +57,11 @@ public class YozioDataStoreImplTest extends AndroidTestCase {
     assertEventsEqual(dataStore.getEvents(2).getJsonArray(), event1, event2);
     assertEventsEqual(dataStore.getEvents(3).getJsonArray(), event1, event2, event3);
     assertEventsEqual(dataStore.getEvents(4).getJsonArray(), event1, event2, event3);
+  }
+  
+  public void testGetEventsWithNoEvents() {
+    assertEquals(0, dataStore.getNumEvents());
+    assertNull(dataStore.getEvents(10));
   }
   
   public void testRemoveEvents() {
@@ -122,6 +124,30 @@ public class YozioDataStoreImplTest extends AndroidTestCase {
     dataStore.removeEvents(events.getLastEventId());
     assertEquals(1, dataStore.getNumEvents());
     assertEventsEqual(dataStore.getEvents(10).getJsonArray(), event5);
+  }
+  
+  public void testUpgradeDatabase() {
+    JSONObject event1 = buildTestEvent("event 1");
+    JSONObject event2 = buildTestEvent("event 2");
+    
+    dataStore.addEvent(event1);
+    assertEquals(1, dataStore.getNumEvents());
+    assertEventsEqual(dataStore.getEvents(10).getJsonArray(), event1);
+
+    // Make sure onUpgrade clears the database.
+    databaseHelper.onUpgrade(
+        databaseHelper.getWritableDatabase(),
+        YozioDataStoreImpl.DATABASE_VERSION,
+        YozioDataStoreImpl.DATABASE_VERSION + 1);
+    assertEquals(0, dataStore.getNumEvents());
+    
+    // Make sure events can still be added/removed after upgrading.
+    dataStore.addEvent(event2);
+    assertEquals(1, dataStore.getNumEvents());
+    assertEventsEqual(dataStore.getEvents(10).getJsonArray(), event2);
+    Events events = dataStore.getEvents(10);
+    dataStore.removeEvents(events.getLastEventId());
+    assertEquals(0, dataStore.getNumEvents());
   }
   
   // Builds a JSONObject to represent an event.
