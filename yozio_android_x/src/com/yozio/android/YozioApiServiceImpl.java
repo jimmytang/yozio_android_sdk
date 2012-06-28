@@ -118,7 +118,7 @@ class YozioApiServiceImpl implements YozioApiService {
           return json.getString(key);
         }
       } catch (JSONException e) {
-        Log.e(LOGTAG, "getJsonValue", e);
+        Log.w(LOGTAG, "getJsonValue", e);
       }
     }
     return null;
