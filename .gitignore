@@ -18,5 +18,5 @@ local.properties
 # Eclipse
 .metadata/
 .settings/
-.classpath
-.project
+*.classpath
+*.project
