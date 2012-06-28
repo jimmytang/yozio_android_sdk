@@ -56,13 +56,12 @@ public final class Yozio {
    *                  link names created on the Yozio web UI.
    * @param destinationUrl  a custom destination URL that the returned
    *                        shortened URL should redirect to.
-   * @param fallbackUrl  the URL to return if the HTTP request fails.
    */
-  public static String getUrl(String linkName, String destinationUrl, String fallbackUrl) {
+  public static String getUrl(String linkName, String destinationUrl) {
     if (!validateInstanceConfig()) {
-      return fallbackUrl;
+      return destinationUrl;
     }
-    return helper.getUrl(linkName, destinationUrl, fallbackUrl);
+    return helper.getUrl(linkName, destinationUrl);
   }
   
   /**

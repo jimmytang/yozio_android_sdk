@@ -98,11 +98,11 @@ class YozioHelper {
    * Makes a blocking request to retrieve the shortened URL.
    * 
    * @return the shortened URL if the request was successful,
-   *         or the fallbackUrl if unsuccessful.
+   *         or the destinationUrl if unsuccessful.
    */
-  String getUrl(String linkName, String destinationUrl, String fallbackUrl) {
+  String getUrl(String linkName, String destinationUrl) {
     String shortenedUrl = apiService.getUrl(appKey, yozioUdid, linkName, destinationUrl);
-    return shortenedUrl != null ? shortenedUrl : fallbackUrl;
+    return shortenedUrl != null ? shortenedUrl : destinationUrl;
   }
   
   /**
