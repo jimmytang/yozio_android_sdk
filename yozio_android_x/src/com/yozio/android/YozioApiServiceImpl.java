@@ -21,8 +21,8 @@ import android.util.Log;
 class YozioApiServiceImpl implements YozioApiService {
 
   private static final String DEFAULT_BASE_URL = "http://yoz.io";
-  private static final String GET_URL_ROUTE = "/api/v1/get_url";
-  private static final String BATCH_EVENTS_ROUTE = "/api/v1/batch_events";
+  private static final String GET_URL_ROUTE = "/api/viral/v1/get_url";
+  private static final String BATCH_EVENTS_ROUTE = "/api/viral/v1/batch_events";
   
   private static final String LOGTAG = "YozioApiServiceImpl";
   
