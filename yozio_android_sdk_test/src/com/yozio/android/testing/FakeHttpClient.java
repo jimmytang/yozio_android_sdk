@@ -26,50 +26,42 @@ public class FakeHttpClient implements HttpClient {
     return lastRequest;
   }
   
-  @Override
   public HttpResponse execute(HttpUriRequest request)
       throws IOException, ClientProtocolException {
     lastRequest = request;
     return httpResponse;
   }
 
-  @Override
   public HttpResponse execute(HttpUriRequest request, HttpContext context)
       throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public HttpResponse execute(HttpHost target, HttpRequest request)
       throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();
   }
   
-  @Override
   public HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context)
           throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public <T> T execute(HttpUriRequest arg0, ResponseHandler<? extends T> arg1)
       throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public <T> T execute(HttpUriRequest arg0, ResponseHandler<? extends T> arg1, HttpContext arg2)
       throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public <T> T execute(HttpHost arg0, HttpRequest arg1, ResponseHandler<? extends T> arg2)
       throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public <T> T execute(
       HttpHost arg0,
       HttpRequest arg1,
@@ -78,12 +70,10 @@ public class FakeHttpClient implements HttpClient {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public ClientConnectionManager getConnectionManager() {
     throw new UnsupportedOperationException();
   }
 
-  @Override
   public HttpParams getParams() {
     throw new UnsupportedOperationException();
   }

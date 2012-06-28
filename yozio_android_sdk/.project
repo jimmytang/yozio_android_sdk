@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>yozio_android_x_test</name>
+	<name>yozio_android_sdk</name>
 	<comment></comment>
 	<projects>
-		<project>yozio_android_x</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -31,11 +30,4 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>android_src</name>
-			<type>2</type>
-			<location>/Users/dounan/dev/yozio_android_x/yozio_android_x/src</location>
-		</link>
-	</linkedResources>
 </projectDescription>
