@@ -38,7 +38,7 @@ public final class Yozio {
    * @param secretKey  the application specific shared secret key provided
    *                   by Yozio.
    */
-  public static void configure(Context context, String appKey, String secretKey) {
+  public synchronized static void configure(Context context, String appKey, String secretKey) {
     initializeIfNeeded(context, appKey);
     helper.configure(context, appKey, secretKey);
     if (!validateInstanceConfig()) {
