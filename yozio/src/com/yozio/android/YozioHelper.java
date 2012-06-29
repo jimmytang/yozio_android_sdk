@@ -159,8 +159,8 @@ class YozioHelper {
       boolean flushEligible =
           (eventAdded && FLUSH_BATCH_MIN == 1) ||
           (dataStore.getNumEvents() >= FLUSH_BATCH_MIN);
-      // Don't need to flush if there is there is at least one another task
-      // waiting. The last task will flush all the unflushed events at once.
+      // Don't need to flush if there is at least one other task waiting.
+      // The last task will flush all the unflushed events at once.
       if (flushEligible && addAndFlushExecutor.getQueue().isEmpty()) {
         doFlush();
       }
