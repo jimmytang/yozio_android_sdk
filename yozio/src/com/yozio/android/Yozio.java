@@ -41,7 +41,7 @@ public final class Yozio {
   public synchronized static void configure(Context context, String appKey, String secretKey) {
     initializeIfNeeded(context, appKey);
     helper.configure(context, appKey, secretKey);
-    if (!validateInstanceConfig()) {
+    if (!validate()) {
       return;
     }
     helper.collect(E_OPENED_APP, "");
@@ -58,7 +58,7 @@ public final class Yozio {
    *                        shortened URL should redirect to.
    */
   public static String getUrl(String linkName, String destinationUrl) {
-    if (!validateInstanceConfig()) {
+    if (!validate()) {
       return destinationUrl;
     }
     return helper.getUrl(linkName, destinationUrl);
@@ -72,7 +72,7 @@ public final class Yozio {
    *                  Yozio web UI.
    */
   public static void viewedLink(String linkName) {
-    if (!validateInstanceConfig()) {
+    if (!validate()) {
       return;
     }
     helper.collect(E_VIEWED_LINK, linkName);
@@ -86,7 +86,7 @@ public final class Yozio {
    *                  Yozio web UI.
    */
   public static void sharedLink(String linkName) {
-    if (!validateInstanceConfig()) {
+    if (!validate()) {
       return;
     }
     helper.collect(E_SHARED_LINK, linkName);
@@ -115,7 +115,7 @@ public final class Yozio {
     return new DefaultHttpClient(cm, params);
   }
   
-  private static boolean validateInstanceConfig() {
+  private static boolean validate() {
     if (helper == null) {
       Log.e(LOGTAG, "Yozio.configure() not called!");
       return false;
