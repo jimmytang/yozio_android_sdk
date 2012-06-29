@@ -131,7 +131,6 @@ class YozioHelper {
       eventObject.put(D_TIMESTAMP, timestamp());
       return eventObject;
     } catch (JSONException e) {
-      Log.e(LOGTAG, "buildEvent", e);
       return null;
     }
   }
@@ -195,7 +194,6 @@ class YozioHelper {
         payloadObject.put(P_PAYLOAD, events);
         return payloadObject;
       } catch (JSONException e) {
-        Log.e(LOGTAG, "buildPayload", e);
         return null;
       }
     }
