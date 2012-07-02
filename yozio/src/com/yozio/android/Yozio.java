@@ -24,9 +24,9 @@ public final class Yozio {
   private static final String USER_AGENT = "Yozio Android SDK";
   
   // Event types.
+  private static final int E_OPENED_APP = 5;
   private static final int E_VIEWED_LINK = 11;
   private static final int E_SHARED_LINK = 12;
-  private static final int E_OPENED_APP = 13;
   
   private static YozioHelper helper;
   
