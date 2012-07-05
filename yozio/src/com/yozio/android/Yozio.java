@@ -103,7 +103,8 @@ public final class Yozio {
     helper = new YozioHelper(dataStore, apiService);
   }
   
-  private static HttpClient threadSafeHttpClient() {
+  // Visible for testing.
+  static HttpClient threadSafeHttpClient() {
     HttpParams params = new BasicHttpParams();
     HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
     HttpProtocolParams.setContentCharset(params, "UTF-8");
