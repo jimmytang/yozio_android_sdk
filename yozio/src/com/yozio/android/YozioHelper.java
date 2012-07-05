@@ -32,7 +32,7 @@ class YozioHelper {
   
   // Payload keys.
   private static final String P_APP_KEY = "ak";
-  private static final String P_UDID = "ud";
+  private static final String P_YOZIO_UDID = "ud";
   private static final String P_DEVICE_TYPE = "dt";
   private static final String P_PAYLOAD = "pl";
   
@@ -55,8 +55,7 @@ class YozioHelper {
   YozioHelper(YozioDataStore dataStore, YozioApiService apiService) {
     this.dataStore = dataStore;
     this.apiService = apiService;
-    // TODO(jt): do we need timezone in timestamp?
-    this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US);
+    this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     addAndFlushExecutor = new ThreadPoolExecutor(
         1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
@@ -190,7 +189,7 @@ class YozioHelper {
         JSONObject payloadObject = new JSONObject();
         payloadObject.put(P_APP_KEY, appKey);
         payloadObject.put(P_DEVICE_TYPE, DEVICE_TYPE);
-        payloadObject.put(P_UDID, yozioUdid);
+        payloadObject.put(P_YOZIO_UDID, yozioUdid);
         payloadObject.put(P_PAYLOAD, events);
         return payloadObject;
       } catch (JSONException e) {
