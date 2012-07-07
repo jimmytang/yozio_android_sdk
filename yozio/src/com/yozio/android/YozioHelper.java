@@ -26,15 +26,15 @@ class YozioHelper {
   private static final String LOGTAG = "YozioHelper";
   
   // Event data keys.
-  private static final String D_EVENT_TYPE = "tp";
-  private static final String D_LINK_NAME = "ln";
-  private static final String D_TIMESTAMP = "ts";
+  private static final String D_EVENT_TYPE = "event_type";
+  private static final String D_LINK_NAME = "link_name";
+  private static final String D_TIMESTAMP = "timestamp";
   
   // Payload keys.
-  private static final String P_APP_KEY = "ak";
-  private static final String P_YOZIO_UDID = "ud";
-  private static final String P_DEVICE_TYPE = "dt";
-  private static final String P_PAYLOAD = "pl";
+  private static final String P_APP_KEY = "app_key";
+  private static final String P_YOZIO_UDID = "yozio_udid";
+  private static final String P_DEVICE_TYPE = "device_type";
+  private static final String P_PAYLOAD = "payload";
   
   // Minimum number of events before flushing.
   private static final int FLUSH_BATCH_MIN = 1;
