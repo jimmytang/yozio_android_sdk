@@ -48,6 +48,8 @@ public final class Yozio {
   }
   
   /**
+   * Use only for Yozio Viral.
+   * 
    * Makes a blocking HTTP request to Yozio to retrieve a shortened URL
    * specific to the device for the given linkName.
    *
@@ -65,6 +67,8 @@ public final class Yozio {
   }
   
   /**
+   * Use only for Yozio Viral.
+   * 
    * Alert Yozio that a user has viewed a link.
    *
    * @param linkName  the name of the tracking link viewed by the user.
@@ -79,6 +83,8 @@ public final class Yozio {
   }
 
   /**
+   * Use only for Yozio Viral.
+   * 
    * Alert Yozio that a user has shared a link.
    *
    * @param linkName  the name of the tracking link shared by the user.
@@ -108,7 +114,6 @@ public final class Yozio {
     HttpParams params = new BasicHttpParams();
     HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
     HttpProtocolParams.setContentCharset(params, "UTF-8");
-    // TODO(dounan): consider putting a more useful user agent based on device info
     HttpProtocolParams.setUserAgent(params, USER_AGENT);
     SchemeRegistry registry = new SchemeRegistry();
     registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
