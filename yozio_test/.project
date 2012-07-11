@@ -33,9 +33,15 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>yozio_src</name>
+			<name>YOZIO_SRC</name>
 			<type>2</type>
-			<location>/Users/dounan/dev/yozio_android_sdk/yozio/src</location>
+			<locationURI>YOZIO_SRC</locationURI>
 		</link>
 	</linkedResources>
+	<variableList>
+		<variable>
+			<name>YOZIO_SRC</name>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/yozio/src</value>
+		</variable>
+	</variableList>
 </projectDescription>
