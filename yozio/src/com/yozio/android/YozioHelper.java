@@ -67,7 +67,6 @@ class YozioHelper {
   private static final String P_DEVICE_ID = "device_id";
   private static final String P_DEVICE_MANUFACTURER = "device_manufacturer";
   private static final String P_SERIAL_ID = "serial_id";
-  private static final String P_LIBRARY_VERSION = "library_version";
   private static final String P_DEVICE_SCREEN_DENSITY = "device_screen_density";
   private static final String P_DEVICE_SCREEN_LAYOUT_SIZE = "device_screen_layout_size";
   private static final String P_CARRIER_NAME = "carrier_name";
@@ -103,7 +102,6 @@ class YozioHelper {
   private String deviceId;
   private String deviceManufacturer;
   private String serialId;
-  private String libraryVersion;
   private String deviceScreenDensity;
   private String deviceScreenLayoutSize;
   private String carrierName;
@@ -429,7 +427,6 @@ class YozioHelper {
         payloadObject.put(P_DEVICE_ID, deviceId);
         payloadObject.put(P_DEVICE_MANUFACTURER, deviceManufacturer);
         payloadObject.put(P_SERIAL_ID, serialId);
-        payloadObject.put(P_LIBRARY_VERSION, libraryVersion);
         payloadObject.put(P_DEVICE_SCREEN_DENSITY, deviceScreenDensity);
         payloadObject.put(P_DEVICE_SCREEN_LAYOUT_SIZE, deviceScreenLayoutSize);
         payloadObject.put(P_CARRIER_NAME, carrierName);
