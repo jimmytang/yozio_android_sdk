@@ -1,13 +1,13 @@
 /*
  * Copyright (C) 2012 Yozio Inc.
- * 
+ *
  * This file is part of the Yozio SDK.
- * 
+ *
  * By using the Yozio SDK in your software, you agree to the terms of the
  * Yozio SDK License Agreement which can be found at www.yozio.com/sdk_license.
  */
 
-package com.yozio.android.testing;
+package com.yozio.android;
 
 import java.io.IOException;
 
@@ -26,15 +26,15 @@ public class FakeHttpClient implements HttpClient {
 
   private HttpResponse httpResponse;
   private HttpUriRequest lastRequest;
-  
+
   public void setHttpResonse(HttpResponse httpResponse) {
     this.httpResponse = httpResponse;
   }
-  
+
   public HttpUriRequest getLastRequest() {
     return lastRequest;
   }
-  
+
   public HttpResponse execute(HttpUriRequest request)
       throws IOException, ClientProtocolException {
     lastRequest = request;
@@ -50,7 +50,7 @@ public class FakeHttpClient implements HttpClient {
       throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();
   }
-  
+
   public HttpResponse execute(HttpHost target, HttpRequest request, HttpContext context)
           throws IOException, ClientProtocolException {
     throw new UnsupportedOperationException();

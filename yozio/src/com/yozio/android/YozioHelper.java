@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2012 Yozio Inc.
- * 
+ *
  * This file is part of the Yozio SDK.
- * 
+ *
  * By using the Yozio SDK in your software, you agree to the terms of the
  * Yozio SDK License Agreement which can be found at www.yozio.com/sdk_license.
  */
@@ -50,7 +50,7 @@ class YozioHelper {
   private static final String D_LINK_NAME = "link_name";
   private static final String D_TIMESTAMP = "timestamp";
   private static final String D_EVENT_IDENTIFIER = "event_identifier";
-  
+
   // Payload keys.
   private static final String P_APP_KEY = "app_key";
   private static final String P_APP_VERSION = "app_version";
@@ -64,6 +64,7 @@ class YozioHelper {
   private static final String P_PAYLOAD = "payload";
   private static final String P_YOZIO_UDID = "yozio_udid";
 
+  private static final String P_DEVICE_ID = "device_id";
   private static final String P_DEVICE_MANUFACTURER = "device_manufacturer";
   private static final String P_SERIAL_ID = "serial_id";
   private static final String P_LIBRARY_VERSION = "library_version";
@@ -130,7 +131,7 @@ class YozioHelper {
     this.secretKey = secretKey;
     OpenUDID.syncContext(context);
     this.yozioUdid = OpenUDID.getOpenUDIDInContext();
-    getDeviceParams();
+    setDeviceParams();
   }
 
   /**
@@ -200,7 +201,7 @@ class YozioHelper {
     return dateFormat.format(Calendar.getInstance().getTime());
   }
 
-  private void getDeviceParams() {
+  private void setDeviceParams() {
 		countryCode = Locale.getDefault().getCountry();
     hardware = android.os.Build.MODEL;;
     languageCode = Locale.getDefault().getLanguage();
@@ -256,9 +257,6 @@ class YozioHelper {
 			carrierName = telephonyManager.getNetworkOperatorName();
 			carrierCountryCode = telephonyManager.getNetworkCountryIso();
 
-			// getNetworkOperator() returns MCC + MNC, so make sure it's 5 or 6 digits total.
-			// MCC is 3 digits
-			// MNC is 2 or 3 digits
 			if (telephonyManager.getNetworkOperator() != null &&
 					(telephonyManager.getNetworkOperator().length() == 5 ||
 							telephonyManager.getNetworkOperator().length() == 6)) {
@@ -276,7 +274,6 @@ class YozioHelper {
 				}
 			}
 
-			// This is probably an emulator or pre-production device.
 			if (!isValidDeviceId(deviceId)) {
 				// Fetch the emulator device ID from the preferences
 				deviceId = settings.getString("emulatorDeviceId", null);
@@ -284,22 +281,21 @@ class YozioHelper {
 
 			if (!isValidDeviceId(deviceId)) {
 				StringBuffer buff = new StringBuffer();
-				buff.append("EMULATOR");
+				buff.append("emulator");
 
-				String constantChars = "1234567890abcdefghijklmnopqrstuvw";
-				int ccLength = constantChars.length() - 1;
+				String chars = "1234567890abcdefghijklmnopqrstuvw";
+				int ccLength = chars.length() - 1;
 
 				for (int i = 0; i < 32; i++) {
 					int index = (int) ( Math.random()*ccLength) ;
-					buff.append(constantChars.charAt(index));
+					buff.append(chars.charAt(index));
 				}
 
-				deviceId = buff.toString();
-
-				// Save the emulator device ID in the preferences so we can reuse it.
 				SharedPreferences.Editor editor = settings.edit();
 				editor.putString("emulatorDeviceId", deviceId);
 				editor.commit();
+
+				deviceId = buff.toString();
 			}
 
 			deviceId = deviceId.toLowerCase();
@@ -430,6 +426,7 @@ class YozioHelper {
         payloadObject.put(P_OPEN_UDID, openUdid);
         payloadObject.put(P_OS_VERSION, osVersion);
 
+        payloadObject.put(P_DEVICE_ID, deviceId);
         payloadObject.put(P_DEVICE_MANUFACTURER, deviceManufacturer);
         payloadObject.put(P_SERIAL_ID, serialId);
         payloadObject.put(P_LIBRARY_VERSION, libraryVersion);

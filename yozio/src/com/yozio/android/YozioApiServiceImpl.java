@@ -32,9 +32,9 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String DEFAULT_BASE_URL = "http://yoz.io";
   private static final String GET_URL_ROUTE = "/api/viral/v1/get_url";
   private static final String BATCH_EVENTS_ROUTE = "/api/sdk/v1/batch_events";
-  
+
   private static final String LOGTAG = "YozioApiServiceImpl";
-  
+
   // Request param names
   private static final String GET_URL_P_APP_KEY = "app_key";
   private static final String GET_URL_P_YOZIO_UDID = "yozio_udid";
@@ -42,24 +42,24 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String GET_URL_P_LINK_NAME = "link_name";
   private static final String GET_URL_P_DEST_URL = "dest_url";
   private static final String BATCH_EVENTS_P_DATA = "data";
-  
+
   // Response param names
   private static final String GET_URL_R_URL = "url";
   private static final String BATCH_EVENTS_R_STATUS = "status";
-  
+
   private final HttpClient httpClient;
   private String baseUrl;
-  
+
   /**
    * Implementation of {@link YozioApiService} that talks to a Yozio server.
-   * 
+   *
    * @param httpClient  a thread safe HttpClient.
    */
   YozioApiServiceImpl(HttpClient httpClient) {
     this.httpClient = httpClient;
     baseUrl = DEFAULT_BASE_URL;
   }
-  
+
   public String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
@@ -106,15 +106,15 @@ class YozioApiServiceImpl implements YozioApiService {
     }
     return null;
   }
-  
+
   // For testing.
   void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
   }
-  
+
   /**
    * Returns the value mapped by the key.
-   * 
+   *
    * @param jsonString  the serialized JSON string.
    * @param key  the key to get the value for.
    * @return the String value, or null there is no mapping for the key.

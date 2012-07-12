@@ -25,7 +25,6 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-import com.yozio.android.testing.FakeHttpClient;
 
 public class YozioApiServiceImplTest extends TestCase {
   
