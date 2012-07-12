@@ -86,7 +86,9 @@ public class OpenUDID {
     if (_androidId != null) {
       _androidId = _androidId.toLowerCase();
       // Ignore Android 2.2 bug where all devices have id = 9774d56d682e549c.
-      if (_androidId.length() > 14 && !_androidId.equals("9774d56d682e549c")) {
+      if (_androidId.length() > 14 &&
+      		!_androidId.equals("9774d56d682e549c") &&
+      		!_androidId.equals("000000000000000")) {
         _openUdid = "ANDROID:" + _androidId;
         return;
       }
