@@ -1,9 +1,19 @@
+/*
+ * Copyright (C) 2012 Yozio Inc.
+ * 
+ * This file is part of the Yozio SDK.
+ * 
+ * By using the Yozio SDK in your software, you agree to the terms of the
+ * Yozio SDK License Agreement which can be found at www.yozio.com/sdk_license.
+ */
+
 package com.yozio.android;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +49,8 @@ class YozioHelper {
   private static final String D_EVENT_TYPE = "event_type";
   private static final String D_LINK_NAME = "link_name";
   private static final String D_TIMESTAMP = "timestamp";
-
+  private static final String D_EVENT_IDENTIFIER = "event_identifier";
+  
   // Payload keys.
   private static final String P_APP_KEY = "app_key";
   private static final String P_APP_VERSION = "app_version";
@@ -178,6 +189,7 @@ class YozioHelper {
       eventObject.put(D_EVENT_TYPE, eventType);
       eventObject.put(D_LINK_NAME, linkName);
       eventObject.put(D_TIMESTAMP, timestamp());
+      eventObject.put(D_EVENT_IDENTIFIER, UUID.randomUUID());
       return eventObject;
     } catch (JSONException e) {
       return null;
