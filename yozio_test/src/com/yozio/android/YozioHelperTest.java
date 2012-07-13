@@ -38,12 +38,15 @@ public class YozioHelperTest extends AndroidTestCase {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
     Yozio.viewedLink(LINK_NAME);
     String deviceId = null;
+    String connectionType = null;
     try {
     	Thread.sleep(2000);
     	JSONObject payload = apiService.getPayload();
       deviceId = (String) payload.get("device_id");
+      connectionType = (String) payload.get("connection_type");
 		} catch (Exception e) {}
     Assert.assertNotNull(deviceId);
+    Assert.assertNotNull(connectionType);
   }
 
   /**

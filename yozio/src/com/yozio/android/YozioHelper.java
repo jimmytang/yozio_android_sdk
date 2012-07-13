@@ -30,6 +30,7 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -64,6 +65,7 @@ class YozioHelper {
   private static final String P_PAYLOAD = "payload";
   private static final String P_YOZIO_UDID = "yozio_udid";
 
+  private static final String P_ANDROID_ID = "android_id";
   private static final String P_DEVICE_ID = "device_id";
   private static final String P_DEVICE_MANUFACTURER = "device_manufacturer";
   private static final String P_SERIAL_ID = "serial_id";
@@ -71,9 +73,9 @@ class YozioHelper {
   private static final String P_DEVICE_SCREEN_LAYOUT_SIZE = "device_screen_layout_size";
   private static final String P_CARRIER_NAME = "carrier_name";
   private static final String P_CARRIER_COUNTRY_CODE = "device_model";
-  private static final String P_MOBILE_COUNTRY_CODE = "device_model";
-  private static final String P_MOBILE_NETWORK_CODE = "device_model";
-  private static final String P_CONNECTION_TYPE = "device_model";
+  private static final String P_MOBILE_COUNTRY_CODE = "mobile_country_code";
+  private static final String P_MOBILE_NETWORK_CODE = "mobile_network_code";
+  private static final String P_CONNECTION_TYPE = "connection_type";
 
   // Minimum number of events before flushing.
   private static final int FLUSH_BATCH_MIN = 1;
@@ -99,6 +101,7 @@ class YozioHelper {
   private String osVersion;
   private String yozioUdid;
 
+  private String androidId;
   private String deviceId;
   private String deviceManufacturer;
   private String serialId;
@@ -200,8 +203,9 @@ class YozioHelper {
   }
 
   private void setDeviceParams() {
+  	androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 		countryCode = Locale.getDefault().getCountry();
-    hardware = android.os.Build.MODEL;;
+    hardware = android.os.Build.MODEL;
     languageCode = Locale.getDefault().getLanguage();
     openUdid = this.yozioUdid;
     osVersion = android.os.Build.VERSION.RELEASE;
@@ -423,6 +427,7 @@ class YozioHelper {
         payloadObject.put(P_OPEN_UDID, openUdid);
         payloadObject.put(P_OS_VERSION, osVersion);
 
+        payloadObject.put(P_ANDROID_ID, androidId);
         payloadObject.put(P_DEVICE_ID, deviceId);
         payloadObject.put(P_DEVICE_MANUFACTURER, deviceManufacturer);
         payloadObject.put(P_SERIAL_ID, serialId);
