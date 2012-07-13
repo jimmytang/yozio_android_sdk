@@ -207,7 +207,6 @@ class YozioHelper {
     osVersion = android.os.Build.VERSION.RELEASE;
 
     deviceManufacturer = android.os.Build.MANUFACTURER;
-    libraryVersion = "8.2.1";
 
     setAppVersion();
     setConnectionType();
