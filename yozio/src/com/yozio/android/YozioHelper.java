@@ -267,14 +267,6 @@ class YozioHelper {
 
 			deviceId = telephonyManager.getDeviceId();
 
-			// There is no imei/meid for the device
-			if (!isValidDeviceId(deviceId)) {
-				// Use the serial instead if the device is at least Android 2.3+
-				if (Integer.parseInt(android.os.Build.VERSION.SDK) >= 9) {
-					deviceId = android.os.Build.SERIAL;
-				}
-			}
-
 			if (!isValidDeviceId(deviceId)) {
 				// Fetch the emulator device ID from the preferences
 				deviceId = settings.getString("emulatorDeviceId", null);
