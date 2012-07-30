@@ -57,6 +57,19 @@ public final class Yozio {
   }
   
   /**
+   * Configures Yozio with your user's username. This is used to provide a better 
+   * display to your data. (Optional)
+   *
+   * @param userName  the application's username
+   */
+  public synchronized static void setUserName(String userName) {
+    if (!validate()) {
+      return;
+    }
+    helper.setUserName(userName);
+  }
+  
+  /**
    * Use only for Yozio Viral.
    * 
    * Makes a blocking HTTP request to Yozio to retrieve a shortened URL

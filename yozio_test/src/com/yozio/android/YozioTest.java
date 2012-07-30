@@ -18,8 +18,8 @@ import android.util.Log;
 
 public class YozioTest extends AndroidTestCase {
 	
-	private static final String TEST_BASE_URL = "http://192.168.1.128:3000";
-	private static final String APP_KEY = "5eced670-a91b-012f-d68e-2837371df2a8";
+	private static final String TEST_BASE_URL = "http://10.0.2.2:3000";
+	private static final String APP_KEY = "a1cf51f0-bc13-012f-8c53-388d122de30a";
 	private static final String LINK_NAME = "testlink";
 	
   @Override
@@ -38,6 +38,7 @@ public class YozioTest extends AndroidTestCase {
   public void testEndToEnd() {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
     String url = Yozio.getUrl(LINK_NAME, "www.google.com");
+    Yozio.setUserName("spaceman");
     Log.i("YozioTest", "getUrl(): " + url);
     Yozio.viewedLink(LINK_NAME);
     Yozio.sharedLink(LINK_NAME);
