@@ -63,7 +63,7 @@ class YozioHelper {
   private static final String P_OPEN_UDID = "open_udid";
   private static final String P_OS_VERSION = "os_version";
   private static final String P_PAYLOAD = "payload";
-  private static final String P_USER_NAME = "user_name";
+  private static final String P_USER_NAME = "external_user_id";
   private static final String P_YOZIO_UDID = "yozio_udid";
 
   private static final String P_ANDROID_ID = "android_id";
