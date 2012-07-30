@@ -34,6 +34,7 @@ public final class Yozio {
   
   // Event types.
   private static final int E_OPENED_APP = 5;
+  private static final int E_LOGIN = 6;
   private static final int E_VIEWED_LINK = 11;
   private static final int E_SHARED_LINK = 12;
   
@@ -62,11 +63,12 @@ public final class Yozio {
    *
    * @param userName  the application's user name
    */
-  public synchronized static void setUserName(String userName) {
+  public synchronized static void login(String userName) {
     if (!validate()) {
       return;
     }
     helper.setUserName(userName);
+    helper.collect(E_LOGIN, "");
   }
   
   /**
