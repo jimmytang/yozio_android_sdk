@@ -63,7 +63,7 @@ public final class Yozio {
    *
    * @param userName  the application's user name
    */
-  public synchronized static void login(String userName) {
+  public synchronized static void userLoggedIn(String userName) {
     if (!validate()) {
       return;
     }

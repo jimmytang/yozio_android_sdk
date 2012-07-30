@@ -38,7 +38,7 @@ public class YozioTest extends AndroidTestCase {
   public void testEndToEnd() {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
     String url = Yozio.getUrl(LINK_NAME, "www.google.com");
-    Yozio.login("spaceman");
+    Yozio.userLoggedIn("spaceman");
     Log.i("YozioTest", "getUrl(): " + url);
     Yozio.viewedLink(LINK_NAME);
     Yozio.sharedLink(LINK_NAME);

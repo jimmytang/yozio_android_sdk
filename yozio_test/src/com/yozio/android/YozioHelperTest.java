@@ -51,7 +51,7 @@ public class YozioHelperTest extends AndroidTestCase {
   
   public void testLogin() {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
-    Yozio.login("spaceman");
+    Yozio.userLoggedIn("spaceman");
     String userName = null;
     try {
         Thread.sleep(2000);
