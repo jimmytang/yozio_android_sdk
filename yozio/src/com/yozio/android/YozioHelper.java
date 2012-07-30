@@ -63,6 +63,7 @@ class YozioHelper {
   private static final String P_OPEN_UDID = "open_udid";
   private static final String P_OS_VERSION = "os_version";
   private static final String P_PAYLOAD = "payload";
+  private static final String P_USER_NAME = "external_user_id";
   private static final String P_YOZIO_UDID = "yozio_udid";
 
   private static final String P_ANDROID_ID = "android_id";
@@ -91,7 +92,8 @@ class YozioHelper {
   private Context context;
   private String appKey;
   private String secretKey;
-
+  private String userName;
+  
   private String appVersion;
   private String countryCode;
   private String hardware;
@@ -133,6 +135,13 @@ class YozioHelper {
     OpenUDID.syncContext(context);
     this.yozioUdid = OpenUDID.getOpenUDIDInContext();
     setDeviceParams();
+  }
+
+  /**
+   * Sets the user name.
+   */
+  void setUserName(String userName) {
+    this.userName = userName;
   }
 
   /**
@@ -407,6 +416,7 @@ class YozioHelper {
       try {
         JSONObject payloadObject = new JSONObject();
         payloadObject.put(P_APP_KEY, appKey);
+        payloadObject.put(P_USER_NAME, userName);
         payloadObject.put(P_DEVICE_TYPE, DEVICE_TYPE);
         payloadObject.put(P_YOZIO_UDID, yozioUdid);
         payloadObject.put(P_PAYLOAD, events);

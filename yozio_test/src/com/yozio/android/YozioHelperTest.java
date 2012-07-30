@@ -48,6 +48,18 @@ public class YozioHelperTest extends AndroidTestCase {
     Assert.assertNotNull(deviceId);
     Assert.assertNotNull(connectionType);
   }
+  
+  public void testLogin() {
+    Yozio.configure(getContext(), APP_KEY, "test secret key");
+    Yozio.userLoggedIn("spaceman");
+    String userName = null;
+    try {
+        Thread.sleep(2000);
+        JSONObject payload = apiService.getPayload();
+      userName = (String) payload.get("external_user_id");
+    } catch (Exception e) {}
+    Assert.assertEquals("spaceman", userName);
+  }
 
   /**
    * YozioHelper test cases
