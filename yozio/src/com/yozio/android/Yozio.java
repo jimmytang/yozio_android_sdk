@@ -47,7 +47,7 @@ public final class Yozio {
    * failed.
    */
   public interface GetUrlCallback {
-  	void handleResponse(String url);
+  	void handleResponse(String shortUrl);
   }
 
   /**
