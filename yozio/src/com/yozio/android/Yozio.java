@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2012 Yozio Inc.
- * 
+ *
  * This file is part of the Yozio SDK.
- * 
+ *
  * By using the Yozio SDK in your software, you agree to the terms of the
  * Yozio SDK License Agreement which can be found at www.yozio.com/sdk_license.
  */
@@ -28,18 +28,28 @@ import android.util.Log;
  * Public Yozio SDK.
  */
 public final class Yozio {
-  
+
   private static final String LOGTAG = "Yozio";
   private static final String USER_AGENT = "Yozio Android SDK";
-  
+
   // Event types.
   private static final int E_OPENED_APP = 5;
   private static final int E_LOGIN = 6;
   private static final int E_VIEWED_LINK = 11;
   private static final int E_SHARED_LINK = 12;
-  
+
   private static YozioHelper helper;
-  
+
+  /**
+   * Callback for getUrlAsync.
+   *
+   * The url argument will either be the Yozio short url, or the destination url if the request
+   * failed.
+   */
+  public interface GetUrlCallback {
+  	void handleResponse(String url);
+  }
+
   /**
    * Configures the Yozio SDK. Must be called when the app is initialized.
    *
@@ -56,9 +66,9 @@ public final class Yozio {
     }
     helper.collect(E_OPENED_APP, "");
   }
-  
+
   /**
-   * Configures Yozio with your user's user name. This is used to provide a better 
+   * Configures Yozio with your user's user name. This is used to provide a better
    * display to your data. (Optional)
    *
    * @param userName  the application's user name
@@ -70,10 +80,10 @@ public final class Yozio {
     helper.setUserName(userName);
     helper.collect(E_LOGIN, "");
   }
-  
+
   /**
    * Use only for Yozio Viral.
-   * 
+   *
    * Makes a blocking HTTP request to Yozio to retrieve a shortened URL
    * specific to the device for the given linkName.
    *
@@ -82,6 +92,7 @@ public final class Yozio {
    *                  link names created on the Yozio web UI.
    * @param destinationUrl  a custom destination URL that the returned
    *                        shortened URL should redirect to.
+   * @return the Yozio short url that redirects to the destinationUrl.
    */
   public static String getUrl(String linkName, String destinationUrl) {
     if (!validate()) {
@@ -89,10 +100,33 @@ public final class Yozio {
     }
     return helper.getUrl(linkName, destinationUrl);
   }
-  
+
   /**
    * Use only for Yozio Viral.
-   * 
+   *
+   * Makes a non-blocking HTTP request to Yozio to retrieve a shortened URL
+   * specific to the device for the given linkName.
+   *
+   * @param linkName  the name of the tracking link to retrieve the device
+   *                  specific shortened URL for. This MUST match one of the
+   *                  link names created on the Yozio web UI.
+   * @param destinationUrl  a custom destination URL that the returned
+   *                        shortened URL should redirect to.
+   * @param callback  the {@link GetUrlCallback} to handle the Yozio short url.
+   */
+  public static void getUrlAsync(
+  		String linkName,
+  		String destinationUrl,
+  		GetUrlCallback callback) {
+    if (!validate()) {
+    	callback.handleResponse(destinationUrl);
+    }
+    helper.getUrlAsync(linkName, destinationUrl, callback);
+  }
+
+  /**
+   * Use only for Yozio Viral.
+   *
    * Alert Yozio that a user has viewed a link.
    *
    * @param linkName  the name of the tracking link viewed by the user.
@@ -108,7 +142,7 @@ public final class Yozio {
 
   /**
    * Use only for Yozio Viral.
-   * 
+   *
    * Alert Yozio that a user has shared a link.
    *
    * @param linkName  the name of the tracking link shared by the user.
@@ -121,18 +155,18 @@ public final class Yozio {
     }
     helper.collect(E_SHARED_LINK, linkName);
   }
-  
+
   private static void initializeIfNeeded(Context context, String appKey) {
     if (helper != null) {
       return;
     }
     HttpClient httpClient = threadSafeHttpClient();
-    YozioApiService apiService = new YozioApiServiceImpl(httpClient); 
+    YozioApiService apiService = new YozioApiServiceImpl(httpClient);
     SQLiteOpenHelper dbHelper = new YozioDataStoreImpl.DatabaseHelper(context);
     YozioDataStore dataStore = new YozioDataStoreImpl(dbHelper, appKey);
     helper = new YozioHelper(dataStore, apiService);
   }
-  
+
   // Visible for testing.
   static HttpClient threadSafeHttpClient() {
     HttpParams params = new BasicHttpParams();
@@ -144,7 +178,7 @@ public final class Yozio {
     ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(params, registry);
     return new DefaultHttpClient(cm, params);
   }
-  
+
   private static boolean validate() {
     if (helper == null) {
       Log.e(LOGTAG, "Yozio.configure() not called!");
@@ -152,7 +186,7 @@ public final class Yozio {
     }
     return helper.validate();
   }
-  
+
   // For testing
   static void setHelper(YozioHelper helper) {
     Yozio.helper = helper;

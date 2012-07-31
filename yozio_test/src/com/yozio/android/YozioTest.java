@@ -12,14 +12,15 @@ package com.yozio.android;
 import org.apache.http.client.HttpClient;
 
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.Log;
+
+import com.yozio.android.Yozio.GetUrlCallback;
 
 public class YozioTest extends AndroidTestCase {
 	
 	private static final String TEST_BASE_URL = "http://10.0.2.2:3000";
-	private static final String APP_KEY = "a1cf51f0-bc13-012f-8c53-388d122de30a";
+	private static final String APP_KEY = "139b0e10-ba56-012f-e1d9-2837371df2a8";
 	private static final String LINK_NAME = "testlink";
 	
   @Override
@@ -38,6 +39,11 @@ public class YozioTest extends AndroidTestCase {
   public void testEndToEnd() {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
     String url = Yozio.getUrl(LINK_NAME, "www.google.com");
+    Yozio.getUrlAsync(LINK_NAME, "www.yahoo.com", new GetUrlCallback() {
+			public void handleResponse(String url) {
+				Log.i("YozioTest", "getUrlAsync(): " + url);
+			}
+		});
     Yozio.userLoggedIn("spaceman");
     Log.i("YozioTest", "getUrl(): " + url);
     Yozio.viewedLink(LINK_NAME);
