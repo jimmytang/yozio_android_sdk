@@ -148,6 +148,12 @@ class YozioHelper {
    */
   void initializeExperiments() {
     ArrayList<JSONObject> configs = apiService.getExperimentConfigs(appKey, yozioUdid);
+
+    // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
+    // variations in the UI.
+    System.out.println(
+            "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
+
     this.experimentConfig = configs.get(0);
     this.experimentDetails = configs.get(1);
   }
