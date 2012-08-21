@@ -67,6 +67,53 @@ public final class Yozio {
     helper.collect(E_OPENED_APP, "");
   }
 
+
+  /**
+   * Used only for Yozio Experiments
+   *
+   * Configures the Yozio SDK. Must be called when the app is initialized.
+   * Connects to server to download configurations. Blocking
+   *
+   * @param context the application context.
+   * @param appKey  the application specific key provided by Yozio.
+   * @param secretKey  the application specific shared secret key provided
+   *                   by Yozio.
+   */
+  public synchronized static void initializeExperiments() {
+    if (!validate()) {
+      return;
+    }
+    helper.initializeExperiments();
+  }
+
+  /**
+   * Used only for Yozio Experiments
+   *
+   * Returns a configuration String for key.
+   * @param key      the key look up the String by
+   * @param defaultValue  default value in case the key isn’t found.
+   */
+  public synchronized static String stringForKey(String key, String defaultValue) {
+  	if (!validate()) {
+  		return defaultValue;
+  	}
+  	return helper.stringForKey(key, defaultValue);
+  }
+
+  /**
+   * Used only for Yozio Experiments
+   *
+   * Returns a configuration Int for key.
+   * @param key      the key look up the Int by
+   * @param defaultValue  default value in case the key isn’t found.
+   */
+  public synchronized static int intForKey(String key, int defaultValue) {
+    if (!validate()) {
+      return defaultValue;
+    }
+    return helper.intForKey(key, defaultValue);
+  }
+
   /**
    * Configures Yozio with your user's user name. This is used to provide a better
    * display to your data. (Optional)

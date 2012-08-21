@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2012 Yozio Inc.
- * 
+ *
  * This file is part of the Yozio SDK.
- * 
+ *
  * By using the Yozio SDK in your software, you agree to the terms of the
  * Yozio SDK License Agreement which can be found at www.yozio.com/sdk_license.
  */
@@ -10,6 +10,7 @@
 package com.yozio.android;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ class YozioApiServiceImpl implements YozioApiService {
 
   private static final String DEFAULT_BASE_URL = "http://yoz.io";
   private static final String GET_URL_ROUTE = "/api/viral/v1/get_url";
+  private static final String GET_CONFIGURATIONS_ROUTE = "/api/yozio/v1/get_configurations";
   private static final String BATCH_EVENTS_ROUTE = "/api/sdk/v1/batch_events";
 
   private static final String LOGTAG = "YozioApiServiceImpl";
@@ -46,6 +48,9 @@ class YozioApiServiceImpl implements YozioApiService {
   // Response param names
   private static final String GET_URL_R_URL = "url";
   private static final String BATCH_EVENTS_R_STATUS = "status";
+  private static final String GET_CONFIGURATIONS_R_CONFIG = "config";
+  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_DETAILS = "event_experiment_details";
+
 
   private final HttpClient httpClient;
   private String baseUrl;
@@ -71,6 +76,23 @@ class YozioApiServiceImpl implements YozioApiService {
     return getJsonValue(response, GET_URL_R_URL);
   }
 
+  public ArrayList<JSONObject> getExperimentConfigs(String appKey, String yozioUdid) {
+    List<NameValuePair> params = new LinkedList<NameValuePair>();
+    params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
+    params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
+    params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
+    String response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
+
+    JSONObject config = getJsonObjectValue(response, GET_CONFIGURATIONS_R_CONFIG);
+    JSONObject experimentDetails =
+        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_DETAILS);
+
+    ArrayList<JSONObject> configs = new ArrayList<JSONObject>();
+    configs.add(config);
+    configs.add(experimentDetails);
+    return configs;
+  }
+
   public boolean batchEvents(JSONObject payload) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(BATCH_EVENTS_P_DATA, payload.toString()));
@@ -78,10 +100,10 @@ class YozioApiServiceImpl implements YozioApiService {
     String status = getJsonValue(response, BATCH_EVENTS_R_STATUS);
     return status != null && status.equalsIgnoreCase("ok");
   }
-  
+
   /**
    * Performs a blocking HTTP POST request to the specified uri.
-   * 
+   *
    * @param httpClient  the client to execute the HTTP request.
    * @param baseUrl  the base url to append the parameters to.
    * @param params  the GET parameters.
@@ -130,5 +152,25 @@ class YozioApiServiceImpl implements YozioApiService {
       }
     }
     return null;
+  }
+
+  /**
+   * Returns the value mapped by the key
+   *
+   * @param jsonString  the serialized JSON string.
+   * @param key  the key to get the value for.
+   * @return the JSONObject, or empty JSONObject if there is no mapping for the key.
+   */
+  private static JSONObject getJsonObjectValue(String jsonString, String key) {
+    if (jsonString != null) {
+      try {
+        JSONObject json = new JSONObject(jsonString);
+        if (json.has(key)) {
+          return json.getJSONObject(key);
+        }
+      } catch (JSONException e) {
+      }
+    }
+    return new JSONObject();
   }
 }

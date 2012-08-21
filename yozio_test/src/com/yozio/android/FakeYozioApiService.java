@@ -9,11 +9,15 @@
 
 package com.yozio.android;
 
+import java.util.ArrayList;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FakeYozioApiService implements YozioApiService {
 
   private JSONObject payload;
+  private ArrayList<JSONObject> configs = new ArrayList<JSONObject>();
 
 	public String getUrl(String appKey, String yozioUdid, String linkName,
 			String destinationUrl) {
@@ -28,4 +32,14 @@ public class FakeYozioApiService implements YozioApiService {
 		this.payload = payload;
 		return true;
 	}
+
+  public ArrayList<JSONObject> getExperimentConfigs(String appKey, String yozioUdid) {
+    try {
+      this.configs.add(new JSONObject().put("key", "123"));
+      this.configs.add(new JSONObject().put("experiment1", "variation1"));
+      return this.configs;
+    } catch (JSONException e) {
+    }
+    return null;
+  }
 }

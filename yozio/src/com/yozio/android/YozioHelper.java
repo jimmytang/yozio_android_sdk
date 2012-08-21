@@ -10,6 +10,7 @@
 package com.yozio.android;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -79,6 +80,8 @@ class YozioHelper {
 	private static final String P_MOBILE_NETWORK_CODE = "mobile_network_code";
 	private static final String P_CONNECTION_TYPE = "connection_type";
 
+	private static final String P_EVENT_EXPERIMENT_DETAILS = "event_experiment_details";
+
 	// Minimum number of events before flushing.
 	private static final int FLUSH_BATCH_MIN = 1;
 	// Maximum number of events that can be batched.
@@ -89,6 +92,10 @@ class YozioHelper {
 	private final SimpleDateFormat dateFormat;
 	// Executor for AddEvent and Flush tasks.
 	private final ThreadPoolExecutor executor;
+
+	private JSONObject experimentConfig;
+	private JSONObject experimentDetails;
+
 
 	private Context context;
 	private String appKey;
@@ -136,6 +143,43 @@ class YozioHelper {
 		this.yozioUdid = OpenUDID.getOpenUDIDInContext();
 		setDeviceParams();
 	}
+
+  /**
+   * Fetches experiment configurations Makes a blocking request
+   */
+  void initializeExperiments() {
+    ArrayList<JSONObject> configs = apiService.getExperimentConfigs(appKey, yozioUdid);
+    this.experimentConfig = configs.get(0);
+    this.experimentDetails = configs.get(1);
+  }
+
+  /*
+   * Returns an experiment configuration String for given key
+   */
+  String stringForKey(String key, String defaultValue) {
+    String val;
+
+    try {
+      val = this.experimentConfig.getString(key);
+    } catch (JSONException e) {
+      val = defaultValue;
+    }
+    return val;
+  }
+
+  /*
+   * Returns an experiment configuration int for given key
+   */
+  int intForKey(String key, int defaultValue) {
+    int val;
+
+    try {
+      val = this.experimentConfig.getInt(key);
+    } catch (JSONException e) {
+      val = defaultValue;
+    }
+    return val;
+  }
 
 	/**
 	 * Sets the user name.
@@ -464,6 +508,8 @@ class YozioHelper {
 				payloadObject.put(P_MOBILE_COUNTRY_CODE, mobileCountryCode);
 				payloadObject.put(P_MOBILE_NETWORK_CODE, mobileNetworkCode);
 				payloadObject.put(P_CONNECTION_TYPE, connectionType);
+
+				payloadObject.put(P_EVENT_EXPERIMENT_DETAILS, experimentDetails);
 
 				return payloadObject;
 			} catch (JSONException e) {

@@ -1,13 +1,15 @@
 /*
  * Copyright (C) 2012 Yozio Inc.
- * 
+ *
  * This file is part of the Yozio SDK.
- * 
+ *
  * By using the Yozio SDK in your software, you agree to the terms of the
  * Yozio SDK License Agreement which can be found at www.yozio.com/sdk_license.
  */
 
 package com.yozio.android;
+
+import java.util.ArrayList;
 
 import org.json.JSONObject;
 
@@ -15,7 +17,7 @@ import org.json.JSONObject;
  * Thread safe service that makes HTTP requests to the Yozio web api.
  */
 interface YozioApiService {
-  
+
   /**
    * Makes a blocking HTTP request to Yozio to retrieve a shortened URL specific
    * to the device for the given linkName.
@@ -30,10 +32,22 @@ interface YozioApiService {
    * @return the shortened URL or null if the request failed.
    */
   String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl);
-  
+
+  /**
+   * Makes a blocking HTTP request to Yozio to retrieve a shortened URL specific
+   * to the device for the given linkName.
+   *
+   * @param appKey  the application specific key provided by Yozio.
+   * @param yozioUdid  a unique device identifier.
+   *
+   * @return an ArrayList of experiment related JSONObjects or empty JSONObjects if request failed.
+   */
+  ArrayList<JSONObject> getExperimentConfigs(String appKey, String yozioUdid);
+
+
   /**
    * Makes a blocking batch_events HTTP request to Yozio.
-   * 
+   *
    * @param payload  the payload object.
    * @return true iff the request succeeded.
    */
