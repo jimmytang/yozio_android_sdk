@@ -39,18 +39,18 @@ public class YozioHelperTest extends AndroidTestCase {
     Yozio.viewedLink(LINK_NAME);
     String deviceId = null;
     String connectionType = null;
-    String eventExperimentDetails = null;
+    String experimentVariationIds = null;
     try {
       Thread.sleep(2000);
       JSONObject payload = apiService.getPayload();
       deviceId = (String) payload.get("device_id");
       connectionType = (String) payload.get("connection_type");
-      eventExperimentDetails = payload.getString("event_experiment_details");
+      experimentVariationIds = payload.getString("experiment_variation_ids");
     } catch (Exception e) {
     }
     Assert.assertNotNull(deviceId);
     Assert.assertNotNull(connectionType);
-    Assert.assertEquals("{\"experiment1\":\"variation1\"}", eventExperimentDetails);
+    Assert.assertEquals("{\"experiment1\":\"variation1\"}", experimentVariationIds);
   }
 
   public void testLogin() {

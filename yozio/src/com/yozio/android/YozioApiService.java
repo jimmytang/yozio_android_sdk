@@ -42,7 +42,7 @@ interface YozioApiService {
    *
    * @return an ArrayList of experiment related JSONObjects or empty JSONObjects if request failed.
    */
-  ArrayList<JSONObject> getExperimentConfigs(String appKey, String yozioUdid);
+  ArrayList<JSONObject> getExperimentDetails(String appKey, String yozioUdid);
 
 
   /**

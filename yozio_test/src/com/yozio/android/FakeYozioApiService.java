@@ -32,7 +32,7 @@ public class FakeYozioApiService implements YozioApiService {
     return true;
   }
 
-  public ArrayList<JSONObject> getExperimentConfigs(String appKey, String yozioUdid) {
+  public ArrayList<JSONObject> getExperimentDetails(String appKey, String yozioUdid) {
     try {
       this.configs.add(new JSONObject().put("key", "123"));
       this.configs.add(new JSONObject().put("experiment1", "variation1"));

@@ -80,7 +80,7 @@ class YozioHelper {
   private static final String P_MOBILE_NETWORK_CODE = "mobile_network_code";
   private static final String P_CONNECTION_TYPE = "connection_type";
 
-  private static final String P_EVENT_EXPERIMENT_DETAILS = "event_experiment_details";
+  private static final String P_EXPERIMENT_VARIATION_IDS = "experiment_variation_ids";
 
   // Minimum number of events before flushing.
   private static final int FLUSH_BATCH_MIN = 1;
@@ -93,8 +93,8 @@ class YozioHelper {
   // Executor for AddEvent and Flush tasks.
   private final ThreadPoolExecutor executor;
 
-  private JSONObject experimentConfig;
-  private JSONObject experimentDetails;
+  private JSONObject experimentConfigs;
+  private JSONObject experimentVariationIds;
 
   private Context context;
   private String appKey;
@@ -147,15 +147,15 @@ class YozioHelper {
    * Fetches experiment configurations Makes a blocking request
    */
   void initializeExperiments() {
-    ArrayList<JSONObject> configs = apiService.getExperimentConfigs(appKey, yozioUdid);
+    ArrayList<JSONObject> experimentDetails = apiService.getExperimentDetails(appKey, yozioUdid);
 
     // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
     // variations in the UI.
     System.out.println(
             "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
 
-    this.experimentConfig = configs.get(0);
-    this.experimentDetails = configs.get(1);
+    this.experimentConfigs = experimentDetails.get(0);
+    this.experimentVariationIds = experimentDetails.get(1);
   }
 
   /*
@@ -165,7 +165,7 @@ class YozioHelper {
     String val;
 
     try {
-      val = this.experimentConfig.getString(key);
+      val = this.experimentConfigs.getString(key);
     } catch (JSONException e) {
       val = defaultValue;
     }
@@ -179,7 +179,7 @@ class YozioHelper {
     int val;
 
     try {
-      val = this.experimentConfig.getInt(key);
+      val = this.experimentConfigs.getInt(key);
     } catch (JSONException e) {
       val = defaultValue;
     }
@@ -510,7 +510,7 @@ class YozioHelper {
         payloadObject.put(P_MOBILE_NETWORK_CODE, mobileNetworkCode);
         payloadObject.put(P_CONNECTION_TYPE, connectionType);
 
-        payloadObject.put(P_EVENT_EXPERIMENT_DETAILS, experimentDetails);
+        payloadObject.put(P_EXPERIMENT_VARIATION_IDS, experimentVariationIds);
 
         return payloadObject;
       } catch (JSONException e) {

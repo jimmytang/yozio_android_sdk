@@ -48,8 +48,8 @@ class YozioApiServiceImpl implements YozioApiService {
   // Response param names
   private static final String GET_URL_R_URL = "url";
   private static final String BATCH_EVENTS_R_STATUS = "status";
-  private static final String GET_CONFIGURATIONS_R_CONFIG = "config";
-  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_DETAILS = "event_experiment_details";
+  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS = "experiment_configs";
+  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_IDS = "experiment_variation_ids";
 
 
   private final HttpClient httpClient;
@@ -76,20 +76,21 @@ class YozioApiServiceImpl implements YozioApiService {
     return getJsonValue(response, GET_URL_R_URL);
   }
 
-  public ArrayList<JSONObject> getExperimentConfigs(String appKey, String yozioUdid) {
+  public ArrayList<JSONObject> getExperimentDetails(String appKey, String yozioUdid) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
     params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     String response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
 
-    JSONObject config = getJsonObjectValue(response, GET_CONFIGURATIONS_R_CONFIG);
-    JSONObject experimentDetails =
-        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_DETAILS);
+    JSONObject experimentConfigs =
+        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS);
+    JSONObject experimentVariationIds =
+        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_IDS);
 
     ArrayList<JSONObject> configs = new ArrayList<JSONObject>();
-    configs.add(config);
-    configs.add(experimentDetails);
+    configs.add(experimentConfigs);
+    configs.add(experimentVariationIds);
     return configs;
   }
 

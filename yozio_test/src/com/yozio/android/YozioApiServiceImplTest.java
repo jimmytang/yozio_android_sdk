@@ -55,19 +55,19 @@ public class YozioApiServiceImplTest extends TestCase {
    ****************************************************************************/
   public void testGetExperimentConfigsSuccess() {
   	try {
-	    JSONObject config = new JSONObject().put("key", "value");
-	  	JSONObject experimentDetail = new JSONObject().put("experiment1", "variation1");
+	    JSONObject experimentConfig = new JSONObject().put("key", "value");
+	  	JSONObject experimentVariation = new JSONObject().put("experiment1", "variation1");
 	  	String response = new JSONObject().
-	  			put("config", config).
-	  			put("event_experiment_details", experimentDetail).
+	  			put("experiment_configs", experimentConfig).
+	  			put("experiment_variation_ids", experimentVariation).
 	  			toString();
 
 	  	ArrayList<JSONObject> result = new ArrayList<JSONObject>();
-	  	result.add(config);
-	  	result.add(experimentDetail);
+	  	result.add(experimentConfig);
+	  	result.add(experimentVariation);
 
 	  	fakeHttpClient.setHttpResonse(createStringHttpResponse(response));
-	    ArrayList<JSONObject> apiResult = apiService.getExperimentConfigs(APP_KEY, UDID);
+	    ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
 
 	    assertNotNull(fakeHttpClient.getLastRequest());
 	    assertEquals(result.toString(), apiResult.toString());
@@ -77,14 +77,14 @@ public class YozioApiServiceImplTest extends TestCase {
 
   public void testGetExperimentConfigsNullHttpEntity() {
   	fakeHttpClient.setHttpResonse(createHttpResponse(null));
-    ArrayList<JSONObject> apiResult = apiService.getExperimentConfigs(APP_KEY, UDID);
+    ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals("[{}, {}]", apiResult.toString());
   }
 
   public void testGetExperimentConfigsNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse("not {a : json} string"));
-    ArrayList<JSONObject> apiResult = apiService.getExperimentConfigs(APP_KEY, UDID);
+    ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals("[{}, {}]", apiResult.toString());
   }
