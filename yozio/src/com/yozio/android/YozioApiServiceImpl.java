@@ -156,7 +156,7 @@ class YozioApiServiceImpl implements YozioApiService {
   }
 
   /**
-   * Returns the value mapped by the key
+   * Returns the JSONObject mapped by the key
    *
    * @param jsonString  the serialized JSON string.
    * @param key  the key to get the value for.

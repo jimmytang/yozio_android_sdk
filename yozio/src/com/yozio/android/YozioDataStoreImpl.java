@@ -1,8 +1,8 @@
 /*
  * Copyright (C) 2012 Yozio Inc.
- * 
+ *
  * This file is part of the Yozio SDK.
- * 
+ *
  * By using the Yozio SDK in your software, you agree to the terms of the
  * Yozio SDK License Agreement which can be found at www.yozio.com/sdk_license.
  */
@@ -25,14 +25,14 @@ import android.util.Log;
 class YozioDataStoreImpl implements YozioDataStore {
 
   private static final String LOGTAG = "YozioDataStoreImpl";
-  
+
   static final int DATABASE_VERSION = 1;
   static final String DATABASE_NAME = "yozio";
-  
+
   static final String EVENTS_TABLE = "events";
   static final String APP_KEY = "app_key";
   static final String DATA = "data";
-  
+
   /**
    * Handles the creation and versioning of the Yozio database.
    */
@@ -55,16 +55,16 @@ class YozioDataStoreImpl implements YozioDataStore {
       onCreate(db);
     }
   }
-  
-  
+
+
   private final SQLiteOpenHelper dbHelper;
   private final String appKey;
-  
+
   YozioDataStoreImpl(SQLiteOpenHelper dbHelper, String appKey) {
     this.dbHelper = dbHelper;
     this.appKey = appKey;
   }
-  
+
   public boolean addEvent(JSONObject event) {
     synchronized (this) {
       try {
@@ -82,7 +82,7 @@ class YozioDataStoreImpl implements YozioDataStore {
     }
     return false;
   }
-  
+
   public int getNumEvents() {
     synchronized (this) {
       int count = -1;
@@ -149,7 +149,7 @@ class YozioDataStoreImpl implements YozioDataStore {
       return false;
     }
   }
-  
+
   private String where() {
     return " WHERE " + APP_KEY + " = '" + appKey + "'";
   }

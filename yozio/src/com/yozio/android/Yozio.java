@@ -69,15 +69,10 @@ public final class Yozio {
 
 
   /**
-   * Used only for Yozio Experiments
+   * Use only for Yozio Experiments
    *
-   * Configures the Yozio SDK. Must be called when the app is initialized.
-   * Connects to server to download configurations. Blocking
-   *
-   * @param context the application context.
-   * @param appKey  the application specific key provided by Yozio.
-   * @param secretKey  the application specific shared secret key provided
-   *                   by Yozio.
+   * Initializes the Yozio SDK for experiments. Must be called when the app is initialized.
+   * Makes a blocking HTTP request to download the experiment configurations.
    */
   public synchronized static void initializeExperiments() {
     if (!validate()) {
@@ -87,25 +82,29 @@ public final class Yozio {
   }
 
   /**
-   * Used only for Yozio Experiments
+   * Use only for Yozio Experiments
    *
-   * Returns a configuration String for key.
-   * @param key      the key look up the String by
-   * @param defaultValue  default value in case the key isn’t found.
+   * Retrieve the String value for a given configuration key.
+   *
+   * @param key  The key of the value to retrieve. Must match a configuration key created online.
+   * @param defaultValue  The value to return if the key is not found.
+   * @return The configuration String value, or defaultValue if the key is not found.
    */
   public synchronized static String stringForKey(String key, String defaultValue) {
-  	if (!validate()) {
-  		return defaultValue;
-  	}
-  	return helper.stringForKey(key, defaultValue);
+    if (!validate()) {
+      return defaultValue;
+    }
+    return helper.stringForKey(key, defaultValue);
   }
 
   /**
-   * Used only for Yozio Experiments
+   * Use only for Yozio Experiments
    *
-   * Returns a configuration Int for key.
-   * @param key      the key look up the Int by
-   * @param defaultValue  default value in case the key isn’t found.
+   * Retrieve the Int value for a given configuration key.
+   *
+   * @param key  The key of the value to retrieve. Must match a configuration key created online.
+   * @param defaultValue  The value to return if the key is not found.
+   * @return The configuration Int value, or defaultValue if the key is not found.
    */
   public synchronized static int intForKey(String key, int defaultValue) {
     if (!validate()) {

@@ -34,13 +34,13 @@ interface YozioApiService {
   String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl);
 
   /**
-   * Makes a blocking HTTP request to Yozio to retrieve a shortened URL specific
-   * to the device for the given linkName.
+   * Makes a blocking HTTP request to download the experiment configurations
    *
    * @param appKey  the application specific key provided by Yozio.
    * @param yozioUdid  a unique device identifier.
    *
-   * @return an ArrayList of experiment related JSONObjects or empty JSONObjects if request failed.
+   * @return an ArrayList of experiment related JSONObjects.
+   *         if request failed, returns an ArrayList of empty JSONObjects
    */
   ArrayList<JSONObject> getExperimentDetails(String appKey, String yozioUdid);
 
