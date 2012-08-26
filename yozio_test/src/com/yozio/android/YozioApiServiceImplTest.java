@@ -50,9 +50,11 @@ public class YozioApiServiceImplTest extends TestCase {
     apiService = new YozioApiServiceImpl(fakeHttpClient);
   }
 
+
   /****************************************************************************
    * GetExperimentConfigs tests
    ****************************************************************************/
+
   public void testGetExperimentConfigsSuccess() {
   	try {
 	    JSONObject experimentConfig = new JSONObject().put("key", "value");
@@ -66,7 +68,7 @@ public class YozioApiServiceImplTest extends TestCase {
 	  	result.add(experimentConfig);
 	  	result.add(experimentVariation);
 
-	  	fakeHttpClient.setHttpResonse(createStringHttpResponse(response));
+	  	fakeHttpClient.setHttpResonse(createStringHttpResponse(200, response));
 	    ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
 
 	    assertNotNull(fakeHttpClient.getLastRequest());
@@ -76,18 +78,19 @@ public class YozioApiServiceImplTest extends TestCase {
   }
 
   public void testGetExperimentConfigsNullHttpEntity() {
-  	fakeHttpClient.setHttpResonse(createHttpResponse(null));
+  	fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
     ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals("[{}, {}]", apiResult.toString());
   }
 
   public void testGetExperimentConfigsNonJsonResponse() {
-    fakeHttpClient.setHttpResonse(createStringHttpResponse("not {a : json} string"));
+    fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
     ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals("[{}, {}]", apiResult.toString());
   }
+
 
   /****************************************************************************
    * GetUrl tests
@@ -95,28 +98,28 @@ public class YozioApiServiceImplTest extends TestCase {
 
   public void testGetUrlSuccess() {
     String expectedShortUrl = "www.foobar.com";
-    fakeHttpClient.setHttpResonse(createJsonHttpResponse("url", expectedShortUrl));
+    fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "url", expectedShortUrl));
     String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals(expectedShortUrl, shortUrl);
   }
 
   public void testGetUrlNonJsonResponse() {
-    fakeHttpClient.setHttpResonse(createStringHttpResponse("not {a : json} string"));
+    fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
     String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
 
   public void testGetUrlResponseMissingUrlKey() {
-    fakeHttpClient.setHttpResonse(createJsonHttpResponse("wrong json key", "www.foobar.com"));
+    fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "wrong json key", "www.foobar.com"));
     String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
 
   public void testGetUrlNullHttpEntity() {
-    fakeHttpClient.setHttpResonse(createHttpResponse(null));
+    fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
     String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
@@ -128,28 +131,29 @@ public class YozioApiServiceImplTest extends TestCase {
    ****************************************************************************/
 
   public void testBatchEventsSuccess() {
-    fakeHttpClient.setHttpResonse(createJsonHttpResponse("status", "ok"));
+    fakeHttpClient.setHttpResonse(createStringHttpResponse(200, ""));
     boolean success = apiService.batchEvents(PAYLOAD);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertTrue(success);
   }
 
-  public void testBatchEventsNonJsonResponse() {
-    fakeHttpClient.setHttpResonse(createStringHttpResponse("not {a : json} string"));
+  public void testBatchEventsInvalidUserInput() {
+    fakeHttpClient.setHttpResonse(createStringHttpResponse(400, ""));
     boolean success = apiService.batchEvents(PAYLOAD);
     assertNotNull(fakeHttpClient.getLastRequest());
-    assertFalse(success);
+    assertTrue(success);
   }
 
-  public void testBatchEventsResponseMissingStatusKey() {
-    fakeHttpClient.setHttpResonse(createJsonHttpResponse("wrong json key", "ok"));
+  public void testBatchEventsServerError() {
+    fakeHttpClient.setHttpResonse(createStringHttpResponse(500, ""));
     boolean success = apiService.batchEvents(PAYLOAD);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertFalse(success);
   }
 
   public void testBatchEventsNullHttpEntity() {
-    fakeHttpClient.setHttpResonse(createHttpResponse(null));
+  	// Should fail even if status is 200.
+    fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
     boolean success = apiService.batchEvents(PAYLOAD);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertFalse(success);
@@ -160,11 +164,11 @@ public class YozioApiServiceImplTest extends TestCase {
    * Helper methods
    ****************************************************************************/
 
-  private HttpResponse createJsonHttpResponse(String key, String value) {
+  private HttpResponse createJsonHttpResponse(int status, String key, String value) {
     try {
       JSONObject responseObj = new JSONObject();
       responseObj.put(key, value);
-      return createStringHttpResponse(responseObj.toString());
+      return createStringHttpResponse(status, responseObj.toString());
     } catch (JSONException e) {
       Log.e(LOGTAG, "createJsonHttpResponse", e);
       fail("Faiure creating a JSON HttpResponse response");
@@ -172,9 +176,9 @@ public class YozioApiServiceImplTest extends TestCase {
     return null;
   }
 
-  private HttpResponse createStringHttpResponse(String responseStr) {
+  private HttpResponse createStringHttpResponse(int status, String responseStr) {
     try {
-      return createHttpResponse(new StringEntity(responseStr));
+      return createHttpResponse(status, new StringEntity(responseStr));
     } catch (UnsupportedEncodingException e) {
       Log.e(LOGTAG, "createHttpResponse", e);
       fail("Faiure creating a StringEntity");
@@ -182,9 +186,8 @@ public class YozioApiServiceImplTest extends TestCase {
     return null;
   }
 
-  private HttpResponse createHttpResponse(HttpEntity httpEntity) {
-    // Status code and reason do not matter.
-    StatusLine statusLine = new BasicStatusLine(HttpVersion.HTTP_1_1, 0, "");
+  private HttpResponse createHttpResponse(int status, HttpEntity httpEntity) {
+    StatusLine statusLine = new BasicStatusLine(HttpVersion.HTTP_1_1, status, "");
     BasicHttpResponse httpResponse = new BasicHttpResponse(statusLine);
     httpResponse.setEntity(httpEntity);
     return httpResponse;

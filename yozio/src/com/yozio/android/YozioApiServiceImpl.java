@@ -30,6 +30,17 @@ import android.util.Log;
 
 class YozioApiServiceImpl implements YozioApiService {
 
+	// Use this class instead of HttpResponse so our code can ensure that
+	// the HttpResponse is always cleaned up after a request.
+	private static class Response {
+		private final int status;
+		private final String responseString;
+		private Response(int status, String responseString) {
+			this.status = status;
+			this.responseString = responseString;
+		}
+	}
+
   private static final String DEFAULT_BASE_URL = "http://yoz.io";
   private static final String GET_URL_ROUTE = "/api/viral/v1/get_url";
   private static final String GET_CONFIGURATIONS_ROUTE = "/api/yozio/v1/get_configurations";
@@ -47,7 +58,6 @@ class YozioApiServiceImpl implements YozioApiService {
 
   // Response param names
   private static final String GET_URL_R_URL = "url";
-  private static final String BATCH_EVENTS_R_STATUS = "status";
   private static final String GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS = "experiment_configs";
   private static final String GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_IDS = "experiment_variation_ids";
 
@@ -72,7 +82,7 @@ class YozioApiServiceImpl implements YozioApiService {
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
-    String response = doPostRequest(baseUrl + GET_URL_ROUTE, params);
+    Response response = doPostRequest(baseUrl + GET_URL_ROUTE, params);
     return getJsonValue(response, GET_URL_R_URL);
   }
 
@@ -81,7 +91,7 @@ class YozioApiServiceImpl implements YozioApiService {
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
     params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
-    String response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
+    Response response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
 
     JSONObject experimentConfigs =
         getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS);
@@ -97,9 +107,10 @@ class YozioApiServiceImpl implements YozioApiService {
   public boolean batchEvents(JSONObject payload) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(BATCH_EVENTS_P_DATA, payload.toString()));
-    String response = doPostRequest(baseUrl + BATCH_EVENTS_ROUTE, params);
-    String status = getJsonValue(response, BATCH_EVENTS_R_STATUS);
-    return status != null && status.equalsIgnoreCase("ok");
+    Response response = doPostRequest(baseUrl + BATCH_EVENTS_ROUTE, params);
+    // Events that result in 400 will always fail, so pretend like the server handled it correctly.
+    // Otherwise, these invalid events will be never be taken off the flush queue.
+    return response != null && (response.status == 200 || response.status == 400);
   }
 
   /**
@@ -108,9 +119,9 @@ class YozioApiServiceImpl implements YozioApiService {
    * @param httpClient  the client to execute the HTTP request.
    * @param baseUrl  the base url to append the parameters to.
    * @param params  the GET parameters.
-   * @return  the String response, or null if the request failed.
+   * @return  the {@link Response}, or null if the request failed.
    */
-  String doPostRequest(String baseUrl, List<NameValuePair> params) {
+  Response doPostRequest(String baseUrl, List<NameValuePair> params) {
     try {
       HttpPost httpPost = new HttpPost(baseUrl);
       httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -120,7 +131,7 @@ class YozioApiServiceImpl implements YozioApiService {
         String responseString = EntityUtils.toString(httpEntity);
         // Release the content.
         httpEntity.consumeContent();
-        return responseString;
+        return new Response(httpResponse.getStatusLine().getStatusCode(), responseString);
       }
     } catch (ClientProtocolException e) {
       Log.e(LOGTAG, "doGetRequest", e);
@@ -138,14 +149,14 @@ class YozioApiServiceImpl implements YozioApiService {
   /**
    * Returns the value mapped by the key.
    *
-   * @param jsonString  the serialized JSON string.
+   * @param response  the Yozio http response object.
    * @param key  the key to get the value for.
    * @return the String value, or null there is no mapping for the key.
    */
-  private static String getJsonValue(String jsonString, String key) {
-    if (jsonString != null) {
+  private static String getJsonValue(Response response, String key) {
+    if (response != null && response.responseString != null) {
       try {
-        JSONObject json = new JSONObject(jsonString);
+        JSONObject json = new JSONObject(response.responseString);
         if (json.has(key)) {
           return json.getString(key);
         }
@@ -158,14 +169,14 @@ class YozioApiServiceImpl implements YozioApiService {
   /**
    * Returns the JSONObject mapped by the key
    *
-   * @param jsonString  the serialized JSON string.
+   * @param response  the Yozio http response object.
    * @param key  the key to get the value for.
    * @return the JSONObject, or empty JSONObject if there is no mapping for the key.
    */
-  private static JSONObject getJsonObjectValue(String jsonString, String key) {
-    if (jsonString != null) {
+  private static JSONObject getJsonObjectValue(Response response, String key) {
+    if (response != null && response.responseString != null) {
       try {
-        JSONObject json = new JSONObject(jsonString);
+        JSONObject json = new JSONObject(response.responseString);
         if (json.has(key)) {
           return json.getJSONObject(key);
         }
