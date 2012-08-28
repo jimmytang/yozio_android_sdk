@@ -9,14 +9,24 @@
 
 package com.yozio.android;
 
-import java.util.ArrayList;
-
 import org.json.JSONObject;
 
 /**
  * Thread safe service that makes HTTP requests to the Yozio web api.
  */
 interface YozioApiService {
+
+	interface ExperimentInfo {
+		/**
+		 * @return key value pairs for the experiment.
+		 */
+		JSONObject getConfigs();
+
+		/**
+		 * @return map of experimentSid to variationSid.
+		 */
+		JSONObject getExperimentVariationSids();
+	}
 
   /**
    * Makes a blocking HTTP request to Yozio to retrieve a shortened URL specific
@@ -39,10 +49,9 @@ interface YozioApiService {
    * @param appKey  the application specific key provided by Yozio.
    * @param yozioUdid  a unique device identifier.
    *
-   * @return an ArrayList of experiment related JSONObjects.
-   *         if request failed, returns an ArrayList of empty JSONObjects
+   * @return an {@link ExperimentInfo}.
    */
-  ArrayList<JSONObject> getExperimentDetails(String appKey, String yozioUdid);
+  ExperimentInfo getExperimentInfo(String appKey, String yozioUdid);
 
 
   /**

@@ -34,36 +34,36 @@ public class YozioHelperTest extends AndroidTestCase {
   }
 
   public void testParams() {
-    Yozio.configure(getContext(), APP_KEY, "test secret key");
-    Yozio.initializeExperiments();
-    Yozio.viewedLink(LINK_NAME);
-    String deviceId = null;
-    String connectionType = null;
-    String experimentVariationIds = null;
-    try {
-      Thread.sleep(2000);
+  	try {
+	    Yozio.configure(getContext(), APP_KEY, "test secret key");
+	    Yozio.initializeExperiments();
+	    Yozio.viewedLink(LINK_NAME);
+	    // TODO(dounanshi): restructure to not need sleep
+	    Thread.sleep(2000);
       JSONObject payload = apiService.getPayload();
-      deviceId = (String) payload.get("device_id");
-      connectionType = (String) payload.get("connection_type");
-      experimentVariationIds = payload.getString("experiment_variation_ids");
+      String deviceId = payload.getString("device_id");
+      String connectionType = payload.getString("connection_type");
+      String experimentVariationIds = payload.getString("experiment_variation_ids");
+      Assert.assertNotNull(deviceId);
+      Assert.assertNotNull(connectionType);
+      Assert.assertEquals("{\"experiment1\":\"variation1\"}", experimentVariationIds);
     } catch (Exception e) {
+    	fail();
     }
-    Assert.assertNotNull(deviceId);
-    Assert.assertNotNull(connectionType);
-    Assert.assertEquals("{\"experiment1\":\"variation1\"}", experimentVariationIds);
   }
 
   public void testLogin() {
-    Yozio.configure(getContext(), APP_KEY, "test secret key");
-    Yozio.userLoggedIn("spaceman");
-    String userName = null;
     try {
-      Thread.sleep(2000);
+    	Yozio.configure(getContext(), APP_KEY, "test secret key");
+    	Yozio.userLoggedIn("spaceman");
+    	// TODO(dounanshi): restructure to not need sleep
+    	Thread.sleep(2000);
       JSONObject payload = apiService.getPayload();
-      userName = (String) payload.get("external_user_id");
+      String userName = payload.getString("external_user_id");
+      Assert.assertEquals("spaceman", userName);
     } catch (Exception e) {
+    	fail();
     }
-    Assert.assertEquals("spaceman", userName);
   }
 
   public void testIntForKeyForExistingKey() {

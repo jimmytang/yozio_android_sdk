@@ -100,11 +100,11 @@ public final class Yozio {
   /**
    * Use only for Yozio Experiments
    *
-   * Retrieve the Int value for a given configuration key.
+   * Retrieve the int value for a given configuration key.
    *
    * @param key  The key of the value to retrieve. Must match a configuration key created online.
    * @param defaultValue  The value to return if the key is not found.
-   * @return The configuration Int value, or defaultValue if the key is not found.
+   * @return The configuration int value, or defaultValue if the key is not found.
    */
   public synchronized static int intForKey(String key, int defaultValue) {
     if (!validate()) {

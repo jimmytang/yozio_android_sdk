@@ -10,7 +10,6 @@
 package com.yozio.android;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -38,6 +37,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.yozio.android.Yozio.GetUrlCallback;
+import com.yozio.android.YozioApiService.ExperimentInfo;
 import com.yozio.android.YozioDataStore.Events;
 
 class YozioHelper {
@@ -94,7 +94,7 @@ class YozioHelper {
   private final ThreadPoolExecutor executor;
 
   private JSONObject experimentConfigs;
-  private JSONObject experimentVariationIds;
+  private JSONObject experimentVariationSids;
 
   private Context context;
   private String appKey;
@@ -147,43 +147,37 @@ class YozioHelper {
    * Fetches experiment configurations Makes a blocking request
    */
   void initializeExperiments() {
-    ArrayList<JSONObject> experimentDetails = apiService.getExperimentDetails(appKey, yozioUdid);
+    ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
 
     // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
     // variations in the UI.
     System.out.println(
             "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
 
-    this.experimentConfigs = experimentDetails.get(0);
-    this.experimentVariationIds = experimentDetails.get(1);
+    this.experimentConfigs = experimentInfo.getConfigs();
+    this.experimentVariationSids = experimentInfo.getExperimentVariationSids();
   }
 
-  /*
-   * Returns an experiment configuration String for given key
+  /**
+   * Returns an experiment configuration String for the given key
    */
   String stringForKey(String key, String defaultValue) {
-    String val;
-
     try {
-      val = this.experimentConfigs.getString(key);
+      return this.experimentConfigs.getString(key);
     } catch (JSONException e) {
-      val = defaultValue;
+      return defaultValue;
     }
-    return val;
   }
 
-  /*
-   * Returns an experiment configuration int for given key
+  /**
+   * Returns an experiment configuration int for the given key
    */
   int intForKey(String key, int defaultValue) {
-    int val;
-
     try {
-      val = this.experimentConfigs.getInt(key);
+      return this.experimentConfigs.getInt(key);
     } catch (JSONException e) {
-      val = defaultValue;
+      return defaultValue;
     }
-    return val;
   }
 
   /**
@@ -510,7 +504,7 @@ class YozioHelper {
         payloadObject.put(P_MOBILE_NETWORK_CODE, mobileNetworkCode);
         payloadObject.put(P_CONNECTION_TYPE, connectionType);
 
-        payloadObject.put(P_EXPERIMENT_VARIATION_IDS, experimentVariationIds);
+        payloadObject.put(P_EXPERIMENT_VARIATION_IDS, experimentVariationSids);
 
         return payloadObject;
       } catch (JSONException e) {

@@ -10,7 +10,6 @@
 package com.yozio.android;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,7 +58,7 @@ class YozioApiServiceImpl implements YozioApiService {
   // Response param names
   private static final String GET_URL_R_URL = "url";
   private static final String GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS = "experiment_configs";
-  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_IDS = "experiment_variation_ids";
+  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS = "experiment_variation_ids";
 
 
   private final HttpClient httpClient;
@@ -86,22 +85,26 @@ class YozioApiServiceImpl implements YozioApiService {
     return getJsonValue(response, GET_URL_R_URL);
   }
 
-  public ArrayList<JSONObject> getExperimentDetails(String appKey, String yozioUdid) {
+  public ExperimentInfo getExperimentInfo(String appKey, String yozioUdid) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
     params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     Response response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
 
-    JSONObject experimentConfigs =
+    final JSONObject experimentConfigs =
         getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS);
-    JSONObject experimentVariationIds =
-        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_IDS);
+    final JSONObject experimentVariationSids =
+        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS);
 
-    ArrayList<JSONObject> configs = new ArrayList<JSONObject>();
-    configs.add(experimentConfigs);
-    configs.add(experimentVariationIds);
-    return configs;
+    return new ExperimentInfo() {
+    	public JSONObject getConfigs() {
+    		return experimentConfigs;
+    	}
+			public JSONObject getExperimentVariationSids() {
+				return experimentVariationSids;
+			}
+		};
   }
 
   public boolean batchEvents(JSONObject payload) {

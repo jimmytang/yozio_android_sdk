@@ -10,7 +10,6 @@
 package com.yozio.android;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
 import junit.framework.TestCase;
 
@@ -25,6 +24,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
+
+import com.yozio.android.YozioApiService.ExperimentInfo;
 
 
 public class YozioApiServiceImplTest extends TestCase {
@@ -57,38 +58,38 @@ public class YozioApiServiceImplTest extends TestCase {
 
   public void testGetExperimentConfigsSuccess() {
   	try {
-	    JSONObject experimentConfig = new JSONObject().put("key", "value");
-	  	JSONObject experimentVariation = new JSONObject().put("experiment1", "variation1");
+	    JSONObject experimentConfigs = new JSONObject().put("key", "value");
+	  	JSONObject experimentVariationSids = new JSONObject().put("experiment1", "variation1");
 	  	String response = new JSONObject().
-	  			put("experiment_configs", experimentConfig).
-	  			put("experiment_variation_ids", experimentVariation).
+	  			put("experiment_configs", experimentConfigs).
+	  			put("experiment_variation_ids", experimentVariationSids).
 	  			toString();
 
-	  	ArrayList<JSONObject> result = new ArrayList<JSONObject>();
-	  	result.add(experimentConfig);
-	  	result.add(experimentVariation);
-
 	  	fakeHttpClient.setHttpResonse(createStringHttpResponse(200, response));
-	    ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
+	    ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
 
 	    assertNotNull(fakeHttpClient.getLastRequest());
-	    assertEquals(result.toString(), apiResult.toString());
+	    assertEquals(experimentConfigs.toString(), apiResult.getConfigs().toString());
+	    assertEquals(experimentVariationSids.toString(),
+	    				apiResult.getExperimentVariationSids().toString());
     } catch (JSONException e) {
     }
   }
 
   public void testGetExperimentConfigsNullHttpEntity() {
   	fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
-    ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
+  	ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
-    assertEquals("[{}, {}]", apiResult.toString());
+    assertEquals(0, apiResult.getConfigs().length());
+    assertEquals(0, apiResult.getExperimentVariationSids().length());
   }
 
   public void testGetExperimentConfigsNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
-    ArrayList<JSONObject> apiResult = apiService.getExperimentDetails(APP_KEY, UDID);
+    ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
-    assertEquals("[{}, {}]", apiResult.toString());
+    assertEquals(0, apiResult.getConfigs().length());
+    assertEquals(0, apiResult.getExperimentVariationSids().length());
   }
 
 
