@@ -29,16 +29,17 @@ import android.util.Log;
 
 class YozioApiServiceImpl implements YozioApiService {
 
-	// Use this class instead of HttpResponse so our code can ensure that
-	// the HttpResponse is always cleaned up after a request.
-	private static class Response {
-		private final int status;
-		private final String responseString;
-		private Response(int status, String responseString) {
-			this.status = status;
-			this.responseString = responseString;
-		}
-	}
+  // Use this class instead of HttpResponse so our code can ensure that
+  // the HttpResponse is always cleaned up after a request.
+  private static class Response {
+    private final int status;
+    private final String responseString;
+
+    private Response(int status, String responseString) {
+      this.status = status;
+      this.responseString = responseString;
+    }
+  }
 
   private static final String DEFAULT_BASE_URL = "http://yoz.io";
   private static final String GET_URL_ROUTE = "/api/viral/v1/get_url";
@@ -92,19 +93,20 @@ class YozioApiServiceImpl implements YozioApiService {
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     Response response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
 
-    final JSONObject experimentConfigs =
-        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS);
-    final JSONObject experimentVariationSids =
-        getJsonObjectValue(response, GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS);
+    final JSONObject experimentConfigs = getJsonObjectValue(response,
+        GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS);
+    final JSONObject experimentVariationSids = getJsonObjectValue(response,
+        GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS);
 
     return new ExperimentInfo() {
-    	public JSONObject getConfigs() {
-    		return experimentConfigs;
-    	}
-			public JSONObject getExperimentVariationSids() {
-				return experimentVariationSids;
-			}
-		};
+      public JSONObject getConfigs() {
+        return experimentConfigs;
+      }
+
+      public JSONObject getExperimentVariationSids() {
+        return experimentVariationSids;
+      }
+    };
   }
 
   public boolean batchEvents(JSONObject payload) {

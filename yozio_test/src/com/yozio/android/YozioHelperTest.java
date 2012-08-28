@@ -11,6 +11,7 @@ package com.yozio.android;
 
 import junit.framework.Assert;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.database.sqlite.SQLiteOpenHelper;
@@ -34,12 +35,14 @@ public class YozioHelperTest extends AndroidTestCase {
   }
 
   public void testParams() {
-  	try {
-	    Yozio.configure(getContext(), APP_KEY, "test secret key");
-	    Yozio.initializeExperiments();
-	    Yozio.viewedLink(LINK_NAME);
-	    // TODO(dounanshi): restructure to not need sleep
-	    Thread.sleep(2000);
+    try {
+      Yozio.configure(getContext(), APP_KEY, "test secret key");
+      apiService.setExperimentVariationSids(new JSONObject().put("experiment1", "variation1"));
+
+      Yozio.initializeExperiments();
+      Yozio.viewedLink(LINK_NAME);
+      // TODO(dounanshi): restructure to not need sleep
+      Thread.sleep(2000);
       JSONObject payload = apiService.getPayload();
       String deviceId = payload.getString("device_id");
       String connectionType = payload.getString("connection_type");
@@ -48,26 +51,35 @@ public class YozioHelperTest extends AndroidTestCase {
       Assert.assertNotNull(connectionType);
       Assert.assertEquals("{\"experiment1\":\"variation1\"}", experimentVariationIds);
     } catch (Exception e) {
-    	fail();
+      fail();
     }
   }
 
   public void testLogin() {
     try {
-    	Yozio.configure(getContext(), APP_KEY, "test secret key");
-    	Yozio.userLoggedIn("spaceman");
-    	// TODO(dounanshi): restructure to not need sleep
-    	Thread.sleep(2000);
+      Yozio.configure(getContext(), APP_KEY, "test secret key");
+      Yozio.userLoggedIn("spaceman");
+      // TODO(dounanshi): restructure to not need sleep
+      Thread.sleep(2000);
       JSONObject payload = apiService.getPayload();
       String userName = payload.getString("external_user_id");
       Assert.assertEquals("spaceman", userName);
     } catch (Exception e) {
-    	fail();
+      fail();
     }
   }
 
   public void testIntForKeyForExistingKey() {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
+
+    JSONObject configs = null;
+    try {
+      configs = new JSONObject().put("key", "123");
+      apiService.setExperimentConfigs(configs);
+    } catch (JSONException e) {
+      fail();
+    }
+
     Yozio.initializeExperiments();
     Assert.assertEquals(123, Yozio.intForKey("key", 111));
   }
@@ -78,8 +90,32 @@ public class YozioHelperTest extends AndroidTestCase {
     Assert.assertEquals(111, Yozio.intForKey("ooga", 111));
   }
 
+  public void testIntForKeyForNonCoercibleType() {
+    Yozio.configure(getContext(), APP_KEY, "test secret key");
+
+    JSONObject configs = null;
+    try {
+      configs = new JSONObject().put("key", "NON_CONVERTIBLE_STRING");
+      apiService.setExperimentConfigs(configs);
+    } catch (JSONException e) {
+      fail();
+    }
+
+    Yozio.initializeExperiments();
+    Assert.assertEquals(111, Yozio.intForKey("key", 111));
+  }
+
   public void testStringForKeyForExistingKey() {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
+
+    JSONObject configs = null;
+    try {
+      configs = new JSONObject().put("key", "123");
+      apiService.setExperimentConfigs(configs);
+    } catch (JSONException e) {
+      fail();
+    }
+
     Yozio.initializeExperiments();
     Assert.assertEquals("123", Yozio.stringForKey("key", "booga"));
   }

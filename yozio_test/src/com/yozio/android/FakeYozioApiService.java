@@ -9,12 +9,13 @@
 
 package com.yozio.android;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class FakeYozioApiService implements YozioApiService {
 
   private JSONObject payload;
+  private JSONObject experimentConfigs = new JSONObject();
+  private JSONObject experimentVariationSids = new JSONObject();
 
   public String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl) {
     return null;
@@ -29,20 +30,23 @@ public class FakeYozioApiService implements YozioApiService {
     return true;
   }
 
+  public void setExperimentConfigs(JSONObject configs) {
+    this.experimentConfigs = configs;
+  }
+
+  public void setExperimentVariationSids(JSONObject experimentVariationSids) {
+    this.experimentVariationSids = experimentVariationSids;
+  }
+
   public ExperimentInfo getExperimentInfo(String appKey, String yozioUdid) {
-  	try {
-	  	final JSONObject configs = new JSONObject().put("key", "123");
-	  	final JSONObject experimentVariationSids = new JSONObject().put("experiment1", "variation1");
-	  	return new ExperimentInfo() {
-				public JSONObject getConfigs() {
-					return configs;
-				}
-				public JSONObject getExperimentVariationSids() {
-					return experimentVariationSids;
-				}
-			};
-    } catch (JSONException e) {
-    }
-    return null;
+    return new ExperimentInfo() {
+      public JSONObject getConfigs() {
+        return experimentConfigs;
+      }
+
+      public JSONObject getExperimentVariationSids() {
+        return experimentVariationSids;
+      }
+    };
   }
 }

@@ -16,17 +16,17 @@ import org.json.JSONObject;
  */
 interface YozioApiService {
 
-	interface ExperimentInfo {
-		/**
-		 * @return key value pairs for the experiment.
-		 */
-		JSONObject getConfigs();
+  interface ExperimentInfo {
+    /**
+     * @return key value pairs for the experiment.
+     */
+    JSONObject getConfigs();
 
-		/**
-		 * @return map of experimentSid to variationSid.
-		 */
-		JSONObject getExperimentVariationSids();
-	}
+    /**
+     * @return map of experimentSid to variationSid.
+     */
+    JSONObject getExperimentVariationSids();
+  }
 
   /**
    * Makes a blocking HTTP request to Yozio to retrieve a shortened URL specific
