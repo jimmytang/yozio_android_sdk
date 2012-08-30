@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2012 Socialize Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -41,20 +41,20 @@ import com.socialize.listener.SocializeInitListener;
 import com.yozio.android.Yozio;
 
 public class Main extends Activity {
-	
-	
-	
+
+
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		Yozio.configure(this, "139b0e10-ba56-012f-e1d9-2837371df2a8", "139b1bf0-ba56-012f-e1da-2837371df2a8");
-		
+
+		Yozio.configure(this, "eecc0ab0-a768-012f-a275-12314000c03b", "eed0cb20-a768-012f-a276-12314000c03b");
+
 		initView();
 	}
-	
-	
-	
+
+
+
 	final Handler handler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -64,9 +64,9 @@ public class Main extends Activity {
 		}
 	};
 
-	
+
 	private void initView() {
-		
+
 		setContentView(R.layout.main);
 		final TextView version = (TextView) findViewById(R.id.txtVersion);
 		final View viewContainer = findViewById(R.id.container);
@@ -75,7 +75,7 @@ public class Main extends Activity {
 		fadeOut.setDuration(2500);
 		fadeOut.setFillAfter(true);
 
-		
+
 		fadeOut.setAnimationListener(new AnimationListener() {
 			@Override
 			public void onAnimationStart(Animation animation) {
@@ -90,7 +90,7 @@ public class Main extends Activity {
 				handler.sendEmptyMessageDelayed(0, 1000);
 			}
 		});
-		
+
 
 		// Initialize Socialize asynchronously
 		Socialize.initAsync(this, new SocializeInitListener() {
