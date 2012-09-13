@@ -249,12 +249,10 @@ class YozioHelper {
 
   private JSONObject getSuperProperties() {
     JSONObject superProperties = new JSONObject();
-    System.out.println("experiment_variation_sids:" + this.experimentVariationSids);
     try {
       superProperties.put(
           "experiment_variation_sids", this.experimentVariationSids);
     } catch (JSONException e) {
-      return superProperties;
     }
     return superProperties;
   }
