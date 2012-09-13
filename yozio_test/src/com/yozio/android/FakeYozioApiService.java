@@ -16,14 +16,20 @@ public class FakeYozioApiService implements YozioApiService {
   private JSONObject payload;
   private JSONObject experimentConfigs = new JSONObject();
   private JSONObject experimentVariationSids = new JSONObject();
+  private JSONObject superProperties;
 
   public String getUrl(String appKey, String yozioUdid,
-      String linkName, String destinationUrl, JSONObject experimentVariationSids) {
+      String linkName, String destinationUrl, JSONObject superProperties) {
+    this.superProperties = superProperties;
     return null;
   }
 
   public JSONObject getPayload() {
     return payload;
+  }
+
+  public JSONObject getSuperProperties() {
+    return this.superProperties;
   }
 
   public boolean batchEvents(JSONObject payload) {
