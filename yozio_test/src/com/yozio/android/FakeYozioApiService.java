@@ -17,7 +17,8 @@ public class FakeYozioApiService implements YozioApiService {
   private JSONObject experimentConfigs = new JSONObject();
   private JSONObject experimentVariationSids = new JSONObject();
 
-  public String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl) {
+  public String getUrl(String appKey, String yozioUdid,
+      String linkName, String destinationUrl, JSONObject experimentVariationSids) {
     return null;
   }
 

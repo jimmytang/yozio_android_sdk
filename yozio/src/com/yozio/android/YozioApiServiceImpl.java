@@ -54,6 +54,7 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String GET_URL_P_DEVICE_TYPE = "device_type";
   private static final String GET_URL_P_LINK_NAME = "link_name";
   private static final String GET_URL_P_DEST_URL = "dest_url";
+  private static final String GET_URL_P_EXPERIMENT_VARIATION_SIDS = "experiment_variation_sids";
   private static final String BATCH_EVENTS_P_DATA = "data";
 
   // Response param names
@@ -75,13 +76,16 @@ class YozioApiServiceImpl implements YozioApiService {
     baseUrl = DEFAULT_BASE_URL;
   }
 
-  public String getUrl(String appKey, String yozioUdid, String linkName, String destinationUrl) {
+  public String getUrl(String appKey, String yozioUdid,
+      String linkName, String destinationUrl, JSONObject experimentVariationSids) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
     params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
+    params.add(new BasicNameValuePair(
+        GET_URL_P_EXPERIMENT_VARIATION_SIDS, experimentVariationSids.toString()));
     Response response = doPostRequest(baseUrl + GET_URL_ROUTE, params);
     return getJsonValue(response, GET_URL_R_URL);
   }

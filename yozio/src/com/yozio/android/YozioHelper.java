@@ -215,7 +215,8 @@ class YozioHelper {
    *         destinationUrl if unsuccessful.
    */
   String getUrl(String linkName, String destinationUrl) {
-    String shortenedUrl = apiService.getUrl(appKey, yozioUdid, linkName, destinationUrl);
+    String shortenedUrl = apiService.getUrl(
+        appKey, yozioUdid, linkName, destinationUrl, this.experimentVariationSids);
     return shortenedUrl != null ? shortenedUrl : destinationUrl;
   }
 
@@ -223,7 +224,8 @@ class YozioHelper {
    * Makes a non-blocking request to retrieve the shortened URL.
    */
   void getUrlAsync(String linkName, String destinationUrl, GetUrlCallback callback) {
-    executor.submit(new GetUrlTask(linkName, destinationUrl, callback));
+    executor.submit(
+        new GetUrlTask(linkName, destinationUrl, this.experimentVariationSids, callback));
   }
 
   /**
@@ -418,16 +420,20 @@ class YozioHelper {
 
     private final String linkName;
     private final String destinationUrl;
+    private final JSONObject experimentVariationSids;
     private final GetUrlCallback callback;
 
-    GetUrlTask(String linkName, String destinationUrl, GetUrlCallback callback) {
+    GetUrlTask(String linkName, String destinationUrl,
+        JSONObject experimentVariationSids, GetUrlCallback callback) {
       this.linkName = linkName;
       this.destinationUrl = destinationUrl;
+      this.experimentVariationSids = experimentVariationSids;
       this.callback = callback;
     }
 
     public void run() {
-      String shortenedUrl = apiService.getUrl(appKey, yozioUdid, linkName, destinationUrl);
+      String shortenedUrl = apiService.getUrl(
+          appKey, yozioUdid, linkName, destinationUrl, experimentVariationSids);
       callback.handleResponse(shortenedUrl != null ? shortenedUrl : destinationUrl);
     }
   }

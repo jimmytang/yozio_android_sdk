@@ -96,32 +96,31 @@ public class YozioApiServiceImplTest extends TestCase {
   /****************************************************************************
    * GetUrl tests
    ****************************************************************************/
-
   public void testGetUrlSuccess() {
     String expectedShortUrl = "www.foobar.com";
     fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "url", expectedShortUrl));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals(expectedShortUrl, shortUrl);
   }
 
   public void testGetUrlNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
 
   public void testGetUrlResponseMissingUrlKey() {
     fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "wrong json key", "www.foobar.com"));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
 
   public void testGetUrlNullHttpEntity() {
     fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
