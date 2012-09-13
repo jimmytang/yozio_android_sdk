@@ -60,7 +60,7 @@ class YozioApiServiceImpl implements YozioApiService {
   // Response param names
   private static final String GET_URL_R_URL = "url";
   private static final String GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS = "experiment_configs";
-  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS = "experiment_variation_ids";
+  private static final String GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS = "experiment_variation_sids";
 
 
   private final HttpClient httpClient;
