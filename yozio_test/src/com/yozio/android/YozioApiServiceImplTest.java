@@ -27,7 +27,6 @@ import android.util.Log;
 
 import com.yozio.android.YozioApiService.ExperimentInfo;
 
-
 public class YozioApiServiceImplTest extends TestCase {
 
   private static final String LOGTAG = "YozioApiServiceImplTest";
@@ -51,34 +50,31 @@ public class YozioApiServiceImplTest extends TestCase {
     apiService = new YozioApiServiceImpl(fakeHttpClient);
   }
 
-
   /****************************************************************************
    * GetExperimentConfigs tests
    ****************************************************************************/
 
   public void testGetExperimentConfigsSuccess() {
-  	try {
-	    JSONObject experimentConfigs = new JSONObject().put("key", "value");
-	  	JSONObject experimentVariationSids = new JSONObject().put("experiment1", "variation1");
-	  	String response = new JSONObject().
-	  			put("experiment_configs", experimentConfigs).
-	  			put("experiment_variation_ids", experimentVariationSids).
-	  			toString();
+    try {
+      JSONObject experimentConfigs = new JSONObject().put("key", "value");
+      JSONObject experimentVariationSids = new JSONObject().put("experiment1", "variation1");
+      String response = new JSONObject().put("experiment_configs", experimentConfigs)
+          .put("experiment_variation_sids", experimentVariationSids).toString();
 
-	  	fakeHttpClient.setHttpResonse(createStringHttpResponse(200, response));
-	    ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
+      fakeHttpClient.setHttpResonse(createStringHttpResponse(200, response));
+      ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
 
-	    assertNotNull(fakeHttpClient.getLastRequest());
-	    assertEquals(experimentConfigs.toString(), apiResult.getConfigs().toString());
-	    assertEquals(experimentVariationSids.toString(),
-	    				apiResult.getExperimentVariationSids().toString());
+      assertNotNull(fakeHttpClient.getLastRequest());
+      assertEquals(experimentConfigs.toString(), apiResult.getConfigs().toString());
+      assertEquals(experimentVariationSids.toString(), apiResult.getExperimentVariationSids()
+          .toString());
     } catch (JSONException e) {
     }
   }
 
   public void testGetExperimentConfigsNullHttpEntity() {
-  	fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
-  	ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
+    fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
+    ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals(0, apiResult.getConfigs().length());
     assertEquals(0, apiResult.getExperimentVariationSids().length());
@@ -92,40 +88,37 @@ public class YozioApiServiceImplTest extends TestCase {
     assertEquals(0, apiResult.getExperimentVariationSids().length());
   }
 
-
   /****************************************************************************
    * GetUrl tests
    ****************************************************************************/
-
   public void testGetUrlSuccess() {
     String expectedShortUrl = "www.foobar.com";
     fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "url", expectedShortUrl));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertEquals(expectedShortUrl, shortUrl);
   }
 
   public void testGetUrlNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
 
   public void testGetUrlResponseMissingUrlKey() {
     fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "wrong json key", "www.foobar.com"));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
 
   public void testGetUrlNullHttpEntity() {
     fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
-    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL);
+    String shortUrl = apiService.getUrl(APP_KEY, UDID, LINK_NAME, DEST_URL, new JSONObject());
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(shortUrl);
   }
-
 
   /****************************************************************************
    * BatchEvents tests
@@ -153,13 +146,12 @@ public class YozioApiServiceImplTest extends TestCase {
   }
 
   public void testBatchEventsNullHttpEntity() {
-  	// Should fail even if status is 200.
+    // Should fail even if status is 200.
     fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
     boolean success = apiService.batchEvents(PAYLOAD);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertFalse(success);
   }
-
 
   /****************************************************************************
    * Helper methods
