@@ -46,7 +46,7 @@ public class YozioHelperTest extends AndroidTestCase {
       JSONObject payload = apiService.getPayload();
       String deviceId = payload.getString("device_id");
       String connectionType = payload.getString("connection_type");
-      String experimentVariationIds = payload.getString("experiment_variation_ids");
+      String experimentVariationIds = payload.getString("experiment_variation_sids");
       Assert.assertNotNull(deviceId);
       Assert.assertNotNull(connectionType);
       Assert.assertEquals("{\"experiment1\":\"variation1\"}", experimentVariationIds);
