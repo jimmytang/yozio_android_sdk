@@ -105,6 +105,39 @@ public class YozioHelperTest extends AndroidTestCase {
     Assert.assertEquals(111, Yozio.intForKey("key", 111));
   }
 
+  public void testGetUrlWithExperimentVariationSids() {
+    Yozio.configure(getContext(), APP_KEY, "test secret key");
+    JSONObject experimentVariationSids = null;
+    try {
+      experimentVariationSids = new JSONObject().put("123", "456");
+      apiService.setExperimentVariationSids(experimentVariationSids);
+    } catch (JSONException e) {
+      fail();
+    }
+    Yozio.initializeExperiments();
+    Yozio.getUrl("link name", "www.ooga.booga");
+    try {
+      Assert.assertEquals(
+          experimentVariationSids.toString(),
+          apiService.getSuperProperties().get("experiment_variation_sids").toString());
+    } catch (JSONException e) {
+      fail();
+    }
+  }
+
+  public void testGetUrlWithoutExperimentVariationSids() {
+    Yozio.configure(getContext(), APP_KEY, "test secret key");
+    Yozio.initializeExperiments();
+    Yozio.getUrl("link name", "www.ooga.booga");
+    try {
+      Assert.assertEquals("{}",
+          apiService.getSuperProperties().get("experiment_variation_sids").toString());
+    } catch (JSONException e) {
+      fail();
+    }
+  }
+
+
   public void testStringForKeyForExistingKey() {
     Yozio.configure(getContext(), APP_KEY, "test secret key");
 
