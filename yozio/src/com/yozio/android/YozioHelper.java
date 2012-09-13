@@ -80,7 +80,7 @@ class YozioHelper {
   private static final String P_MOBILE_NETWORK_CODE = "mobile_network_code";
   private static final String P_CONNECTION_TYPE = "connection_type";
 
-  private static final String P_EXPERIMENT_VARIATION_IDS = "experiment_variation_ids";
+  private static final String P_EXPERIMENT_VARIATION_SIDS = "experiment_variation_sids";
 
   // Minimum number of events before flushing.
   private static final int FLUSH_BATCH_MIN = 1;
@@ -510,7 +510,7 @@ class YozioHelper {
         payloadObject.put(P_MOBILE_NETWORK_CODE, mobileNetworkCode);
         payloadObject.put(P_CONNECTION_TYPE, connectionType);
 
-        payloadObject.put(P_EXPERIMENT_VARIATION_IDS, experimentVariationSids);
+        payloadObject.put(P_EXPERIMENT_VARIATION_SIDS, experimentVariationSids);
 
         return payloadObject;
       } catch (JSONException e) {
