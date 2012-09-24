@@ -49,12 +49,15 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String LOGTAG = "YozioApiServiceImpl";
 
   // Request param names
+  private static final String GET_CONFIGURATION_P_APP_KEY = "app_key";
+  private static final String GET_CONFIGURATION_P_DEVICE_TYPE = "device_type";
+  private static final String GET_CONFIGURATION_P_YOZIO_UDID = "yozio_udid";
   private static final String GET_URL_P_APP_KEY = "app_key";
-  private static final String GET_URL_P_YOZIO_UDID = "yozio_udid";
+  private static final String GET_URL_P_DEST_URL = "dest_url";
   private static final String GET_URL_P_DEVICE_TYPE = "device_type";
   private static final String GET_URL_P_LINK_NAME = "link_name";
-  private static final String GET_URL_P_DEST_URL = "dest_url";
   private static final String GET_URL_P_SUPER_PROPERTIES = "super_properties";
+  private static final String GET_URL_P_YOZIO_UDID = "yozio_udid";
   private static final String BATCH_EVENTS_P_DATA = "data";
 
   // Response param names
@@ -92,9 +95,9 @@ class YozioApiServiceImpl implements YozioApiService {
 
   public ExperimentInfo getExperimentInfo(String appKey, String yozioUdid) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
-    params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
-    params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
-    params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
+    params.add(new BasicNameValuePair(GET_CONFIGURATION_P_APP_KEY, appKey));
+    params.add(new BasicNameValuePair(GET_CONFIGURATION_P_YOZIO_UDID, yozioUdid));
+    params.add(new BasicNameValuePair(GET_CONFIGURATION_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     Response response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
 
     final JSONObject experimentConfigs = getJsonObjectValue(response,
@@ -133,6 +136,7 @@ class YozioApiServiceImpl implements YozioApiService {
   Response doPostRequest(String baseUrl, List<NameValuePair> params) {
     try {
       HttpPost httpPost = new HttpPost(baseUrl);
+      httpPost.setHeader(YozioHelper.H_SDK_VERSION, YozioHelper.YOZIO_SDK_VERSION);
       httpPost.setEntity(new UrlEncodedFormEntity(params));
       HttpResponse httpResponse = httpClient.execute(httpPost);
       HttpEntity httpEntity = httpResponse.getEntity();

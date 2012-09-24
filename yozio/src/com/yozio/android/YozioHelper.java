@@ -42,6 +42,9 @@ import com.yozio.android.YozioDataStore.Events;
 
 class YozioHelper {
 
+  // SDK version
+  protected static final String YOZIO_SDK_VERSION = "ANDROID-v1.6";
+
   // Android device type is 3.
   static final String DEVICE_TYPE = "3";
 
@@ -53,6 +56,9 @@ class YozioHelper {
   private static final String D_LINK_NAME = "link_name";
   private static final String D_TIMESTAMP = "timestamp";
   private static final String D_EVENT_IDENTIFIER = "event_identifier";
+
+  // Header keys.
+  protected static final String H_SDK_VERSION = "yozio-sdk-version";
 
   // Payload keys.
   private static final String P_APP_KEY = "app_key";

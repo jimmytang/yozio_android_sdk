@@ -30,7 +30,6 @@ import android.util.Log;
 public final class Yozio {
 
   private static final String LOGTAG = "Yozio";
-  private static final String USER_AGENT = "Yozio Android SDK";
 
   // Event types.
   private static final int E_OPENED_APP = 5;
@@ -218,7 +217,6 @@ public final class Yozio {
     HttpParams params = new BasicHttpParams();
     HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
     HttpProtocolParams.setContentCharset(params, "UTF-8");
-    HttpProtocolParams.setUserAgent(params, USER_AGENT);
     SchemeRegistry registry = new SchemeRegistry();
     registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
     ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(params, registry);
