@@ -80,6 +80,17 @@ public final class Yozio {
     helper.initializeExperiments();
   }
 
+
+  /**
+   * Use only for Yozio Viral.
+   *
+   * Initializes the Yozio SDK for experiments.
+   * Makes a non-blocking HTTP request to Yozio to retrieve the experiment configurations.
+   */
+  public static void initializeExperimentsAsync() {
+    helper.initializeExperimentsAsync();
+  }
+
   /**
    * Use only for Yozio Experiments
    *

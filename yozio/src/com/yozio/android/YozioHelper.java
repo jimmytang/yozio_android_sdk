@@ -135,6 +135,8 @@ class YozioHelper {
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
+    this.experimentConfigs = new JSONObject();
+    this.experimentVariationSids = new JSONObject();
   }
 
   /**
@@ -163,6 +165,18 @@ class YozioHelper {
     this.experimentConfigs = experimentInfo.getConfigs();
     this.experimentVariationSids = experimentInfo.getExperimentVariationSids();
   }
+
+  /**
+   * Makes a non-blocking request to retrieve the experiment configurations.
+   */
+  void initializeExperimentsAsync() {
+    // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
+    // variations in the UI.
+    System.out.println(
+            "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
+    executor.submit(new InitializeExperimentsTask(this));
+  }
+
 
   /**
    * Returns an experiment configuration String for the given key
@@ -430,6 +444,21 @@ class YozioHelper {
         }
       }
     } catch (Exception e) {
+    }
+  }
+
+  private class InitializeExperimentsTask implements Runnable {
+
+    private final YozioHelper helper;
+
+    InitializeExperimentsTask(YozioHelper helper) {
+      this.helper = helper;
+    }
+
+    public void run() {
+      ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
+      helper.experimentConfigs = experimentInfo.getConfigs();
+      helper.experimentVariationSids = experimentInfo.getExperimentVariationSids();
     }
   }
 
