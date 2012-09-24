@@ -34,6 +34,41 @@ public class YozioHelperTest extends AndroidTestCase {
     helper = new YozioHelper(dataStore, apiService);
   }
 
+  public void testInitializeExperimentsAsync() {
+    helper.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
+
+    JSONObject configs = null;
+    try {
+      configs = new JSONObject().put("key", "123");
+      apiService.setExperimentConfigs(configs);
+    } catch (JSONException e) {
+      fail();
+    }
+
+    helper.initializeExperimentsAsync();
+    try {
+      Thread.sleep(2000);
+      Assert.assertEquals(123, helper.intForKey("key", 111));
+    } catch (InterruptedException e) {
+      fail();
+    }
+  }
+
+  public void testIntForKeyBeforeInitializeExperimentsAsyncCompletes() {
+    helper.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
+
+    JSONObject configs = null;
+    try {
+      configs = new JSONObject().put("key", "123");
+      apiService.setExperimentConfigs(configs);
+    } catch (JSONException e) {
+      fail();
+    }
+
+    helper.initializeExperimentsAsync();
+    Assert.assertEquals(111, helper.intForKey("key", 111));
+  }
+
   public void testIntForKeyForExistingKey() {
     helper.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
 
@@ -127,7 +162,7 @@ public class YozioHelperTest extends AndroidTestCase {
   public void testGetUrlWithoutCallingInitializeExperiments() {
     helper.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
     helper.getUrl("link name", "www.ooga.booga");
-    Assert.assertEquals("{}", apiService.getSuperProperties().toString());
+    Assert.assertEquals("{\"experiment_variation_sids\":{}}", apiService.getSuperProperties().toString());
   }
 
   public void testCollect() {
@@ -137,8 +172,9 @@ public class YozioHelperTest extends AndroidTestCase {
       // TODO(dounanshi): restructure to not need sleep
       Thread.sleep(2000);
       JSONObject payload = apiService.getPayload();
-      assertFalse(payload.has("experiment_variation_sids"));
-      assertFalse(payload.has("external_user_id"));
+
+      assert(payload.get("experiment_variation_sids") == "{}");
+      assert(payload.get("external_user_id") == "{}");
 
       // TODO(kevinliu): add assertions for the rest of the payload params
       assertNotNull(payload.getString("device_id"));
