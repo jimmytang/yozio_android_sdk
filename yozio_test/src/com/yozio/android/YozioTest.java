@@ -29,7 +29,6 @@ public class YozioTest extends AndroidTestCase {
     Yozio.setHelper(helper);
   }
 
-
   public void testNotConfigured() {
     // TODO
   }
