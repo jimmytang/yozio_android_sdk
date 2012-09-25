@@ -236,7 +236,7 @@ class YozioHelper {
    */
   String getUrl(String linkName, String destinationUrl) {
     String shortenedUrl = apiService.getUrl(
-        appKey, yozioUdid, linkName, destinationUrl, getSuperProperties());
+        appKey, yozioUdid, linkName, destinationUrl, getYozioProperties());
     return shortenedUrl != null ? shortenedUrl : destinationUrl;
   }
 
@@ -244,9 +244,9 @@ class YozioHelper {
    * Makes a non-blocking request to retrieve the shortened URL.
    */
   void getUrlAsync(String linkName, String destinationUrl, GetUrlCallback callback) {
-    JSONObject superProperties = getSuperProperties();
+    JSONObject yozioProperties = getYozioProperties();
     executor.submit(
-        new GetUrlTask(linkName, destinationUrl, superProperties, callback));
+        new GetUrlTask(linkName, destinationUrl, yozioProperties, callback));
   }
 
   /**
@@ -267,14 +267,14 @@ class YozioHelper {
     executor.submit(new FlushTask());
   }
 
-  private JSONObject getSuperProperties() {
-    JSONObject superProperties = new JSONObject();
+  private JSONObject getYozioProperties() {
+    JSONObject yozioProperties = new JSONObject();
     try {
-      superProperties.put(
+      yozioProperties.put(
           "experiment_variation_sids", this.experimentVariationSids);
     } catch (JSONException e) {
     }
-    return superProperties;
+    return yozioProperties;
   }
 
   private JSONObject buildEvent(int eventType, String linkName) {
