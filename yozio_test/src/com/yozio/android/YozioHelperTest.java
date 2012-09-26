@@ -141,7 +141,7 @@ public class YozioHelperTest extends AndroidTestCase {
     try {
       Assert.assertEquals(
           experimentVariationSids.toString(),
-          apiService.getSuperProperties().get("experiment_variation_sids").toString());
+          apiService.getYozioProperties().get("experiment_variation_sids").toString());
     } catch (JSONException e) {
       fail();
     }
@@ -153,7 +153,7 @@ public class YozioHelperTest extends AndroidTestCase {
     helper.getUrl("link name", "www.ooga.booga");
     try {
       Assert.assertEquals("{}",
-          apiService.getSuperProperties().get("experiment_variation_sids").toString());
+          apiService.getYozioProperties().get("experiment_variation_sids").toString());
     } catch (JSONException e) {
       fail();
     }
@@ -162,7 +162,7 @@ public class YozioHelperTest extends AndroidTestCase {
   public void testGetUrlWithoutCallingInitializeExperiments() {
     helper.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
     helper.getUrl("link name", "www.ooga.booga");
-    Assert.assertEquals("{\"experiment_variation_sids\":{}}", apiService.getSuperProperties().toString());
+    Assert.assertEquals("{\"experiment_variation_sids\":{}}", apiService.getYozioProperties().toString());
   }
 
   public void testCollect() {
