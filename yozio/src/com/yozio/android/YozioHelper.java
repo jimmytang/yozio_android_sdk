@@ -56,6 +56,7 @@ class YozioHelper {
   private static final String D_LINK_NAME = "link_name";
   private static final String D_TIMESTAMP = "timestamp";
   private static final String D_EVENT_IDENTIFIER = "event_identifier";
+  private static final String D_EXTERNAL_PROPERTIES = "external_properties";
 
   // Header keys.
   protected static final String H_SDK_VERSION = "yozio-sdk-version";
@@ -235,25 +236,50 @@ class YozioHelper {
    *         destinationUrl if unsuccessful.
    */
   String getUrl(String linkName, String destinationUrl) {
+    return getUrl(linkName, destinationUrl, null);
+  }
+
+  /**
+   * Makes a blocking request to retrieve the shortened URL.
+   *
+   * @param externalProperties  meta-data Customer wants to attach to url
+   * @return the shortened URL if the request was successful, or the
+   *         destinationUrl if unsuccessful.
+   */
+  String getUrl(String linkName, String destinationUrl, JSONObject externalProperties) {
     String shortenedUrl = apiService.getUrl(
-        appKey, yozioUdid, linkName, destinationUrl, getYozioProperties());
+        appKey, yozioUdid, linkName, destinationUrl,
+        getYozioProperties(), externalProperties);
     return shortenedUrl != null ? shortenedUrl : destinationUrl;
   }
 
   /**
    * Makes a non-blocking request to retrieve the shortened URL.
    */
-  void getUrlAsync(String linkName, String destinationUrl, GetUrlCallback callback) {
+  void getUrlAsync(String linkName, String destinationUrl,
+      GetUrlCallback callback) {
+    getUrlAsync(linkName, destinationUrl, null, callback);
+  }
+  void getUrlAsync(String linkName, String destinationUrl,
+      JSONObject externalProperties, GetUrlCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
     executor.submit(
-        new GetUrlTask(linkName, destinationUrl, yozioProperties, callback));
+        new GetUrlTask(linkName, destinationUrl, yozioProperties,
+            externalProperties, callback));
   }
 
   /**
    * Makes a non-blocking request to store the event.
    */
   void collect(int eventType, String linkName) {
-    JSONObject event = buildEvent(eventType, linkName);
+    collect(eventType, linkName, null);
+  }
+
+  /**
+   * Makes a non-blocking request to store the event.
+   */
+  void collect(int eventType, String linkName, JSONObject externalProperties) {
+    JSONObject event = buildEvent(eventType, linkName, externalProperties);
     if (event == null) {
       return;
     }
@@ -277,13 +303,16 @@ class YozioHelper {
     return yozioProperties;
   }
 
-  private JSONObject buildEvent(int eventType, String linkName) {
+  private JSONObject buildEvent(int eventType, String linkName, JSONObject externalProperties) {
     try {
       JSONObject eventObject = new JSONObject();
       eventObject.put(D_EVENT_TYPE, eventType);
       eventObject.put(D_LINK_NAME, linkName);
       eventObject.put(D_TIMESTAMP, timestamp());
       eventObject.put(D_EVENT_IDENTIFIER, UUID.randomUUID());
+      if (externalProperties != null) {
+        eventObject.put(D_EXTERNAL_PROPERTIES, externalProperties);
+      }
       return eventObject;
     } catch (JSONException e) {
       return null;
@@ -466,20 +495,24 @@ class YozioHelper {
 
     private final String linkName;
     private final String destinationUrl;
-    private final JSONObject superProperties;
+    private final JSONObject externalProperties;
+    private final JSONObject yozioProperties;
     private final GetUrlCallback callback;
 
     GetUrlTask(String linkName, String destinationUrl,
-        JSONObject superProperties, GetUrlCallback callback) {
+        JSONObject yozioProperties, JSONObject externalProperties,
+        GetUrlCallback callback) {
       this.linkName = linkName;
       this.destinationUrl = destinationUrl;
-      this.superProperties = superProperties;
+      this.externalProperties = externalProperties;
+      this.yozioProperties = yozioProperties;
       this.callback = callback;
     }
 
     public void run() {
       String shortenedUrl = apiService.getUrl(
-          appKey, yozioUdid, linkName, destinationUrl, superProperties);
+          appKey, yozioUdid, linkName, destinationUrl,
+          yozioProperties, externalProperties);
       callback.handleResponse(shortenedUrl != null ? shortenedUrl : destinationUrl);
     }
   }
