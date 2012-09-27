@@ -14,8 +14,8 @@ import org.json.JSONObject;
 public class FakeYozioApiService implements YozioApiService {
 
   private JSONObject payload;
-  private JSONObject experimentConfigs = new JSONObject();
-  private JSONObject experimentVariationSids = new JSONObject();
+  private JSONObject experimentConfigs;
+  private JSONObject experimentVariationSids;
   private JSONObject yozioProperties;
   private JSONObject externalProperties;
 

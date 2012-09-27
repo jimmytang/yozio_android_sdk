@@ -156,12 +156,7 @@ public class YozioHelperTest extends AndroidTestCase {
     helper.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
     helper.getUrl("link name", "www.ooga.booga");
-    try {
-      assertEquals("{}",
-          apiService.getYozioProperties().get("experiment_variation_sids").toString());
-    } catch (JSONException e) {
-      fail();
-    }
+    assertFalse(apiService.getYozioProperties().has("experiment_variation_sids"));
   }
 
   public void testGetUrlWithExternalProperties() {
