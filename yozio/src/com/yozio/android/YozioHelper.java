@@ -60,7 +60,7 @@ class YozioHelper {
   private static final String D_EXTERNAL_PROPERTIES = "external_properties";
 
   // Header keys.
-  protected static final String H_SDK_VERSION = "Yozio-Sdk-Version";
+  protected static final String H_SDK_VERSION = "yozio-sdk-version";
 
   // Payload keys.
   private static final String P_APP_KEY = "app_key";
