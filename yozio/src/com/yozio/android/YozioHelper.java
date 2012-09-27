@@ -235,13 +235,11 @@ class YozioHelper {
    * Makes a blocking request to retrieve the shortened URL.
    *
    * @param externalProperties  meta-data Customer wants to attach to url
-   * @return the shortened URL if the request was successful, or the
-   *         destinationUrl if unsuccessful.
+   * @return the shortened URL if the request was successful, or the destinationUrl if unsuccessful.
    */
   String getUrl(String linkName, String destinationUrl, JSONObject externalProperties) {
     String shortenedUrl = apiService.getUrl(
-        appKey, yozioUdid, linkName, destinationUrl,
-        getYozioProperties(), externalProperties);
+        appKey, yozioUdid, linkName, destinationUrl, getYozioProperties(), externalProperties);
     return shortenedUrl != null ? shortenedUrl : destinationUrl;
   }
 
@@ -256,8 +254,7 @@ class YozioHelper {
       JSONObject externalProperties, GetUrlCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
     executor.submit(
-        new GetUrlTask(linkName, destinationUrl, yozioProperties,
-            externalProperties, callback));
+        new GetUrlTask(linkName, destinationUrl, yozioProperties, externalProperties, callback));
   }
 
   /**
@@ -288,8 +285,7 @@ class YozioHelper {
   private JSONObject getYozioProperties() {
     JSONObject yozioProperties = new JSONObject();
     try {
-      yozioProperties.put(
-          "experiment_variation_sids", this.experimentVariationSids);
+      yozioProperties.put("experiment_variation_sids", this.experimentVariationSids);
     } catch (JSONException e) {
     }
     return yozioProperties;
