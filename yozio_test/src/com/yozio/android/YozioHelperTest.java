@@ -16,6 +16,8 @@ import org.json.JSONObject;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.test.AndroidTestCase;
 
+import com.yozio.android.Yozio.InitializeExperimentsCallback;
+
 public class YozioHelperTest extends AndroidTestCase {
 
   private static final String APP_KEY = "APP KEY";
@@ -44,13 +46,11 @@ public class YozioHelperTest extends AndroidTestCase {
       fail();
     }
 
-    helper.initializeExperimentsAsync();
-    try {
-      Thread.sleep(2000);
-      assertEquals(123, helper.intForKey("key", 111));
-    } catch (InterruptedException e) {
-      fail();
-    }
+    helper.initializeExperimentsAsync(new InitializeExperimentsCallback() {
+      public void handleResponse() {
+        assertEquals(123, helper.intForKey("key", 111));
+      }
+    });
   }
 
   public void testIntForKeyBeforeInitializeExperimentsAsyncCompletes() {
@@ -64,7 +64,9 @@ public class YozioHelperTest extends AndroidTestCase {
       fail();
     }
 
-    helper.initializeExperimentsAsync();
+    helper.initializeExperimentsAsync(new InitializeExperimentsCallback() {
+      public void handleResponse() {}
+    });
     assertEquals(111, helper.intForKey("key", 111));
   }
 
@@ -173,7 +175,7 @@ public class YozioHelperTest extends AndroidTestCase {
   public void testGetUrlWithoutCallingInitializeExperiments() {
     helper.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
     helper.getUrl("link name", "www.ooga.booga");
-    assertEquals("{\"experiment_variation_sids\":{}}", apiService.getYozioProperties().toString());
+    assertEquals("{}", apiService.getYozioProperties().toString());
   }
 
   public void testCollect() {
@@ -184,14 +186,13 @@ public class YozioHelperTest extends AndroidTestCase {
       Thread.sleep(2000);
       JSONObject payload = apiService.getPayload();
 
-      assertEquals(payload.getJSONObject("experiment_variation_sids").length(), 0);
+      assertFalse(payload.has("experiment_variation_sids"));
       assertFalse(payload.has("external_user_id"));
 
       // TODO(kevinliu): add assertions for the rest of the payload params
       assertNotNull(payload.getString("device_id"));
       assertNotNull(payload.getString("connection_type"));
     } catch (JSONException e) {
-      System.out.println(e);
       fail();
     } catch (InterruptedException e) {
       fail();

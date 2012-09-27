@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.yozio.android.Yozio.GetUrlCallback;
+import com.yozio.android.Yozio.InitializeExperimentsCallback;
 import com.yozio.android.YozioApiService.ExperimentInfo;
 import com.yozio.android.YozioDataStore.Events;
 
@@ -59,7 +60,7 @@ class YozioHelper {
   private static final String D_EXTERNAL_PROPERTIES = "external_properties";
 
   // Header keys.
-  protected static final String H_SDK_VERSION = "yozio-sdk-version";
+  protected static final String H_SDK_VERSION = "Yozio-Sdk-Version";
 
   // Payload keys.
   private static final String P_APP_KEY = "app_key";
@@ -136,8 +137,6 @@ class YozioHelper {
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
-    this.experimentConfigs = new JSONObject();
-    this.experimentVariationSids = new JSONObject();
   }
 
   /**
@@ -158,11 +157,7 @@ class YozioHelper {
   void initializeExperiments() {
     ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
 
-    // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
-    // variations in the UI.
-    System.out.println(
-            "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
-
+    printYozioUdid();
     this.experimentConfigs = experimentInfo.getConfigs();
     this.experimentVariationSids = experimentInfo.getExperimentVariationSids();
   }
@@ -170,12 +165,9 @@ class YozioHelper {
   /**
    * Makes a non-blocking request to retrieve the experiment configurations.
    */
-  void initializeExperimentsAsync() {
-    // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
-    // variations in the UI.
-    System.out.println(
-            "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
-    executor.submit(new InitializeExperimentsTask(this));
+  void initializeExperimentsAsync(InitializeExperimentsCallback callback) {
+    printYozioUdid();
+    executor.submit(new InitializeExperimentsTask(this, callback));
   }
 
 
@@ -185,7 +177,7 @@ class YozioHelper {
   String stringForKey(String key, String defaultValue) {
     try {
       return this.experimentConfigs.getString(key);
-    } catch (JSONException e) {
+    } catch (Exception e) {
       return defaultValue;
     }
   }
@@ -196,7 +188,7 @@ class YozioHelper {
   int intForKey(String key, int defaultValue) {
     try {
       return this.experimentConfigs.getInt(key);
-    } catch (JSONException e) {
+    } catch (Exception e) {
       return defaultValue;
     }
   }
@@ -256,10 +248,10 @@ class YozioHelper {
   /**
    * Makes a non-blocking request to retrieve the shortened URL.
    */
-  void getUrlAsync(String linkName, String destinationUrl,
-      GetUrlCallback callback) {
+  void getUrlAsync(String linkName, String destinationUrl, GetUrlCallback callback) {
     getUrlAsync(linkName, destinationUrl, null, callback);
   }
+
   void getUrlAsync(String linkName, String destinationUrl,
       JSONObject externalProperties, GetUrlCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
@@ -345,6 +337,13 @@ class YozioHelper {
       appVersion = packageInfo.versionName;
     } catch (Exception e) {
     }
+  }
+
+  private void printYozioUdid() {
+    // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
+    // variations in the UI.
+    System.out.println(
+            "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
   }
 
   private boolean isValidDeviceId(String deviceId) {
@@ -479,15 +478,18 @@ class YozioHelper {
   private class InitializeExperimentsTask implements Runnable {
 
     private final YozioHelper helper;
+    private final InitializeExperimentsCallback callback;
 
-    InitializeExperimentsTask(YozioHelper helper) {
+    InitializeExperimentsTask(YozioHelper helper, InitializeExperimentsCallback callback) {
       this.helper = helper;
+      this.callback = callback;
     }
 
     public void run() {
       ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
       helper.experimentConfigs = experimentInfo.getConfigs();
       helper.experimentVariationSids = experimentInfo.getExperimentVariationSids();
+      callback.handleResponse();
     }
   }
 

@@ -51,6 +51,13 @@ public final class Yozio {
   }
 
   /**
+   * Callback for initializeExperimentsAsync.
+   */
+  public interface InitializeExperimentsCallback {
+    void handleResponse();
+  }
+
+  /**
    * Configures the Yozio SDK. Must be called when the app is initialized.
    *
    * @param context the application context.
@@ -81,15 +88,17 @@ public final class Yozio {
     helper.initializeExperiments();
   }
 
-
   /**
    * Use only for Yozio Viral.
    *
    * Initializes the Yozio SDK for experiments.
    * Makes a non-blocking HTTP request to Yozio to retrieve the experiment configurations.
    */
-  public static void initializeExperimentsAsync() {
-    helper.initializeExperimentsAsync();
+  public static void initializeExperimentsAsync(InitializeExperimentsCallback callback) {
+    if (!validate()) {
+      return;
+    }
+    helper.initializeExperimentsAsync(callback);
   }
 
   /**
@@ -138,11 +147,10 @@ public final class Yozio {
    * display to your data. (Optional)
    *
    * @param userName  the application's user name
-   * @param externalProperties  a JSONObject containing any meta data user wants
+   * @param externalProperties  a JSONObject containing any meta data
    *                            to attach to this event
    */
-  public synchronized static void userLoggedIn(
-      String userName, JSONObject externalProperties) {
+  public synchronized static void userLoggedIn(String userName, JSONObject externalProperties) {
     if (!validate()) {
       return;
     }
@@ -178,7 +186,7 @@ public final class Yozio {
    *                  link names created on the Yozio web UI.
    * @param destinationUrl  a custom destination URL that the returned
    *                        shortened URL should redirect to.
-   * @param externalProperties a JSONObject containing any meta data user wants
+   * @param externalProperties a JSONObject containing any meta data
    *                           to attach to the Url
    * @return the Yozio short url that redirects to the destinationUrl.
    */
@@ -221,7 +229,7 @@ public final class Yozio {
    *                  link names created on the Yozio web UI.
    * @param destinationUrl  a custom destination URL that the returned
    *                        shortened URL should redirect to.
-   * @param externalProperties a JSONObject containing any meta data user wants
+   * @param externalProperties a JSONObject containing any meta data
    *                           to attach to the Url. This data will be copied over
    *                           to click events.
    * @param callback  the {@link GetUrlCallback} to handle the Yozio short url.
@@ -232,7 +240,7 @@ public final class Yozio {
                         JSONObject externalProperties,
                         GetUrlCallback callback) {
     if (!validate()) {
-            callback.handleResponse(destinationUrl);
+      callback.handleResponse(destinationUrl);
     }
     helper.getUrlAsync(linkName, destinationUrl, externalProperties, callback);
   }
@@ -258,7 +266,7 @@ public final class Yozio {
    * @param linkName  the name of the tracking link viewed by the user.
    *                  This MUST match one of the link names created on the
    *                  Yozio web UI.
-   * @param externalProperties  a JSONObject containing any meta data user wants
+   * @param externalProperties  a JSONObject containing any meta data
    *                            to attach to this event
    */
   public static void viewedLink(String linkName, JSONObject externalProperties) {
@@ -289,7 +297,7 @@ public final class Yozio {
    * @param linkName  the name of the tracking link shared by the user.
    *                  This MUST match one of the link names created on the
    *                  Yozio web UI.
-   * @param externalProperties  a JSONObject containing any meta data user wants
+   * @param externalProperties  a JSONObject containing any meta data
    *                            to attach to this event
    */
   public static void sharedLink(String linkName, JSONObject externalProperties) {
