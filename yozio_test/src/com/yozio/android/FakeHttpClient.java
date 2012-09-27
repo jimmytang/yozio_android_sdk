@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
 import android.net.Uri;
 
@@ -44,9 +45,8 @@ public class FakeHttpClient implements HttpClient {
     HttpEntity entity = lastRequest.getEntity();
     String requestParams;
     try {
-      requestParams = DEFAULT_BASE_URL + "?" + convertStreamToString(entity.getContent());
+      requestParams = DEFAULT_BASE_URL + "?" + EntityUtils.toString(entity);
       return Uri.parse(requestParams);
-    } catch (IllegalStateException e) {
     } catch (IOException e) {
     }
     return null;
@@ -106,13 +106,5 @@ public class FakeHttpClient implements HttpClient {
 
   public HttpParams getParams() {
     throw new UnsupportedOperationException();
-  }
-
-  private String convertStreamToString(java.io.InputStream is) {
-    try {
-        return new java.util.Scanner(is).useDelimiter("\\A").next();
-    } catch (java.util.NoSuchElementException e) {
-        return "";
-    }
   }
 }

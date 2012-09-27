@@ -338,8 +338,8 @@ class YozioHelper {
   private void printYozioUdid() {
     // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
     // variations in the UI.
-    System.out.println(
-            "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
+    Log.i("Yozio",
+        "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
   }
 
   private boolean isValidDeviceId(String deviceId) {
@@ -485,7 +485,7 @@ class YozioHelper {
       ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
       helper.experimentConfigs = experimentInfo.getConfigs();
       helper.experimentVariationSids = experimentInfo.getExperimentVariationSids();
-      callback.handleResponse();
+      callback.onComplete();
     }
   }
 
@@ -498,8 +498,7 @@ class YozioHelper {
     private final GetUrlCallback callback;
 
     GetUrlTask(String linkName, String destinationUrl,
-        JSONObject yozioProperties, JSONObject externalProperties,
-        GetUrlCallback callback) {
+        JSONObject yozioProperties, JSONObject externalProperties, GetUrlCallback callback) {
       this.linkName = linkName;
       this.destinationUrl = destinationUrl;
       this.externalProperties = externalProperties;
@@ -509,8 +508,7 @@ class YozioHelper {
 
     public void run() {
       String shortenedUrl = apiService.getUrl(
-          appKey, yozioUdid, linkName, destinationUrl,
-          yozioProperties, externalProperties);
+          appKey, yozioUdid, linkName, destinationUrl, yozioProperties, externalProperties);
       callback.handleResponse(shortenedUrl != null ? shortenedUrl : destinationUrl);
     }
   }

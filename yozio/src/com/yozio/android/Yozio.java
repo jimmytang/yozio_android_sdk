@@ -54,7 +54,7 @@ public final class Yozio {
    * Callback for initializeExperimentsAsync.
    */
   public interface InitializeExperimentsCallback {
-    void handleResponse();
+    void onComplete();
   }
 
   /**
@@ -191,7 +191,7 @@ public final class Yozio {
    * @return the Yozio short url that redirects to the destinationUrl.
    */
   public static String getUrl(String linkName,
-      String destinationUrl,JSONObject externalProperties) {
+      String destinationUrl, JSONObject externalProperties) {
     if (!validate()) {
       return destinationUrl;
     }

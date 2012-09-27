@@ -48,7 +48,7 @@ public class YozioHelperTest extends AndroidTestCase {
 
     try {
       helper.initializeExperimentsAsync(new InitializeExperimentsCallback() {
-        public void handleResponse() {}
+        public void onComplete() {}
       });
       Thread.sleep(2000);
       assertEquals(123, helper.intForKey("key", 111));
@@ -69,7 +69,7 @@ public class YozioHelperTest extends AndroidTestCase {
     }
 
     helper.initializeExperimentsAsync(new InitializeExperimentsCallback() {
-      public void handleResponse() {}
+      public void onComplete() {}
     });
     assertEquals(111, helper.intForKey("key", 111));
   }
