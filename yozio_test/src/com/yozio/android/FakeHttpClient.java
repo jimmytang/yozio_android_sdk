@@ -11,34 +11,55 @@ package com.yozio.android;
 
 import java.io.IOException;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 
+import android.net.Uri;
+
 public class FakeHttpClient implements HttpClient {
 
+  private static final String DEFAULT_BASE_URL = "http://localhost:1337";
   private HttpResponse httpResponse;
-  private HttpUriRequest lastRequest;
+  private HttpPost lastRequest;
 
   public void setHttpResonse(HttpResponse httpResponse) {
     this.httpResponse = httpResponse;
   }
 
-  public HttpUriRequest getLastRequest() {
+  public HttpPost getLastRequest() {
     return lastRequest;
+  }
+
+  public Uri getLastRequestUri() {
+    HttpEntity entity = lastRequest.getEntity();
+    String requestParams;
+    try {
+      requestParams = DEFAULT_BASE_URL + "?" + convertStreamToString(entity.getContent());
+      return Uri.parse(requestParams);
+    } catch (IllegalStateException e) {
+    } catch (IOException e) {
+    }
+    return null;
   }
 
   public HttpResponse execute(HttpUriRequest request)
       throws IOException, ClientProtocolException {
-    lastRequest = request;
-    return httpResponse;
+    if (request instanceof HttpPost) {
+      lastRequest = (HttpPost) request;
+      return httpResponse;
+    } else {
+      throw new UnsupportedOperationException();
+    }
   }
 
   public HttpResponse execute(HttpUriRequest request, HttpContext context)
@@ -85,5 +106,13 @@ public class FakeHttpClient implements HttpClient {
 
   public HttpParams getParams() {
     throw new UnsupportedOperationException();
+  }
+
+  private String convertStreamToString(java.io.InputStream is) {
+    try {
+        return new java.util.Scanner(is).useDelimiter("\\A").next();
+    } catch (java.util.NoSuchElementException e) {
+        return "";
+    }
   }
 }
