@@ -19,6 +19,7 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -30,7 +31,6 @@ import android.util.Log;
 public final class Yozio {
 
   private static final String LOGTAG = "Yozio";
-  private static final String USER_AGENT = "Yozio Android SDK";
 
   // Event types.
   private static final int E_OPENED_APP = 5;
@@ -48,6 +48,13 @@ public final class Yozio {
    */
   public interface GetUrlCallback {
     void handleResponse(String shortUrl);
+  }
+
+  /**
+   * Callback for initializeExperimentsAsync.
+   */
+  public interface InitializeExperimentsCallback {
+    void onComplete();
   }
 
   /**
@@ -79,6 +86,19 @@ public final class Yozio {
       return;
     }
     helper.initializeExperiments();
+  }
+
+  /**
+   * Use only for Yozio Viral.
+   *
+   * Initializes the Yozio SDK for experiments.
+   * Makes a non-blocking HTTP request to Yozio to retrieve the experiment configurations.
+   */
+  public static void initializeExperimentsAsync(InitializeExperimentsCallback callback) {
+    if (!validate()) {
+      return;
+    }
+    helper.initializeExperimentsAsync(callback);
   }
 
   /**
@@ -120,11 +140,22 @@ public final class Yozio {
    * @param userName  the application's user name
    */
   public synchronized static void userLoggedIn(String userName) {
+    userLoggedIn(userName, null);
+  }
+  /**
+   * Configures Yozio with your user's user name. This is used to provide a better
+   * display to your data. (Optional)
+   *
+   * @param userName  the application's user name
+   * @param externalProperties  a JSONObject containing any meta data
+   *                            to attach to this event
+   */
+  public synchronized static void userLoggedIn(String userName, JSONObject externalProperties) {
     if (!validate()) {
       return;
     }
     helper.setUserName(userName);
-    helper.collect(E_LOGIN, "");
+    helper.collect(E_LOGIN, "", externalProperties);
   }
 
   /**
@@ -141,10 +172,30 @@ public final class Yozio {
    * @return the Yozio short url that redirects to the destinationUrl.
    */
   public static String getUrl(String linkName, String destinationUrl) {
+    return getUrl(linkName, destinationUrl, null);
+  }
+
+  /**
+   * Use only for Yozio Viral.
+   *
+   * Makes a blocking HTTP request to Yozio to retrieve a shortened URL
+   * specific to the device for the given linkName.
+   *
+   * @param linkName  the name of the tracking link to retrieve the device
+   *                  specific shortened URL for. This MUST match one of the
+   *                  link names created on the Yozio web UI.
+   * @param destinationUrl  a custom destination URL that the returned
+   *                        shortened URL should redirect to.
+   * @param externalProperties a JSONObject containing any meta data
+   *                           to attach to the Url
+   * @return the Yozio short url that redirects to the destinationUrl.
+   */
+  public static String getUrl(String linkName,
+      String destinationUrl, JSONObject externalProperties) {
     if (!validate()) {
       return destinationUrl;
     }
-    return helper.getUrl(linkName, destinationUrl);
+    return helper.getUrl(linkName, destinationUrl, externalProperties);
   }
 
   /**
@@ -164,10 +215,34 @@ public final class Yozio {
   		String linkName,
   		String destinationUrl,
   		GetUrlCallback callback) {
+    getUrlAsync(linkName, destinationUrl, null, callback);
+  }
+
+  /**
+   * Use only for Yozio Viral.
+   *
+   * Makes a non-blocking HTTP request to Yozio to retrieve a shortened URL
+   * specific to the device for the given linkName.
+   *
+   * @param linkName  the name of the tracking link to retrieve the device
+   *                  specific shortened URL for. This MUST match one of the
+   *                  link names created on the Yozio web UI.
+   * @param destinationUrl  a custom destination URL that the returned
+   *                        shortened URL should redirect to.
+   * @param externalProperties a JSONObject containing any meta data
+   *                           to attach to the Url. This data will be copied over
+   *                           to click events.
+   * @param callback  the {@link GetUrlCallback} to handle the Yozio short url.
+   */
+  public static void getUrlAsync(
+                        String linkName,
+                        String destinationUrl,
+                        JSONObject externalProperties,
+                        GetUrlCallback callback) {
     if (!validate()) {
-    	callback.handleResponse(destinationUrl);
+      callback.handleResponse(destinationUrl);
     }
-    helper.getUrlAsync(linkName, destinationUrl, callback);
+    helper.getUrlAsync(linkName, destinationUrl, externalProperties, callback);
   }
 
   /**
@@ -180,10 +255,25 @@ public final class Yozio {
    *                  Yozio web UI.
    */
   public static void viewedLink(String linkName) {
+    viewedLink(linkName, null);
+  }
+
+  /**
+   * Use only for Yozio Viral.
+   *
+   * Alert Yozio that a user has viewed a link.
+   *
+   * @param linkName  the name of the tracking link viewed by the user.
+   *                  This MUST match one of the link names created on the
+   *                  Yozio web UI.
+   * @param externalProperties  a JSONObject containing any meta data
+   *                            to attach to this event
+   */
+  public static void viewedLink(String linkName, JSONObject externalProperties) {
     if (!validate()) {
       return;
     }
-    helper.collect(E_VIEWED_LINK, linkName);
+    helper.collect(E_VIEWED_LINK, linkName, externalProperties);
   }
 
   /**
@@ -196,10 +286,25 @@ public final class Yozio {
    *                  Yozio web UI.
    */
   public static void sharedLink(String linkName) {
+    sharedLink(linkName, null);
+  }
+
+  /**
+   * Use only for Yozio Viral.
+   *
+   * Alert Yozio that a user has shared a link.
+   *
+   * @param linkName  the name of the tracking link shared by the user.
+   *                  This MUST match one of the link names created on the
+   *                  Yozio web UI.
+   * @param externalProperties  a JSONObject containing any meta data
+   *                            to attach to this event
+   */
+  public static void sharedLink(String linkName, JSONObject externalProperties) {
     if (!validate()) {
       return;
     }
-    helper.collect(E_SHARED_LINK, linkName);
+    helper.collect(E_SHARED_LINK, linkName, externalProperties);
   }
 
   private static void initializeIfNeeded(Context context, String appKey) {
@@ -218,7 +323,6 @@ public final class Yozio {
     HttpParams params = new BasicHttpParams();
     HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
     HttpProtocolParams.setContentCharset(params, "UTF-8");
-    HttpProtocolParams.setUserAgent(params, USER_AGENT);
     SchemeRegistry registry = new SchemeRegistry();
     registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
     ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(params, registry);

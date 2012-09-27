@@ -14,13 +14,16 @@ import org.json.JSONObject;
 public class FakeYozioApiService implements YozioApiService {
 
   private JSONObject payload;
-  private JSONObject experimentConfigs = new JSONObject();
-  private JSONObject experimentVariationSids = new JSONObject();
-  private JSONObject superProperties;
+  private JSONObject experimentConfigs;
+  private JSONObject experimentVariationSids;
+  private JSONObject yozioProperties;
+  private JSONObject externalProperties;
 
   public String getUrl(String appKey, String yozioUdid,
-      String linkName, String destinationUrl, JSONObject superProperties) {
-    this.superProperties = superProperties;
+      String linkName, String destinationUrl,
+      JSONObject yozioProperties, JSONObject externalProperties) {
+    this.yozioProperties = yozioProperties;
+    this.externalProperties = externalProperties;
     return null;
   }
 
@@ -28,8 +31,12 @@ public class FakeYozioApiService implements YozioApiService {
     return payload;
   }
 
-  public JSONObject getSuperProperties() {
-    return this.superProperties;
+  public JSONObject getYozioProperties() {
+    return this.yozioProperties;
+  }
+
+  public JSONObject getExternalProperties() {
+    return this.externalProperties;
   }
 
   public boolean batchEvents(JSONObject payload) {

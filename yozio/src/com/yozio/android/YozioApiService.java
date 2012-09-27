@@ -39,11 +39,14 @@ interface YozioApiService {
    *                  link names created on the Yozio web UI.
    * @param destinationUrl  a custom destination URL that the returned shortened
    *                        URL should redirect to.
-   * @param experimentVariationSids  a JSONObject of experiment to variation sid mappings
+   * @param yozioProperties a JSONObject of internal yozio properties.
+   *                        currently storing experiment_variation_sids.
+   * @param externalProperties a JSONObject of meta-data to tag to a url.
    * @return the shortened URL or null if the request failed.
    */
   String getUrl(String appKey, String yozioUdid,
-      String linkName, String destinationUrl, JSONObject experimentVariationSids);
+      String linkName, String destinationUrl, JSONObject yozioProperties,
+      JSONObject externalProperties);
 
   /**
    * Makes a blocking HTTP request to download the experiment configurations

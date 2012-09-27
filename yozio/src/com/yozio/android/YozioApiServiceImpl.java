@@ -49,19 +49,22 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String LOGTAG = "YozioApiServiceImpl";
 
   // Request param names
+  private static final String GET_CONFIGURATION_P_APP_KEY = "app_key";
+  private static final String GET_CONFIGURATION_P_DEVICE_TYPE = "device_type";
+  private static final String GET_CONFIGURATION_P_YOZIO_UDID = "yozio_udid";
   private static final String GET_URL_P_APP_KEY = "app_key";
-  private static final String GET_URL_P_YOZIO_UDID = "yozio_udid";
-  private static final String GET_URL_P_DEVICE_TYPE = "device_type";
-  private static final String GET_URL_P_LINK_NAME = "link_name";
   private static final String GET_URL_P_DEST_URL = "dest_url";
-  private static final String GET_URL_P_SUPER_PROPERTIES = "super_properties";
+  private static final String GET_URL_P_DEVICE_TYPE = "device_type";
+  private static final String GET_URL_P_EXTERNAL_PROPERTIES = "external_properties";
+  private static final String GET_URL_P_LINK_NAME = "link_name";
+  private static final String GET_URL_P_YOZIO_PROPERTIES = "yozio_properties";
+  private static final String GET_URL_P_YOZIO_UDID = "yozio_udid";
   private static final String BATCH_EVENTS_P_DATA = "data";
 
   // Response param names
   private static final String GET_URL_R_URL = "url";
   private static final String GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS = "experiment_configs";
   private static final String GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS = "experiment_variation_sids";
-
 
   private final HttpClient httpClient;
   private String baseUrl;
@@ -77,24 +80,25 @@ class YozioApiServiceImpl implements YozioApiService {
   }
 
   public String getUrl(String appKey, String yozioUdid,
-      String linkName, String destinationUrl, JSONObject superProperties) {
+      String linkName, String destinationUrl, JSONObject yozioProperties,
+      JSONObject externalProperties) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
     params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
-    params.add(new BasicNameValuePair(
-        GET_URL_P_SUPER_PROPERTIES, superProperties.toString()));
+    addParam(params, GET_URL_P_YOZIO_PROPERTIES, yozioProperties);
+    addParam(params, GET_URL_P_EXTERNAL_PROPERTIES, externalProperties);
     Response response = doPostRequest(baseUrl + GET_URL_ROUTE, params);
     return getJsonValue(response, GET_URL_R_URL);
   }
 
   public ExperimentInfo getExperimentInfo(String appKey, String yozioUdid) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
-    params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
-    params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
-    params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
+    params.add(new BasicNameValuePair(GET_CONFIGURATION_P_APP_KEY, appKey));
+    params.add(new BasicNameValuePair(GET_CONFIGURATION_P_YOZIO_UDID, yozioUdid));
+    params.add(new BasicNameValuePair(GET_CONFIGURATION_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     Response response = doPostRequest(baseUrl + GET_CONFIGURATIONS_ROUTE, params);
 
     final JSONObject experimentConfigs = getJsonObjectValue(response,
@@ -130,9 +134,11 @@ class YozioApiServiceImpl implements YozioApiService {
    * @param params  the GET parameters.
    * @return  the {@link Response}, or null if the request failed.
    */
+  //TODO: Cache baseUrl and NameValuePair list. Add option.
   Response doPostRequest(String baseUrl, List<NameValuePair> params) {
     try {
       HttpPost httpPost = new HttpPost(baseUrl);
+      httpPost.setHeader(YozioHelper.H_SDK_VERSION, YozioHelper.YOZIO_SDK_VERSION);
       httpPost.setEntity(new UrlEncodedFormEntity(params));
       HttpResponse httpResponse = httpClient.execute(httpPost);
       HttpEntity httpEntity = httpResponse.getEntity();
@@ -153,6 +159,21 @@ class YozioApiServiceImpl implements YozioApiService {
   // For testing.
   void setBaseUrl(String baseUrl) {
     this.baseUrl = baseUrl;
+  }
+
+  /**
+   * @param params  a list of name value pairs to add to
+   * @param key    the param key
+   * @param value  the param value
+   *
+   * Adds a BasicNameValuePair to params for given key and value
+   * when value is not null and not empty
+   */
+  //TODO: Sort this before toString() if toString() is not deterministic;
+  private void addParam(List<NameValuePair> params, String key, JSONObject value) {
+    if (value != null && value.length() > 0) {
+      params.add(new BasicNameValuePair(key, value.toString()));
+    }
   }
 
   /**

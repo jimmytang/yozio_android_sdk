@@ -37,10 +37,14 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.yozio.android.Yozio.GetUrlCallback;
+import com.yozio.android.Yozio.InitializeExperimentsCallback;
 import com.yozio.android.YozioApiService.ExperimentInfo;
 import com.yozio.android.YozioDataStore.Events;
 
 class YozioHelper {
+
+  // SDK version
+  protected static final String YOZIO_SDK_VERSION = "ANDROID-v1.6";
 
   // Android device type is 3.
   static final String DEVICE_TYPE = "3";
@@ -53,6 +57,10 @@ class YozioHelper {
   private static final String D_LINK_NAME = "link_name";
   private static final String D_TIMESTAMP = "timestamp";
   private static final String D_EVENT_IDENTIFIER = "event_identifier";
+  private static final String D_EXTERNAL_PROPERTIES = "external_properties";
+
+  // Header keys.
+  protected static final String H_SDK_VERSION = "yozio-sdk-version";
 
   // Payload keys.
   private static final String P_APP_KEY = "app_key";
@@ -149,14 +157,19 @@ class YozioHelper {
   void initializeExperiments() {
     ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
 
-    // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
-    // variations in the UI.
-    System.out.println(
-            "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
-
+    printYozioUdid();
     this.experimentConfigs = experimentInfo.getConfigs();
     this.experimentVariationSids = experimentInfo.getExperimentVariationSids();
   }
+
+  /**
+   * Makes a non-blocking request to retrieve the experiment configurations.
+   */
+  void initializeExperimentsAsync(InitializeExperimentsCallback callback) {
+    printYozioUdid();
+    executor.submit(new InitializeExperimentsTask(this, callback));
+  }
+
 
   /**
    * Returns an experiment configuration String for the given key
@@ -164,7 +177,7 @@ class YozioHelper {
   String stringForKey(String key, String defaultValue) {
     try {
       return this.experimentConfigs.getString(key);
-    } catch (JSONException e) {
+    } catch (Exception e) {
       return defaultValue;
     }
   }
@@ -175,7 +188,7 @@ class YozioHelper {
   int intForKey(String key, int defaultValue) {
     try {
       return this.experimentConfigs.getInt(key);
-    } catch (JSONException e) {
+    } catch (Exception e) {
       return defaultValue;
     }
   }
@@ -215,8 +228,18 @@ class YozioHelper {
    *         destinationUrl if unsuccessful.
    */
   String getUrl(String linkName, String destinationUrl) {
+    return getUrl(linkName, destinationUrl, null);
+  }
+
+  /**
+   * Makes a blocking request to retrieve the shortened URL.
+   *
+   * @param externalProperties  meta-data Customer wants to attach to url
+   * @return the shortened URL if the request was successful, or the destinationUrl if unsuccessful.
+   */
+  String getUrl(String linkName, String destinationUrl, JSONObject externalProperties) {
     String shortenedUrl = apiService.getUrl(
-        appKey, yozioUdid, linkName, destinationUrl, getSuperProperties());
+        appKey, yozioUdid, linkName, destinationUrl, getYozioProperties(), externalProperties);
     return shortenedUrl != null ? shortenedUrl : destinationUrl;
   }
 
@@ -224,16 +247,28 @@ class YozioHelper {
    * Makes a non-blocking request to retrieve the shortened URL.
    */
   void getUrlAsync(String linkName, String destinationUrl, GetUrlCallback callback) {
-    JSONObject superProperties = getSuperProperties();
+    getUrlAsync(linkName, destinationUrl, null, callback);
+  }
+
+  void getUrlAsync(String linkName, String destinationUrl,
+      JSONObject externalProperties, GetUrlCallback callback) {
+    JSONObject yozioProperties = getYozioProperties();
     executor.submit(
-        new GetUrlTask(linkName, destinationUrl, superProperties, callback));
+        new GetUrlTask(linkName, destinationUrl, yozioProperties, externalProperties, callback));
   }
 
   /**
    * Makes a non-blocking request to store the event.
    */
   void collect(int eventType, String linkName) {
-    JSONObject event = buildEvent(eventType, linkName);
+    collect(eventType, linkName, null);
+  }
+
+  /**
+   * Makes a non-blocking request to store the event.
+   */
+  void collect(int eventType, String linkName, JSONObject externalProperties) {
+    JSONObject event = buildEvent(eventType, linkName, externalProperties);
     if (event == null) {
       return;
     }
@@ -247,23 +282,25 @@ class YozioHelper {
     executor.submit(new FlushTask());
   }
 
-  private JSONObject getSuperProperties() {
-    JSONObject superProperties = new JSONObject();
+  private JSONObject getYozioProperties() {
+    JSONObject yozioProperties = new JSONObject();
     try {
-      superProperties.put(
-          "experiment_variation_sids", this.experimentVariationSids);
+      yozioProperties.put("experiment_variation_sids", this.experimentVariationSids);
     } catch (JSONException e) {
     }
-    return superProperties;
+    return yozioProperties;
   }
 
-  private JSONObject buildEvent(int eventType, String linkName) {
+  private JSONObject buildEvent(int eventType, String linkName, JSONObject externalProperties) {
     try {
       JSONObject eventObject = new JSONObject();
       eventObject.put(D_EVENT_TYPE, eventType);
       eventObject.put(D_LINK_NAME, linkName);
       eventObject.put(D_TIMESTAMP, timestamp());
       eventObject.put(D_EVENT_IDENTIFIER, UUID.randomUUID());
+      if (externalProperties != null) {
+        eventObject.put(D_EXTERNAL_PROPERTIES, externalProperties);
+      }
       return eventObject;
     } catch (JSONException e) {
       return null;
@@ -296,6 +333,13 @@ class YozioHelper {
       appVersion = packageInfo.versionName;
     } catch (Exception e) {
     }
+  }
+
+  private void printYozioUdid() {
+    // Like clutch.io, we print the Yozio device id to LogCat so developers can force experiment
+    // variations in the UI.
+    Log.i("Yozio",
+        "Yozio Device Identifier (To force an experiment variation): \"" + yozioUdid + "\"");
   }
 
   private boolean isValidDeviceId(String deviceId) {
@@ -427,24 +471,44 @@ class YozioHelper {
     }
   }
 
+  private class InitializeExperimentsTask implements Runnable {
+
+    private final YozioHelper helper;
+    private final InitializeExperimentsCallback callback;
+
+    InitializeExperimentsTask(YozioHelper helper, InitializeExperimentsCallback callback) {
+      this.helper = helper;
+      this.callback = callback;
+    }
+
+    public void run() {
+      ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
+      helper.experimentConfigs = experimentInfo.getConfigs();
+      helper.experimentVariationSids = experimentInfo.getExperimentVariationSids();
+      callback.onComplete();
+    }
+  }
+
   private class GetUrlTask implements Runnable {
 
     private final String linkName;
     private final String destinationUrl;
-    private final JSONObject superProperties;
+    private final JSONObject externalProperties;
+    private final JSONObject yozioProperties;
     private final GetUrlCallback callback;
 
     GetUrlTask(String linkName, String destinationUrl,
-        JSONObject superProperties, GetUrlCallback callback) {
+        JSONObject yozioProperties, JSONObject externalProperties, GetUrlCallback callback) {
       this.linkName = linkName;
       this.destinationUrl = destinationUrl;
-      this.superProperties = superProperties;
+      this.externalProperties = externalProperties;
+      this.yozioProperties = yozioProperties;
       this.callback = callback;
     }
 
     public void run() {
       String shortenedUrl = apiService.getUrl(
-          appKey, yozioUdid, linkName, destinationUrl, superProperties);
+          appKey, yozioUdid, linkName, destinationUrl, yozioProperties, externalProperties);
       callback.handleResponse(shortenedUrl != null ? shortenedUrl : destinationUrl);
     }
   }
