@@ -155,9 +155,8 @@ class YozioHelper {
    * Fetches experiment configurations Makes a blocking request
    */
   void initializeExperiments() {
-    ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
-
     printYozioUdid();
+    ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
     this.experimentConfigs = experimentInfo.getConfigs();
     this.experimentVariationSids = experimentInfo.getExperimentVariationSids();
   }
@@ -167,9 +166,8 @@ class YozioHelper {
    */
   void initializeExperimentsAsync(InitializeExperimentsCallback callback) {
     printYozioUdid();
-    executor.submit(new InitializeExperimentsTask(this, callback));
+    executor.submit(new InitializeExperimentsTask(callback));
   }
-
 
   /**
    * Returns an experiment configuration String for the given key
@@ -250,8 +248,8 @@ class YozioHelper {
     getUrlAsync(linkName, destinationUrl, null, callback);
   }
 
-  void getUrlAsync(String linkName, String destinationUrl,
-      JSONObject externalProperties, GetUrlCallback callback) {
+  void getUrlAsync(String linkName, String destinationUrl, JSONObject externalProperties,
+      GetUrlCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
     executor.submit(
         new GetUrlTask(linkName, destinationUrl, yozioProperties, externalProperties, callback));
@@ -285,6 +283,7 @@ class YozioHelper {
   private JSONObject getYozioProperties() {
     JSONObject yozioProperties = new JSONObject();
     try {
+      // null values are discarded by JSONObject
       yozioProperties.put("experiment_variation_sids", this.experimentVariationSids);
     } catch (JSONException e) {
     }
@@ -298,9 +297,8 @@ class YozioHelper {
       eventObject.put(D_LINK_NAME, linkName);
       eventObject.put(D_TIMESTAMP, timestamp());
       eventObject.put(D_EVENT_IDENTIFIER, UUID.randomUUID());
-      if (externalProperties != null) {
-        eventObject.put(D_EXTERNAL_PROPERTIES, externalProperties);
-      }
+      // null values are discarded by JSONObject
+      eventObject.put(D_EXTERNAL_PROPERTIES, externalProperties);
       return eventObject;
     } catch (JSONException e) {
       return null;
@@ -473,18 +471,16 @@ class YozioHelper {
 
   private class InitializeExperimentsTask implements Runnable {
 
-    private final YozioHelper helper;
     private final InitializeExperimentsCallback callback;
 
-    InitializeExperimentsTask(YozioHelper helper, InitializeExperimentsCallback callback) {
-      this.helper = helper;
+    InitializeExperimentsTask(InitializeExperimentsCallback callback) {
       this.callback = callback;
     }
 
     public void run() {
       ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
-      helper.experimentConfigs = experimentInfo.getConfigs();
-      helper.experimentVariationSids = experimentInfo.getExperimentVariationSids();
+      experimentConfigs = experimentInfo.getConfigs();
+      experimentVariationSids = experimentInfo.getExperimentVariationSids();
       callback.onComplete();
     }
   }
@@ -585,6 +581,7 @@ class YozioHelper {
         payloadObject.put(P_MOBILE_NETWORK_CODE, mobileNetworkCode);
         payloadObject.put(P_CONNECTION_TYPE, connectionType);
 
+        // null values are discarded by JSONObject
         payloadObject.put(P_EXPERIMENT_VARIATION_SIDS, experimentVariationSids);
 
         return payloadObject;
@@ -593,5 +590,4 @@ class YozioHelper {
       }
     }
   }
-
 }
