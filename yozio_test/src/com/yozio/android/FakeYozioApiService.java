@@ -53,14 +53,6 @@ public class FakeYozioApiService implements YozioApiService {
   }
 
   public ExperimentInfo getExperimentInfo(String appKey, String yozioUdid) {
-    return new ExperimentInfo() {
-      public JSONObject getConfigs() {
-        return experimentConfigs;
-      }
-
-      public JSONObject getExperimentVariationSids() {
-        return experimentVariationSids;
-      }
-    };
+    return new ExperimentInfo(experimentConfigs, experimentVariationSids);
   }
 }

@@ -16,16 +16,29 @@ import org.json.JSONObject;
  */
 interface YozioApiService {
 
-  interface ExperimentInfo {
+  public class ExperimentInfo {
+
+    private final JSONObject configs;
+    private final JSONObject experimentVariationSids;
+
+    public ExperimentInfo(JSONObject configs, JSONObject experimentVariationSids) {
+      this.configs = configs;
+      this.experimentVariationSids = experimentVariationSids;
+    }
+
     /**
      * @return key value pairs for the experiment.
      */
-    JSONObject getConfigs();
+    public JSONObject getConfigs() {
+      return configs;
+    }
 
     /**
      * @return map of experimentSid to variationSid.
      */
-    JSONObject getExperimentVariationSids();
+    public JSONObject getExperimentVariationSids() {
+      return experimentVariationSids;
+    }
   }
 
   /**

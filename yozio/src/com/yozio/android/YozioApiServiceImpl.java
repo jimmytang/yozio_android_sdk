@@ -105,16 +105,7 @@ class YozioApiServiceImpl implements YozioApiService {
         GET_CONFIGURATIONS_R_EXPERIMENT_CONFIGS);
     final JSONObject experimentVariationSids = getJsonObjectValue(response,
         GET_CONFIGURATIONS_R_EXPERIMENT_VARIATION_SIDS);
-
-    return new ExperimentInfo() {
-      public JSONObject getConfigs() {
-        return experimentConfigs;
-      }
-
-      public JSONObject getExperimentVariationSids() {
-        return experimentVariationSids;
-      }
-    };
+    return new ExperimentInfo(experimentConfigs, experimentVariationSids);
   }
 
   public boolean batchEvents(JSONObject payload) {
