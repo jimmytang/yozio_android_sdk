@@ -125,7 +125,6 @@ class YozioApiServiceImpl implements YozioApiService {
    * @param params  the GET parameters.
    * @return  the {@link Response}, or null if the request failed.
    */
-  //TODO: Cache baseUrl and NameValuePair list. Add option.
   Response doPostRequest(String baseUrl, List<NameValuePair> params) {
     try {
       HttpPost httpPost = new HttpPost(baseUrl);
@@ -160,7 +159,6 @@ class YozioApiServiceImpl implements YozioApiService {
    * Adds a BasicNameValuePair to params for given key and value
    * when value is not null and not empty
    */
-  //TODO: Sort this before toString() if toString() is not deterministic;
   private void addParam(List<NameValuePair> params, String key, JSONObject value) {
     if (value != null && value.length() > 0) {
       params.add(new BasicNameValuePair(key, value.toString()));
@@ -192,7 +190,7 @@ class YozioApiServiceImpl implements YozioApiService {
    *
    * @param response  the Yozio http response object.
    * @param key  the key to get the value for.
-   * @return the JSONObject, or empty JSONObject if there is no mapping for the key.
+   * @return the JSONObject, or null if there is no mapping for the key.
    */
   private static JSONObject getJsonObjectValue(Response response, String key) {
     if (response != null && response.responseString != null) {
@@ -204,6 +202,6 @@ class YozioApiServiceImpl implements YozioApiService {
       } catch (JSONException e) {
       }
     }
-    return new JSONObject();
+    return null;
   }
 }

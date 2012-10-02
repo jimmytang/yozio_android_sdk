@@ -77,16 +77,16 @@ public class YozioApiServiceImplTest extends TestCase {
     fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
     ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
-    assertEquals(0, apiResult.getConfigs().length());
-    assertEquals(0, apiResult.getExperimentVariationSids().length());
+    assertNull(apiResult.getConfigs());
+    assertNull(apiResult.getExperimentVariationSids());
   }
 
   public void testGetExperimentConfigsNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
     ExperimentInfo apiResult = apiService.getExperimentInfo(APP_KEY, UDID);
     assertNotNull(fakeHttpClient.getLastRequest());
-    assertEquals(0, apiResult.getConfigs().length());
-    assertEquals(0, apiResult.getExperimentVariationSids().length());
+    assertNull(apiResult.getConfigs());
+    assertNull(apiResult.getExperimentVariationSids());
   }
 
   /****************************************************************************

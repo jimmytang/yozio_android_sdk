@@ -30,6 +30,7 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
@@ -166,7 +167,7 @@ class YozioHelper {
    */
   void initializeExperimentsAsync(InitializeExperimentsCallback callback) {
     printYozioUdid();
-    executor.submit(new InitializeExperimentsTask(callback));
+    new InitializeExperimentsTask(callback).execute();
   }
 
   /**
@@ -251,8 +252,8 @@ class YozioHelper {
   void getUrlAsync(String linkName, String destinationUrl, JSONObject externalProperties,
       GetUrlCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
-    executor.submit(
-        new GetUrlTask(linkName, destinationUrl, yozioProperties, externalProperties, callback));
+    new GetUrlTask(
+        linkName, destinationUrl, yozioProperties, externalProperties, callback).execute();
   }
 
   /**
@@ -469,7 +470,7 @@ class YozioHelper {
     }
   }
 
-  private class InitializeExperimentsTask implements Runnable {
+  private class InitializeExperimentsTask extends AsyncTask<Void, Void, ExperimentInfo> {
 
     private final InitializeExperimentsCallback callback;
 
@@ -477,15 +478,20 @@ class YozioHelper {
       this.callback = callback;
     }
 
-    public void run() {
-      ExperimentInfo experimentInfo = apiService.getExperimentInfo(appKey, yozioUdid);
+    @Override
+    protected ExperimentInfo doInBackground(Void... params) {
+      return apiService.getExperimentInfo(appKey, yozioUdid);
+    }
+
+    @Override
+    protected void onPostExecute(ExperimentInfo experimentInfo) {
       experimentConfigs = experimentInfo.getConfigs();
       experimentVariationSids = experimentInfo.getExperimentVariationSids();
       callback.onComplete();
     }
   }
 
-  private class GetUrlTask implements Runnable {
+  private class GetUrlTask extends AsyncTask<Void, Void, String> {
 
     private final String linkName;
     private final String destinationUrl;
@@ -502,9 +508,14 @@ class YozioHelper {
       this.callback = callback;
     }
 
-    public void run() {
-      String shortenedUrl = apiService.getUrl(
+    @Override
+    protected String doInBackground(Void... arg0) {
+      return apiService.getUrl(
           appKey, yozioUdid, linkName, destinationUrl, yozioProperties, externalProperties);
+    }
+
+    @Override
+    protected void onPostExecute(String shortenedUrl) {
       callback.handleResponse(shortenedUrl != null ? shortenedUrl : destinationUrl);
     }
   }
