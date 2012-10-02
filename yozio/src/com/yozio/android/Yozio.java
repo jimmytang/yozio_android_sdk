@@ -58,7 +58,8 @@ public final class Yozio {
   }
 
   /**
-   * Configures the Yozio SDK. Must be called when the app is initialized.
+   * Configures the Yozio SDK. Must be called when your app is launched and
+   * before any other method.
    *
    * @param context Application context.
    * @param appKey  Application specific key provided by Yozio.
@@ -75,7 +76,8 @@ public final class Yozio {
 
   /**
    * Makes a blocking HTTP request to download the experiment configurations.
-   * Must be called when the app is initialized.
+   * Must be called prior to using any experiment related SDK calls
+   * (i.e. stringForKey and intForKey).
    */
   public static void initializeExperiments() {
     if (!validate()) {
@@ -86,7 +88,8 @@ public final class Yozio {
 
   /**
    * Makes an asynchronous HTTP request to download the experiment configurations.
-   * Must be called when the app is initialized.
+   * Must be called prior to using any experiment related SDK calls
+   * (i.e. stringForKey and intForKey).
    *
    * @param callback  Called when experiments has been initialized.
    */
