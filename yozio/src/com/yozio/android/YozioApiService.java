@@ -42,23 +42,20 @@ interface YozioApiService {
   }
 
   /**
-   * Makes a blocking HTTP request to Yozio to retrieve a shortened URL specific
+   * Makes a blocking HTTP request to Yozio to generate the Yozio link specific
    * to the device for the given linkName.
    *
    * @param appKey  the application specific key provided by Yozio.
    * @param yozioUdid  a unique device identifier.
-   * @param linkName  the name of the tracking link to retrieve the device
-   *                  specific shortened URL for. This MUST match one of the
-   *                  link names created on the Yozio web UI.
-   * @param destinationUrl  a custom destination URL that the returned shortened
-   *                        URL should redirect to.
-   * @param yozioProperties a JSONObject of internal yozio properties.
-   *                        currently storing experiment_variation_sids.
-   * @param externalProperties a JSONObject of meta-data to tag to a url.
-   * @return the shortened URL or null if the request failed.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param destinationUrl  URL that the generated Yozio link will redirect to.
+   * @param yozioProperties a JSONObject of internal Yozio properties.
+   * @param properties  Arbitrary meta data to attach to the generated Yozio link.
+   * @return A Yozio link, or null if there is an error generating the Yozio link.
    */
-  String getUrl(String appKey, String yozioUdid,
-      String linkName, String destinationUrl, JSONObject yozioProperties,
+  String getYozioLink(String appKey, String yozioUdid,
+      String viralLoopName, String destinationUrl, JSONObject yozioProperties,
       JSONObject externalProperties);
 
   /**

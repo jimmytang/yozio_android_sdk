@@ -37,7 +37,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
-import com.yozio.android.Yozio.GetUrlCallback;
+import com.yozio.android.Yozio.GetYozioLinkCallback;
 import com.yozio.android.Yozio.InitializeExperimentsCallback;
 import com.yozio.android.YozioApiService.ExperimentInfo;
 import com.yozio.android.YozioDataStore.Events;
@@ -221,38 +221,38 @@ class YozioHelper {
   }
 
   /**
-   * Makes a blocking request to retrieve the shortened URL.
+   * Makes a blocking request to retrieve the Yozio link.
    *
-   * @return the shortened URL if the request was successful, or the
+   * @return the Yozio link if the request was successful, or the
    *         destinationUrl if unsuccessful.
    */
-  String getUrl(String linkName, String destinationUrl) {
-    return getUrl(linkName, destinationUrl, null);
+  String getYozioLink(String linkName, String destinationUrl) {
+    return getYozioLink(linkName, destinationUrl, null);
   }
 
   /**
-   * Makes a blocking request to retrieve the shortened URL.
+   * Makes a blocking request to retrieve the Yozio link.
    *
    * @param externalProperties  meta-data Customer wants to attach to url
-   * @return the shortened URL if the request was successful, or the destinationUrl if unsuccessful.
+   * @return the Yozio link if the request was successful, or the destinationUrl if unsuccessful.
    */
-  String getUrl(String linkName, String destinationUrl, JSONObject externalProperties) {
-    String shortenedUrl = apiService.getUrl(
+  String getYozioLink(String linkName, String destinationUrl, JSONObject externalProperties) {
+    String yozioLink = apiService.getYozioLink(
         appKey, yozioUdid, linkName, destinationUrl, getYozioProperties(), externalProperties);
-    return shortenedUrl != null ? shortenedUrl : destinationUrl;
+    return yozioLink != null ? yozioLink : destinationUrl;
   }
 
   /**
-   * Makes a non-blocking request to retrieve the shortened URL.
+   * Makes a non-blocking request to retrieve the Yozio link.
    */
-  void getUrlAsync(String linkName, String destinationUrl, GetUrlCallback callback) {
-    getUrlAsync(linkName, destinationUrl, null, callback);
+  void getYozioLinkAsync(String linkName, String destinationUrl, GetYozioLinkCallback callback) {
+    getYozioLinkAsync(linkName, destinationUrl, null, callback);
   }
 
-  void getUrlAsync(String linkName, String destinationUrl, JSONObject externalProperties,
-      GetUrlCallback callback) {
+  void getYozioLinkAsync(String linkName, String destinationUrl, JSONObject externalProperties,
+      GetYozioLinkCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
-    new GetUrlTask(
+    new GetYozioLinkTask(
         linkName, destinationUrl, yozioProperties, externalProperties, callback).execute();
   }
 
@@ -491,16 +491,16 @@ class YozioHelper {
     }
   }
 
-  private class GetUrlTask extends AsyncTask<Void, Void, String> {
+  private class GetYozioLinkTask extends AsyncTask<Void, Void, String> {
 
     private final String linkName;
     private final String destinationUrl;
     private final JSONObject externalProperties;
     private final JSONObject yozioProperties;
-    private final GetUrlCallback callback;
+    private final GetYozioLinkCallback callback;
 
-    GetUrlTask(String linkName, String destinationUrl,
-        JSONObject yozioProperties, JSONObject externalProperties, GetUrlCallback callback) {
+    GetYozioLinkTask(String linkName, String destinationUrl,
+        JSONObject yozioProperties, JSONObject externalProperties, GetYozioLinkCallback callback) {
       this.linkName = linkName;
       this.destinationUrl = destinationUrl;
       this.externalProperties = externalProperties;
@@ -510,13 +510,13 @@ class YozioHelper {
 
     @Override
     protected String doInBackground(Void... arg0) {
-      return apiService.getUrl(
+      return apiService.getYozioLink(
           appKey, yozioUdid, linkName, destinationUrl, yozioProperties, externalProperties);
     }
 
     @Override
-    protected void onPostExecute(String shortenedUrl) {
-      callback.handleResponse(shortenedUrl != null ? shortenedUrl : destinationUrl);
+    protected void onPostExecute(String yozioLink) {
+      callback.handleResponse(yozioLink != null ? yozioLink : destinationUrl);
     }
   }
 

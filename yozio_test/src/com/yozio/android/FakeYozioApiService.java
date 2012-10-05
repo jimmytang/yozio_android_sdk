@@ -19,7 +19,7 @@ public class FakeYozioApiService implements YozioApiService {
   private JSONObject yozioProperties;
   private JSONObject externalProperties;
 
-  public String getUrl(String appKey, String yozioUdid,
+  public String getYozioLink(String appKey, String yozioUdid,
       String linkName, String destinationUrl,
       JSONObject yozioProperties, JSONObject externalProperties) {
     this.yozioProperties = yozioProperties;

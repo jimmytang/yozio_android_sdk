@@ -43,11 +43,11 @@ public final class Yozio {
   /**
    * Callback for getUrlAsync.
    *
-   * The shortUrl argument will either be the Yozio short URL, or the default
-   * URL if there was an error retrieving the Yozio short URL.
+   * The yozioLink argument will either be the Yozio link, or the default URL if
+   * there was an error generating the Yozio link.
    */
-  public interface GetUrlCallback {
-    void handleResponse(String shortUrl);
+  public interface GetYozioLinkCallback {
+    void handleResponse(String yozioLink);
   }
 
   /**
@@ -154,74 +154,75 @@ public final class Yozio {
   }
 
   /**
-   * Makes a blocking HTTP request to retrieve the Yozio short URL.
+   * Makes a blocking HTTP request to generate a Yozio link.
    *
-   * @param linkName  Name of the viral tracking link. Must match one of the
-   *                  viral tracking link names created on the Yozio dashboard.
-   * @param destinationUrl  URL that the Yozio short URL will redirect to.
-   * @return The Yozio short URL, or destinationUrl if there is an error
-   *         retrieving the Yozio short URL.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param destinationUrl  URL that the generated Yozio link will redirect to.
+   * @return A Yozio link, or the destinationUrl if there is an error generating
+   *         the Yozio link.
    */
-  public static String getUrl(String linkName, String destinationUrl) {
-    return getUrl(linkName, destinationUrl, null);
+  public static String getYozioLink(String viralLoopName, String destinationUrl) {
+    return getYozioLink(viralLoopName, destinationUrl, null);
   }
 
   /**
-   * Makes a blocking HTTP request to retrieve the Yozio short URL.
+   * Makes a blocking HTTP request to generate a Yozio link.
    *
-   * @param linkName  Name of the viral tracking link. Must match one of the
-   *                  viral tracking link names created on the Yozio dashboard.
-   * @param destinationUrl  URL that the Yozio short URL will redirect to.
-   * @param properties  Arbitrary meta data to attach to the Yozio short URL.
-   * @return The Yozio short URL, or destinationUrl if there is an error
-   *         retrieving the Yozio short URL.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param destinationUrl  URL that the generated Yozio link will redirect to.
+   * @param properties  Arbitrary meta data to attach to the generated Yozio link.
+   * @return A Yozio link, or the destinationUrl if there is an error generating
+   *         the Yozio link.
    */
-  public static String getUrl(String linkName, String destinationUrl, JSONObject properties) {
+  public static String getYozioLink(String linkName, String destinationUrl, JSONObject properties) {
     if (!validate()) {
       return destinationUrl;
     }
-    return helper.getUrl(linkName, destinationUrl, properties);
+    return helper.getYozioLink(linkName, destinationUrl, properties);
   }
 
   /**
-   * Makes an asynchronous HTTP request to retrieve the Yozio short URL.
+   * Makes an asynchronous HTTP request to generate a Yozio link.
    *
    * Must be called from your application's main UI thread. The callback will
    * also be executed on the main UI thread.
    *
-   * @param linkName  Name of the viral tracking link. Must match one of the
-   *                  viral tracking link names created on the Yozio dashboard.
-   * @param destinationUrl  URL that the Yozio short URL will redirect to.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param destinationUrl  URL that the generated Yozio link will redirect to.
    * @param callback  Called when the HTTP request completes.
    *                  The argument passed into the callback will be the Yozio
-   *                  short URL, or the destinationUrl if there is an error
-   *                  retrieving the Yozio short URL.
+   *                  link, or the destinationUrl if there is an error generating
+   *                  the Yozio link.
    */
-  public static void getUrlAsync(String linkName, String destinationUrl, GetUrlCallback callback) {
-    getUrlAsync(linkName, destinationUrl, null, callback);
+  public static void getYozioLinkAsync(String linkName, String destinationUrl,
+      GetYozioLinkCallback callback) {
+    getYozioLinkAsync(linkName, destinationUrl, null, callback);
   }
 
   /**
-   * Makes an asynchronous HTTP request to retrieve the Yozio short URL.
+   * Makes an asynchronous HTTP request to generate a Yozio link.
    *
    * Must be called from your application's main UI thread. The callback will
    * also be executed on the main UI thread.
    *
-   * @param linkName  Name of the viral tracking link. Must match one of the
-   *                  viral tracking link names created on the Yozio dashboard.
-   * @param destinationUrl  URL that the Yozio short URL will redirect to.
-   * @param properties  Arbitrary meta data to attach to the Yozio short URL.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param destinationUrl  URL that the generated Yozio link will redirect to.
+   * @param properties  Arbitrary meta data to attach to the generated Yozio link.
    * @param callback  Called when the HTTP request completes.
    *                  The argument passed into the callback will be the Yozio
-   *                  short URL, or the destinationUrl if there is an error
-   *                  retrieving the Yozio short URL.
+   *                  link, or the destinationUrl if there is an error generating
+   *                  the Yozio link.
    */
-  public static void getUrlAsync(String linkName, String destinationUrl, JSONObject properties,
-      GetUrlCallback callback) {
+  public static void getYozioLinkAsync(String linkName, String destinationUrl,
+      JSONObject properties, GetYozioLinkCallback callback) {
     if (!validate()) {
       callback.handleResponse(destinationUrl);
     }
-    helper.getUrlAsync(linkName, destinationUrl, properties, callback);
+    helper.getYozioLinkAsync(linkName, destinationUrl, properties, callback);
   }
 
   /**

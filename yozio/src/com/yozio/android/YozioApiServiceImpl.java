@@ -79,7 +79,7 @@ class YozioApiServiceImpl implements YozioApiService {
     baseUrl = DEFAULT_BASE_URL;
   }
 
-  public String getUrl(String appKey, String yozioUdid,
+  public String getYozioLink(String appKey, String yozioUdid,
       String linkName, String destinationUrl, JSONObject yozioProperties,
       JSONObject externalProperties) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();

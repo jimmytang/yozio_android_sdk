@@ -151,7 +151,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
       fail();
     }
     helper.initializeExperiments();
-    helper.getUrl("link name", "www.ooga.booga");
+    helper.getYozioLink("link name", "www.ooga.booga");
     try {
       assertEquals(
           experimentVariationSids.toString(),
@@ -164,7 +164,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
   public void testGetUrlWithoutExperimentVariationSids() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
-    helper.getUrl("link name", "www.ooga.booga");
+    helper.getYozioLink("link name", "www.ooga.booga");
     assertFalse(fakeApiService.getYozioProperties().has("experiment_variation_sids"));
   }
 
@@ -173,7 +173,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
     helper.initializeExperiments();
     try {
       JSONObject externalProperties = new JSONObject("{\"a\": \"b\"}");
-      helper.getUrl("link name", "www.ooga.booga", externalProperties);
+      helper.getYozioLink("link name", "www.ooga.booga", externalProperties);
       assertEquals("b", fakeApiService.getExternalProperties().get("a"));
     } catch (JSONException e) {
       fail();
@@ -182,7 +182,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
 
   public void testGetUrlWithoutCallingInitializeExperiments() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-    helper.getUrl("link name", "www.ooga.booga");
+    helper.getYozioLink("link name", "www.ooga.booga");
     assertEquals("{}", fakeApiService.getYozioProperties().toString());
   }
 
