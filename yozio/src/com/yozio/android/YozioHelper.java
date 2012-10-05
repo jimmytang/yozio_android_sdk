@@ -226,8 +226,8 @@ class YozioHelper {
    * @return the Yozio link if the request was successful, or the
    *         destinationUrl if unsuccessful.
    */
-  String getYozioLink(String linkName, String destinationUrl) {
-    return getYozioLink(linkName, destinationUrl, null);
+  String getYozioLink(String viralLoopName, String destinationUrl) {
+    return getYozioLink(viralLoopName, destinationUrl, null);
   }
 
   /**
@@ -236,38 +236,39 @@ class YozioHelper {
    * @param externalProperties  meta-data Customer wants to attach to url
    * @return the Yozio link if the request was successful, or the destinationUrl if unsuccessful.
    */
-  String getYozioLink(String linkName, String destinationUrl, JSONObject externalProperties) {
+  String getYozioLink(String viralLoopName, String destinationUrl, JSONObject externalProperties) {
     String yozioLink = apiService.getYozioLink(
-        appKey, yozioUdid, linkName, destinationUrl, getYozioProperties(), externalProperties);
+        appKey, yozioUdid, viralLoopName, destinationUrl, getYozioProperties(), externalProperties);
     return yozioLink != null ? yozioLink : destinationUrl;
   }
 
   /**
    * Makes a non-blocking request to retrieve the Yozio link.
    */
-  void getYozioLinkAsync(String linkName, String destinationUrl, GetYozioLinkCallback callback) {
-    getYozioLinkAsync(linkName, destinationUrl, null, callback);
+  void getYozioLinkAsync(String viralLoopName, String destinationUrl,
+      GetYozioLinkCallback callback) {
+    getYozioLinkAsync(viralLoopName, destinationUrl, null, callback);
   }
 
-  void getYozioLinkAsync(String linkName, String destinationUrl, JSONObject externalProperties,
+  void getYozioLinkAsync(String viralLoopName, String destinationUrl, JSONObject externalProperties,
       GetYozioLinkCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
     new GetYozioLinkTask(
-        linkName, destinationUrl, yozioProperties, externalProperties, callback).execute();
+        viralLoopName, destinationUrl, yozioProperties, externalProperties, callback).execute();
   }
 
   /**
    * Makes a non-blocking request to store the event.
    */
-  void collect(int eventType, String linkName) {
-    collect(eventType, linkName, null);
+  void collect(int eventType, String viralLoopName) {
+    collect(eventType, viralLoopName, null);
   }
 
   /**
    * Makes a non-blocking request to store the event.
    */
-  void collect(int eventType, String linkName, JSONObject externalProperties) {
-    JSONObject event = buildEvent(eventType, linkName, externalProperties);
+  void collect(int eventType, String viralLoopName, JSONObject externalProperties) {
+    JSONObject event = buildEvent(eventType, viralLoopName, externalProperties);
     if (event == null) {
       return;
     }
@@ -291,11 +292,12 @@ class YozioHelper {
     return yozioProperties;
   }
 
-  private JSONObject buildEvent(int eventType, String linkName, JSONObject externalProperties) {
+  private JSONObject buildEvent(int eventType, String viralLoopName,
+      JSONObject externalProperties) {
     try {
       JSONObject eventObject = new JSONObject();
       eventObject.put(D_EVENT_TYPE, eventType);
-      eventObject.put(D_LINK_NAME, linkName);
+      eventObject.put(D_LINK_NAME, viralLoopName);
       eventObject.put(D_TIMESTAMP, timestamp());
       eventObject.put(D_EVENT_IDENTIFIER, UUID.randomUUID());
       // null values are discarded by JSONObject
@@ -493,15 +495,15 @@ class YozioHelper {
 
   private class GetYozioLinkTask extends AsyncTask<Void, Void, String> {
 
-    private final String linkName;
+    private final String viralLoopName;
     private final String destinationUrl;
     private final JSONObject externalProperties;
     private final JSONObject yozioProperties;
     private final GetYozioLinkCallback callback;
 
-    GetYozioLinkTask(String linkName, String destinationUrl,
+    GetYozioLinkTask(String viralLoopName, String destinationUrl,
         JSONObject yozioProperties, JSONObject externalProperties, GetYozioLinkCallback callback) {
-      this.linkName = linkName;
+      this.viralLoopName = viralLoopName;
       this.destinationUrl = destinationUrl;
       this.externalProperties = externalProperties;
       this.yozioProperties = yozioProperties;
@@ -511,7 +513,7 @@ class YozioHelper {
     @Override
     protected String doInBackground(Void... arg0) {
       return apiService.getYozioLink(
-          appKey, yozioUdid, linkName, destinationUrl, yozioProperties, externalProperties);
+          appKey, yozioUdid, viralLoopName, destinationUrl, yozioProperties, externalProperties);
     }
 
     @Override

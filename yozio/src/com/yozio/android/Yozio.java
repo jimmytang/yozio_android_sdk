@@ -176,11 +176,11 @@ public final class Yozio {
    * @return A Yozio link, or the destinationUrl if there is an error generating
    *         the Yozio link.
    */
-  public static String getYozioLink(String linkName, String destinationUrl, JSONObject properties) {
+  public static String getYozioLink(String viralLoopName, String destinationUrl, JSONObject properties) {
     if (!validate()) {
       return destinationUrl;
     }
-    return helper.getYozioLink(linkName, destinationUrl, properties);
+    return helper.getYozioLink(viralLoopName, destinationUrl, properties);
   }
 
   /**
@@ -197,9 +197,9 @@ public final class Yozio {
    *                  link, or the destinationUrl if there is an error generating
    *                  the Yozio link.
    */
-  public static void getYozioLinkAsync(String linkName, String destinationUrl,
+  public static void getYozioLinkAsync(String viralLoopName, String destinationUrl,
       GetYozioLinkCallback callback) {
-    getYozioLinkAsync(linkName, destinationUrl, null, callback);
+    getYozioLinkAsync(viralLoopName, destinationUrl, null, callback);
   }
 
   /**
@@ -217,64 +217,60 @@ public final class Yozio {
    *                  link, or the destinationUrl if there is an error generating
    *                  the Yozio link.
    */
-  public static void getYozioLinkAsync(String linkName, String destinationUrl,
+  public static void getYozioLinkAsync(String viralLoopName, String destinationUrl,
       JSONObject properties, GetYozioLinkCallback callback) {
     if (!validate()) {
       callback.handleResponse(destinationUrl);
     }
-    helper.getYozioLinkAsync(linkName, destinationUrl, properties, callback);
+    helper.getYozioLinkAsync(viralLoopName, destinationUrl, properties, callback);
   }
 
   /**
-   * Use only for Yozio Viral.
-   *
    * Alert Yozio that a user has viewed a link.
    *
-   * @param linkName  the name of the tracking link viewed by the user.
-   *                  This MUST match one of the link names created on the
-   *                  Yozio web UI.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
    */
-  public static void viewedLink(String linkName) {
-    viewedLink(linkName, null);
+  public static void viewedLink(String viralLoopName) {
+    viewedLink(viralLoopName, null);
   }
 
   /**
    * Notify Yozio that a user has viewed a link.
    *
-   * @param linkName  Name of the viral tracking link. Must match one of the
-   *                  viral tracking link names created on the Yozio dashboard.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
    * @param properties  Arbitrary meta data to attach to the event.
    */
-  public static void viewedLink(String linkName, JSONObject properties) {
+  public static void viewedLink(String viralLoopName, JSONObject properties) {
     if (!validate()) {
       return;
     }
-    helper.collect(E_VIEWED_LINK, linkName, properties);
+    helper.collect(E_VIEWED_LINK, viralLoopName, properties);
   }
 
   /**
    * Notify Yozio that a user has shared a link.
    *
-   * @param linkName  Name of the viral tracking link. Must match one of the
-   *                  viral tracking link names created on the Yozio dashboard.
-   * @param properties  Additional meta properties to tag your event.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
    */
-  public static void sharedLink(String linkName) {
-    sharedLink(linkName, null);
+  public static void sharedLink(String viralLoopName) {
+    sharedLink(viralLoopName, null);
   }
 
   /**
    * Notify Yozio that a user has shared a link.
    *
-   * @param linkName  Name of the viral tracking link. Must match one of the
-   *                  viral tracking link names created on the Yozio dashboard.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
    * @param properties  Arbitrary meta data to attach to the event.
    */
-  public static void sharedLink(String linkName, JSONObject properties) {
+  public static void sharedLink(String viralLoopName, JSONObject properties) {
     if (!validate()) {
       return;
     }
-    helper.collect(E_SHARED_LINK, linkName, properties);
+    helper.collect(E_SHARED_LINK, viralLoopName, properties);
   }
 
   private static void initializeIfNeeded(Context context, String appKey) {

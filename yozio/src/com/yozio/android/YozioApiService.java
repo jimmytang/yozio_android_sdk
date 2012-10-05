@@ -43,7 +43,7 @@ interface YozioApiService {
 
   /**
    * Makes a blocking HTTP request to Yozio to generate the Yozio link specific
-   * to the device for the given linkName.
+   * to the device for the given viralLoopName.
    *
    * @param appKey  the application specific key provided by Yozio.
    * @param yozioUdid  a unique device identifier.

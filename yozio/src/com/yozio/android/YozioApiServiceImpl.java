@@ -80,13 +80,13 @@ class YozioApiServiceImpl implements YozioApiService {
   }
 
   public String getYozioLink(String appKey, String yozioUdid,
-      String linkName, String destinationUrl, JSONObject yozioProperties,
+      String viralLoopName, String destinationUrl, JSONObject yozioProperties,
       JSONObject externalProperties) {
     List<NameValuePair> params = new LinkedList<NameValuePair>();
     params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
     params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
-    params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, linkName));
+    params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, viralLoopName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
     addParam(params, GET_URL_P_YOZIO_PROPERTIES, yozioProperties);
     addParam(params, GET_URL_P_EXTERNAL_PROPERTIES, externalProperties);

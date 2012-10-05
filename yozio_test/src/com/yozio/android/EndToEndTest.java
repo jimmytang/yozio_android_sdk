@@ -72,7 +72,7 @@ public class EndToEndTest extends InstrumentationTestCase
 //    // Test sending user invalid viewedLink event to make sure it gets removed
 //    // from the queue
 //    Log.i("YozioTest", "# events before invalid link name: " + dataStore.getNumEvents());
-//    Yozio.viewedLink("nonexistentlinkname");
+//    Yozio.viewedLink("nonexistentname");
 //    Log.i("YozioTest", "# events right after invalid link name: " + dataStore.getNumEvents());
 //    try {
 //      Thread.sleep(2000);
