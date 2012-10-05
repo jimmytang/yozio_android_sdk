@@ -139,6 +139,9 @@ class YozioDataStoreImpl implements YozioDataStore {
       try {
         dbHelper.getWritableDatabase().delete(EVENTS_TABLE,
             "_id <= " + lastEventId + " AND " + APP_KEY + " = '" + appKey + "'", null);
+        if (removeListener != null) {
+          removeListener.onRemove();
+        }
         // Don't worry, finally will still be called.
         return true;
       } catch (SQLException e) {
@@ -152,5 +155,17 @@ class YozioDataStoreImpl implements YozioDataStore {
 
   private String where() {
     return " WHERE " + APP_KEY + " = '" + appKey + "'";
+  }
+
+  // For testing
+
+  private RemoveListener removeListener;
+
+  public void setRemoveListener(RemoveListener removeListener) {
+    this.removeListener = removeListener;
+  }
+
+  public static interface RemoveListener {
+    void onRemove();
   }
 }

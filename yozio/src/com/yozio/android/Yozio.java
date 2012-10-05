@@ -32,11 +32,11 @@ public final class Yozio {
 
   private static final String LOGTAG = "Yozio";
 
-  // Event types.
-  private static final int E_OPENED_APP = 5;
-  private static final int E_LOGIN = 6;
-  private static final int E_VIEWED_LINK = 11;
-  private static final int E_SHARED_LINK = 12;
+  // Event types. Visible for testing.
+  static final int E_OPENED_APP = 5;
+  static final int E_LOGIN = 6;
+  static final int E_VIEWED_LINK = 11;
+  static final int E_SHARED_LINK = 12;
 
   private static YozioHelper helper;
 
