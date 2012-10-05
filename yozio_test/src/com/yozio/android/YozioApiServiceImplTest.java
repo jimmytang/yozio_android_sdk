@@ -35,7 +35,7 @@ public class YozioApiServiceImplTest extends TestCase {
   // GetYozioLink arguments
   private static final String APP_KEY = "test app key";
   private static final String UDID = "test yozio udid";
-  private static final String LINK_NAME = "test link name";
+  private static final String LOOP_NAME = "test loop name";
   private static final String DEST_URL = "test.com";
 
   // BatchEvents arguments
@@ -103,7 +103,7 @@ public class YozioApiServiceImplTest extends TestCase {
       yozioProperties.put("experiment_variation_sids", experimentVariationSids);
 
       String yozioLink = apiService.getYozioLink(
-          APP_KEY, UDID, LINK_NAME, DEST_URL, yozioProperties, externalProperties);
+          APP_KEY, UDID, LOOP_NAME, DEST_URL, yozioProperties, externalProperties);
 
       Uri requestUri = fakeHttpClient.getLastRequestUri();
       JSONObject returnedExternalProperties =
@@ -121,21 +121,21 @@ public class YozioApiServiceImplTest extends TestCase {
 
   public void testGetYozioLinkNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
-    String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LINK_NAME, DEST_URL, null, null);
+    String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LOOP_NAME, DEST_URL, null, null);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(yozioLink);
   }
 
   public void testGetYozioLinkResponseMissingUrlKey() {
     fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "wrong json key", "www.foobar.com"));
-    String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LINK_NAME, DEST_URL, null, null);
+    String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LOOP_NAME, DEST_URL, null, null);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(yozioLink);
   }
 
   public void testGetYozioLinkNullHttpEntity() {
     fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
-    String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LINK_NAME, DEST_URL, null, null);
+    String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LOOP_NAME, DEST_URL, null, null);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(yozioLink);
   }
