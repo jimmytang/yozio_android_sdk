@@ -28,6 +28,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
   private static final String TEST_SECRET_KEY = "test secret key";
   private Context context;
   private FakeYozioApiService fakeApiService;
+  private YozioDataStoreImpl dataStore;
   private YozioHelper helper;
 
   @Override
@@ -37,13 +38,12 @@ public class YozioHelperTest extends InstrumentationTestCase {
     context.deleteDatabase(YozioDataStoreImpl.DATABASE_NAME);
     fakeApiService = new FakeYozioApiService();
     SQLiteOpenHelper dbHelper = new YozioDataStoreImpl.DatabaseHelper(context);
-    YozioDataStore dataStore = new YozioDataStoreImpl(dbHelper, APP_KEY);
+    dataStore = new YozioDataStoreImpl(dbHelper, APP_KEY);
     helper = new YozioHelper(dataStore, fakeApiService);
+    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
   }
 
   public void testInitializeExperimentsAsync() throws Throwable {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-
     JSONObject configs = null;
     try {
       configs = new JSONObject().put("key", "123");
@@ -67,8 +67,6 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testIntForKeyBeforeInitializeExperimentsAsyncCompletes() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-
     JSONObject configs = null;
     try {
       configs = new JSONObject().put("key", "123");
@@ -84,8 +82,6 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testIntForKeyForExistingKey() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-
     JSONObject configs = null;
     try {
       configs = new JSONObject().put("key", "123");
@@ -99,15 +95,12 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testIntForKeyForNonExistingKey() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
     int defaultValue = 111;
     assertEquals(defaultValue, helper.intForKey("ooga", defaultValue));
   }
 
   public void testIntForKeyForNonCoercibleType() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-
     JSONObject configs = null;
     try {
       configs = new JSONObject().put("key", "NON_CONVERTIBLE_STRING");
@@ -121,8 +114,6 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testStringForKeyForExistingKey() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-
     JSONObject configs = null;
     try {
       configs = new JSONObject().put("key", "123");
@@ -136,13 +127,11 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testStringForKeyForNonExistingKey() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
     assertEquals("booga", helper.stringForKey("ooga", "booga"));
   }
 
   public void testGetYozioLinkWithExperimentVariationSids() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     JSONObject experimentVariationSids = null;
     try {
       experimentVariationSids = new JSONObject().put("123", "456");
@@ -162,7 +151,6 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testGetYozioLinkWithoutExperimentVariationSids() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
     helper.getYozioLink("loop name", "www.ooga.booga");
     assertFalse(fakeApiService.getYozioProperties().has("experiment_variation_sids"));
@@ -181,17 +169,14 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testGetYozioLinkWithoutCallingInitializeExperiments() {
-    helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.getYozioLink("loop name", "www.ooga.booga");
     assertEquals("{}", fakeApiService.getYozioProperties().toString());
   }
 
   public void testCollect() {
     try {
-      helper.configure(context, APP_KEY, TEST_SECRET_KEY);
       helper.collect(11, "loop name");
-      // TODO(dounanshi): restructure to not need sleep
-      Thread.sleep(2000);
+      TestHelper.waitUntilEventSent(dataStore);
       JSONObject payload = fakeApiService.getPayload();
 
       assertFalse(payload.has("experiment_variation_sids"));
@@ -202,19 +187,15 @@ public class YozioHelperTest extends InstrumentationTestCase {
       assertNotNull(payload.getString("connection_type"));
     } catch (JSONException e) {
       fail();
-    } catch (InterruptedException e) {
-      fail();
     }
   }
 
   public void testCollectWithExternalProperties() {
     try {
-      helper.configure(context, APP_KEY, TEST_SECRET_KEY);
       JSONObject externalProperties = new JSONObject("{\"ooga\": \"booga\"}");
-
       helper.collect(11, "loop name", externalProperties);
-      // TODO(dounanshi): restructure to not need sleep
-      Thread.sleep(2000);
+      TestHelper.waitUntilEventSent(dataStore);
+
       JSONObject payload = fakeApiService.getPayload();
       JSONArray events = payload.getJSONArray("payload");
       JSONObject event = events.getJSONObject(0);
@@ -225,42 +206,31 @@ public class YozioHelperTest extends InstrumentationTestCase {
     } catch (JSONException e) {
       e.printStackTrace();
       fail();
-    } catch (InterruptedException e) {
-      fail();
     }
   }
 
   public void testCollectWithUserName() {
     try {
-      helper.configure(context, APP_KEY, TEST_SECRET_KEY);
       helper.setUserName("spaceman");
       helper.collect(123, "loop name");
-
-      // TODO(dounanshi): restructure to not need sleep
-      Thread.sleep(2000);
+      TestHelper.waitUntilEventSent(dataStore);
       JSONObject payload = fakeApiService.getPayload();
       assertEquals("spaceman", payload.getString("external_user_id"));
     } catch (JSONException e) {
-      fail();
-    } catch (InterruptedException e) {
       fail();
     }
   }
 
   public void testCollectWithInitializeExperiments() {
     try {
-      helper.configure(context, APP_KEY, TEST_SECRET_KEY);
       fakeApiService.setExperimentVariationSids(new JSONObject().put("experiment1", "variation1"));
       helper.initializeExperiments();
       helper.collect(123, "loop name");
-      // TODO(dounanshi): restructure to not need sleep
-      Thread.sleep(2000);
+      TestHelper.waitUntilEventSent(dataStore);
       JSONObject payload = fakeApiService.getPayload();
       String experimentVariationSids = payload.getString("experiment_variation_sids");
       assertEquals("{\"experiment1\":\"variation1\"}", experimentVariationSids);
     } catch (JSONException e) {
-      fail();
-    } catch (InterruptedException e) {
       fail();
     }
   }
