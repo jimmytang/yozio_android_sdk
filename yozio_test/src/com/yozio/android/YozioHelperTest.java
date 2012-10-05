@@ -151,7 +151,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
       fail();
     }
     helper.initializeExperiments();
-    helper.getYozioLink("link name", "www.ooga.booga");
+    helper.getYozioLink("loop name", "www.ooga.booga");
     try {
       assertEquals(
           experimentVariationSids.toString(),
@@ -164,7 +164,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
   public void testGetYozioLinkWithoutExperimentVariationSids() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
-    helper.getYozioLink("link name", "www.ooga.booga");
+    helper.getYozioLink("loop name", "www.ooga.booga");
     assertFalse(fakeApiService.getYozioProperties().has("experiment_variation_sids"));
   }
 
@@ -173,7 +173,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
     helper.initializeExperiments();
     try {
       JSONObject externalProperties = new JSONObject("{\"a\": \"b\"}");
-      helper.getYozioLink("link name", "www.ooga.booga", externalProperties);
+      helper.getYozioLink("loop name", "www.ooga.booga", externalProperties);
       assertEquals("b", fakeApiService.getExternalProperties().get("a"));
     } catch (JSONException e) {
       fail();
@@ -182,14 +182,14 @@ public class YozioHelperTest extends InstrumentationTestCase {
 
   public void testGetYozioLinkWithoutCallingInitializeExperiments() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-    helper.getYozioLink("link name", "www.ooga.booga");
+    helper.getYozioLink("loop name", "www.ooga.booga");
     assertEquals("{}", fakeApiService.getYozioProperties().toString());
   }
 
   public void testCollect() {
     try {
       helper.configure(context, APP_KEY, TEST_SECRET_KEY);
-      helper.collect(11, "Link Name");
+      helper.collect(11, "loop name");
       // TODO(dounanshi): restructure to not need sleep
       Thread.sleep(2000);
       JSONObject payload = fakeApiService.getPayload();
@@ -212,7 +212,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
       helper.configure(context, APP_KEY, TEST_SECRET_KEY);
       JSONObject externalProperties = new JSONObject("{\"ooga\": \"booga\"}");
 
-      helper.collect(11, "Link Name", externalProperties);
+      helper.collect(11, "loop name", externalProperties);
       // TODO(dounanshi): restructure to not need sleep
       Thread.sleep(2000);
       JSONObject payload = fakeApiService.getPayload();
@@ -234,7 +234,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
     try {
       helper.configure(context, APP_KEY, TEST_SECRET_KEY);
       helper.setUserName("spaceman");
-      helper.collect(123, "Link Name");
+      helper.collect(123, "loop name");
 
       // TODO(dounanshi): restructure to not need sleep
       Thread.sleep(2000);
@@ -252,7 +252,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
       helper.configure(context, APP_KEY, TEST_SECRET_KEY);
       fakeApiService.setExperimentVariationSids(new JSONObject().put("experiment1", "variation1"));
       helper.initializeExperiments();
-      helper.collect(123, "Link Name");
+      helper.collect(123, "loop name");
       // TODO(dounanshi): restructure to not need sleep
       Thread.sleep(2000);
       JSONObject payload = fakeApiService.getPayload();

@@ -11,7 +11,7 @@ public class EndToEndTest extends InstrumentationTestCase
 
   private static final String TEST_BASE_URL = "http://10.0.2.2:3000";
   private static final String APP_KEY = "139b0e10-ba56-012f-e1d9-2837371df2a8";
-  private static final String LINK_NAME = "testlink";
+  private static final String LOOP_NAME = "testloop";
 
   private Context context;
   private YozioDataStore dataStore;
@@ -35,14 +35,14 @@ public class EndToEndTest extends InstrumentationTestCase
 //    Yozio.configure(context, APP_KEY, "test secret key");
 //
 //    // Test blocking getYozioLink
-//    String url = Yozio.getYozioLink(LINK_NAME, "www.google.com");
+//    String url = Yozio.getYozioLink(LOOP_NAME, "www.google.com");
 //    Log.i("YozioTest", "getYozioLink(): " + url);
 //
 //    // Test non-blocking getYozioLink
 //    final CountDownLatch signal = new CountDownLatch(1);
 //    runTestOnUiThread(new Runnable() {
 //      public void run() {
-//        Yozio.getYozioLinkAsync(LINK_NAME, "www.yahoo.com", new GetYozioLinkCallback() {
+//        Yozio.getYozioLinkAsync(LOOP_NAME, "www.yahoo.com", new GetYozioLinkCallback() {
 //          public void handleResponse(String url) {
 //            Log.i("YozioTest", "getYozioLinkAsync(): " + url);
 //            signal.countDown();
@@ -55,11 +55,11 @@ public class EndToEndTest extends InstrumentationTestCase
 //    // Test sending LOGIN event
 //    Yozio.userLoggedIn("spaceman");
 //
-//    // Test sending valid viewedLink event
-//    Yozio.viewedLink(LINK_NAME);
+//    // Test sending valid enteredViralLoop event
+//    Yozio.enteredViralLoop(LOOP_NAME);
 //
-//    // Test sending valid sharedLink event
-//    Yozio.sharedLink(LINK_NAME);
+//    // Test sending valid sharedYozioLink event
+//    Yozio.sharedYozioLink(LOOP_NAME);
 //
 //    try {
 //      Thread.sleep(2000);
@@ -69,17 +69,17 @@ public class EndToEndTest extends InstrumentationTestCase
 //
 //    Log.i("YozioTest", "number of events: " + dataStore.getNumEvents());
 //
-//    // Test sending user invalid viewedLink event to make sure it gets removed
+//    // Test sending user invalid enteredViralLoop event to make sure it gets removed
 //    // from the queue
-//    Log.i("YozioTest", "# events before invalid link name: " + dataStore.getNumEvents());
-//    Yozio.viewedLink("nonexistentname");
-//    Log.i("YozioTest", "# events right after invalid link name: " + dataStore.getNumEvents());
+//    Log.i("YozioTest", "# events before invalid loop name: " + dataStore.getNumEvents());
+//    Yozio.enteredViralLoop("nonexistentname");
+//    Log.i("YozioTest", "# events right after invalid loop name: " + dataStore.getNumEvents());
 //    try {
 //      Thread.sleep(2000);
 //    } catch (InterruptedException e) {
 //      Log.e("YozioTest", "testEndToEnd", e);
 //    }
-//    Log.i("YozioTest", "# events after invalid link name: " + dataStore.getNumEvents());
+//    Log.i("YozioTest", "# events after invalid loop name: " + dataStore.getNumEvents());
 //
 //    Yozio.userLoggedIn("grrrrrrrrrreat");
 //    try {

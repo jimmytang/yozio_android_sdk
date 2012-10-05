@@ -20,7 +20,6 @@ public class YozioTest extends AndroidTestCase {
 
   private static final String APP_KEY = "139b0e10-ba56-012f-e1d9-2837371df2a8";
   private static final String TEST_SECRET_KEY = "test secret key";
-  private static final String LINK_NAME = "testlink";
   private FakeYozioApiService apiService;
 
   @Override
@@ -35,8 +34,8 @@ public class YozioTest extends AndroidTestCase {
     Yozio.setHelper(helper);
   }
 
-  public void testViewedLinkWithoutExternalProperties() {
-    Yozio.viewedLink("ooga");
+  public void testEnteredViralLoopWithoutExternalProperties() {
+    Yozio.enteredViralLoop("ooga");
     try {
       Thread.sleep(2000);
 
@@ -50,11 +49,11 @@ public class YozioTest extends AndroidTestCase {
     }
   }
 
-  public void testViewedLinkWithExternalProperties() {
+  public void testEnteredViralLoopWithExternalProperties() {
     JSONObject externalProperties;
     try {
       externalProperties = new JSONObject("{\"a\": \"b\"}");
-      Yozio.viewedLink("ooga", externalProperties);
+      Yozio.enteredViralLoop("ooga", externalProperties);
       Thread.sleep(2000);
 
       JSONArray events = apiService.getPayload().getJSONArray("payload");
@@ -67,8 +66,8 @@ public class YozioTest extends AndroidTestCase {
     }
   }
 
-  public void testSharedLinkWithoutExternalProperties() {
-    Yozio.sharedLink("ooga");
+  public void testSharedYozioLinkWithoutExternalProperties() {
+    Yozio.sharedYozioLink("ooga");
     try {
       Thread.sleep(2000);
 
@@ -82,11 +81,11 @@ public class YozioTest extends AndroidTestCase {
     }
   }
 
-  public void testSharedLinkWithExternalProperties() {
+  public void testSharedYozioLinkWithExternalProperties() {
     JSONObject externalProperties;
     try {
       externalProperties = new JSONObject("{\"a\": \"b\"}");
-      Yozio.sharedLink("ooga", externalProperties);
+      Yozio.sharedYozioLink("ooga", externalProperties);
       Thread.sleep(2000);
 
       JSONArray events = apiService.getPayload().getJSONArray("payload");
