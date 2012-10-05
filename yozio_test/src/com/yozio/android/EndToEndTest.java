@@ -34,17 +34,17 @@ public class EndToEndTest extends InstrumentationTestCase
 //    // Test sending OPEN_APP event
 //    Yozio.configure(context, APP_KEY, "test secret key");
 //
-//    // Test blocking getUrl
-//    String url = Yozio.getUrl(LINK_NAME, "www.google.com");
-//    Log.i("YozioTest", "getUrl(): " + url);
+//    // Test blocking getYozioLink
+//    String url = Yozio.getYozioLink(LINK_NAME, "www.google.com");
+//    Log.i("YozioTest", "getYozioLink(): " + url);
 //
-//    // Test non-blocking getUrl
+//    // Test non-blocking getYozioLink
 //    final CountDownLatch signal = new CountDownLatch(1);
 //    runTestOnUiThread(new Runnable() {
 //      public void run() {
-//        Yozio.getUrlAsync(LINK_NAME, "www.yahoo.com", new GetUrlCallback() {
+//        Yozio.getYozioLinkAsync(LINK_NAME, "www.yahoo.com", new GetYozioLinkCallback() {
 //          public void handleResponse(String url) {
-//            Log.i("YozioTest", "getUrlAsync(): " + url);
+//            Log.i("YozioTest", "getYozioLinkAsync(): " + url);
 //            signal.countDown();
 //          }
 //        });

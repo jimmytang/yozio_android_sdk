@@ -41,7 +41,7 @@ public final class Yozio {
   private static YozioHelper helper;
 
   /**
-   * Callback for getUrlAsync.
+   * Callback for getYozioLinkAsync.
    *
    * The yozioLink argument will either be the Yozio link, or the default URL if
    * there was an error generating the Yozio link.

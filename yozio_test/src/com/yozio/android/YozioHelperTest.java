@@ -141,7 +141,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
     assertEquals("booga", helper.stringForKey("ooga", "booga"));
   }
 
-  public void testGetUrlWithExperimentVariationSids() {
+  public void testGetYozioLinkWithExperimentVariationSids() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     JSONObject experimentVariationSids = null;
     try {
@@ -161,14 +161,14 @@ public class YozioHelperTest extends InstrumentationTestCase {
     }
   }
 
-  public void testGetUrlWithoutExperimentVariationSids() {
+  public void testGetYozioLinkWithoutExperimentVariationSids() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
     helper.getYozioLink("link name", "www.ooga.booga");
     assertFalse(fakeApiService.getYozioProperties().has("experiment_variation_sids"));
   }
 
-  public void testGetUrlWithExternalProperties() {
+  public void testGetYozioLinkWithExternalProperties() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.initializeExperiments();
     try {
@@ -180,7 +180,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
     }
   }
 
-  public void testGetUrlWithoutCallingInitializeExperiments() {
+  public void testGetYozioLinkWithoutCallingInitializeExperiments() {
     helper.configure(context, APP_KEY, TEST_SECRET_KEY);
     helper.getYozioLink("link name", "www.ooga.booga");
     assertEquals("{}", fakeApiService.getYozioProperties().toString());

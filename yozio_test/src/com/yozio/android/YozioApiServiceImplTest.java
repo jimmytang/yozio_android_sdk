@@ -32,7 +32,7 @@ public class YozioApiServiceImplTest extends TestCase {
 
   private static final String LOGTAG = "YozioApiServiceImplTest";
 
-  // GetUrl arguments
+  // GetYozioLink arguments
   private static final String APP_KEY = "test app key";
   private static final String UDID = "test yozio udid";
   private static final String LINK_NAME = "test link name";
@@ -90,9 +90,9 @@ public class YozioApiServiceImplTest extends TestCase {
   }
 
   /****************************************************************************
-   * GetUrl tests
+   * GetYozioLink tests
    ****************************************************************************/
-  public void testGetUrlSuccess() {
+  public void testGetYozioLinkSuccess() {
     String expectedYozioLink = "www.foobar.com";
     fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "url", expectedYozioLink));
 
@@ -119,21 +119,21 @@ public class YozioApiServiceImplTest extends TestCase {
     }
   }
 
-  public void testGetUrlNonJsonResponse() {
+  public void testGetYozioLinkNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
     String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LINK_NAME, DEST_URL, null, null);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(yozioLink);
   }
 
-  public void testGetUrlResponseMissingUrlKey() {
+  public void testGetYozioLinkResponseMissingUrlKey() {
     fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "wrong json key", "www.foobar.com"));
     String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LINK_NAME, DEST_URL, null, null);
     assertNotNull(fakeHttpClient.getLastRequest());
     assertNull(yozioLink);
   }
 
-  public void testGetUrlNullHttpEntity() {
+  public void testGetYozioLinkNullHttpEntity() {
     fakeHttpClient.setHttpResonse(createHttpResponse(200, null));
     String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LINK_NAME, DEST_URL, null, null);
     assertNotNull(fakeHttpClient.getLastRequest());
