@@ -27,6 +27,9 @@ public class TestHelper {
     } catch (InterruptedException e) {
       Log.e(LOGTAG, "waitUntilEventSent", e);
       System.exit(1);
+    } finally {
+      // Remove the listener.
+      dataStore.setRemoveListener(null);
     }
   }
 }
