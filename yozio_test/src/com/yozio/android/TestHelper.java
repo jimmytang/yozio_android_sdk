@@ -23,7 +23,11 @@ public class TestHelper {
       }
     });
     try {
-      signal.await(5, TimeUnit.SECONDS);
+      boolean timeout = !signal.await(5, TimeUnit.SECONDS);
+      if (timeout) {
+        Log.e(LOGTAG, "waitUntilEventSent: timeout!");
+        System.exit(1);
+      }
     } catch (InterruptedException e) {
       Log.e(LOGTAG, "waitUntilEventSent", e);
       System.exit(1);
