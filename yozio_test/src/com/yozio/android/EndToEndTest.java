@@ -25,6 +25,7 @@ import android.test.InstrumentationTestCase;
 import android.util.Log;
 
 import com.yozio.android.Yozio.GetYozioLinkCallback;
+import com.yozio.android.Yozio.InitializeExperimentsCallback;
 
 public class EndToEndTest extends InstrumentationTestCase {
 
@@ -41,11 +42,18 @@ public class EndToEndTest extends InstrumentationTestCase {
   private static final String SECRET_KEY = "96d13160-f0fc-012f-2d88-12314000ac7c";
   private static final String LOOP_NAME = "testloop";
 
+  private static final String EXPERIMENT_ID = "50733c0fa6cc9f77e10030d3";
+  private static final String CONTROL_VARIATION_ID = "50733c0fa6cc9f77e10030d2";
+  private static final String VARIATION_A_ID = "50733c2fa6cc9f7c080027f6";
+  private static final String VARIATION_B_ID = "50734f3aa6cc9f04b30083a9";
+
+
   private static final int E_VIRAL_CLICK = 31;
 
   private HttpClient httpClient;
   private Context context;
   private YozioDataStoreImpl dataStore;
+  private String yozioUdid;
 
   @Override
   protected void setUp() throws Exception {
@@ -64,6 +72,8 @@ public class EndToEndTest extends InstrumentationTestCase {
     TestHelper.waitUntilEventSent(dataStore);
     // Login to the Yozio website.
     login();
+
+    this.yozioUdid = OpenUDID.getOpenUDIDInContext();
   }
 
   /**
@@ -145,10 +155,74 @@ public class EndToEndTest extends InstrumentationTestCase {
     assertEquals(0, dataStore.getNumEvents());
   }
 
+  /**
+   * Test intForKey with initializeExperiments
+   */
+  public void testIntForKeyWithInitializeExperiments() {
+    forceVariation(CONTROL_VARIATION_ID);
+    Yozio.initializeExperiments();
+    assertEquals(789, Yozio.intForKey("height", 789));
+
+    forceVariation(VARIATION_A_ID);
+    Yozio.initializeExperiments();
+    assertEquals(123, Yozio.intForKey("height", 789));
+
+    forceVariation(VARIATION_B_ID);
+    Yozio.initializeExperiments();
+    assertEquals(456, Yozio.intForKey("height", 789));
+  }
+
+  /**
+   * Test stringForKey with initializeExperiments
+   */
+  public void testStringForKeyWithInitializeExperiments() {
+    forceVariation(CONTROL_VARIATION_ID);
+    Yozio.initializeExperiments();
+    assertEquals("control", Yozio.stringForKey("ooga", "control"));
+
+    forceVariation(VARIATION_A_ID);
+    Yozio.initializeExperiments();
+    assertEquals("booga", Yozio.stringForKey("ooga", "control"));
+
+    forceVariation(VARIATION_B_ID);
+    Yozio.initializeExperiments();
+    assertEquals("foobar", Yozio.stringForKey("ooga", "control"));
+  }
+
+  /**
+   * Test initializeExperimentsAsync
+   */
+  public void testInitializeExperimentsAsync() throws Throwable {
+    forceVariation(VARIATION_A_ID);
+
+    final CountDownLatch signal = new CountDownLatch(1);
+    runTestOnUiThread(new Runnable() {
+      public void run() {
+        // Actual test
+        Yozio.initializeExperimentsAsync(new InitializeExperimentsCallback() {
+          public void onComplete() {
+            assertEquals(123, Yozio.intForKey("height", 789));
+            assertEquals("booga", Yozio.stringForKey("ooga", "control"));
+            signal.countDown();
+          }
+        });
+      }
+    });
+    signal.await(20, TimeUnit.SECONDS);
+  }
 
   /////////////////////////////////////////////////////////////////////////////
   // Helper methods
   /////////////////////////////////////////////////////////////////////////////
+
+  /**
+   * Forces the a variation for the device running this test
+   */
+  void forceVariation(String variationId) {
+    String queryString = "?device_id=" + this.yozioUdid + "&experiment_id=" + EXPERIMENT_ID +
+        "&variation_id=" + variationId;
+    doJsonGetRequest(TEST_BASE_URL + "/demo/force_variation/" + queryString);
+  }
 
   /**
    * Asserts that the runnable changes the event type count by diff.
