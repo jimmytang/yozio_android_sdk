@@ -26,6 +26,14 @@ public class FakeYozioApiService implements YozioApiService {
     return null;
   }
 
+  public String getYozioLink(String appKey, String yozioUdid, String viralLoopName,
+      String iosDestinationUrl, String androidDestinationUrl, String nonMobileDestinationUrl,
+      JSONObject yozioProperties, JSONObject externalProperties) {
+    this.yozioProperties = yozioProperties;
+    this.externalProperties = externalProperties;
+    return null;
+  }
+
   public JSONObject getPayload() {
     return payload;
   }

@@ -140,7 +140,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
       fail();
     }
     helper.initializeExperiments();
-    helper.getYozioLink("loop name", "www.ooga.booga");
+    helper.getYozioLink("loop name", "www.ooga.booga", null);
     try {
       assertEquals(
           experimentVariationSids.toString(),
@@ -152,7 +152,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
 
   public void testGetYozioLinkWithoutExperimentVariationSids() {
     helper.initializeExperiments();
-    helper.getYozioLink("loop name", "www.ooga.booga");
+    helper.getYozioLink("loop name", "www.ooga.booga", null);
     assertFalse(fakeApiService.getYozioProperties().has("experiment_variation_sids"));
   }
 
@@ -169,7 +169,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testGetYozioLinkWithoutCallingInitializeExperiments() {
-    helper.getYozioLink("loop name", "www.ooga.booga");
+    helper.getYozioLink("loop name", "www.ooga.booga", null);
     assertEquals("{}", fakeApiService.getYozioProperties().toString());
   }
 

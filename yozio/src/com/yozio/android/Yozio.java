@@ -191,6 +191,50 @@ public final class Yozio {
   }
 
   /**
+   * Makes a blocking HTTP request to generate a Yozio link.
+   *
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
+   *                           for iOS devices.
+   * @param androidDestinationUrl URL that the generated Yozio link will redirect
+   *                              to for Android devices.
+   * @param nonMobileDestinationUrl  URL that the generated Yozio link will
+   *                                 redirect to for all other devices.
+   * @return A Yozio link, or the destinationUrl if there is an error generating
+   *         the Yozio link.
+   */
+  public static String getYozioLink(String viralLoopName, String iosDestinationUrl,
+      String androidDestinationUrl, String nonMobileDestinationUrl) {
+    return getYozioLink(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+        nonMobileDestinationUrl, null);
+  }
+
+  /**
+   * Makes a blocking HTTP request to generate a Yozio link.
+   *
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
+   *                           for iOS devices.
+   * @param androidDestinationUrl URL that the generated Yozio link will redirect
+   *                              to for Android devices.
+   * @param nonMobileDestinationUrl  URL that the generated Yozio link will
+   *                                 redirect to for all other devices.
+   * @param properties  Arbitrary meta data to attach to the generated Yozio link.
+   * @return A Yozio link, or the destinationUrl if there is an error generating
+   *         the Yozio link.
+   */
+  public static String getYozioLink(String viralLoopName, String iosDestinationUrl,
+      String androidDestinationUrl, String nonMobileDestinationUrl, JSONObject properties) {
+    if (!validate()) {
+      return nonMobileDestinationUrl;
+    }
+    return helper.getYozioLink(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+        nonMobileDestinationUrl, properties);
+  }
+
+  /**
    * Makes an asynchronous HTTP request to generate a Yozio link.
    *
    * Must be called from your application's main UI thread. The callback will
@@ -230,6 +274,61 @@ public final class Yozio {
       callback.handleResponse(destinationUrl);
     }
     helper.getYozioLinkAsync(viralLoopName, destinationUrl, properties, callback);
+  }
+
+  /**
+   * Makes an asynchronous HTTP request to generate a Yozio link.
+   *
+   * Must be called from your application's main UI thread. The callback will
+   * also be executed on the main UI thread.
+   *
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
+   *                           for iOS devices.
+   * @param androidDestinationUrl URL that the generated Yozio link will redirect
+   *                              to for Android devices.
+   * @param nonMobileDestinationUrl  URL that the generated Yozio link will
+   *                                 redirect to for all other devices.
+   * @param callback  Called when the HTTP request completes.
+   *                  The argument passed into the callback will be the Yozio
+   *                  link, or the destinationUrl if there is an error generating
+   *                  the Yozio link.
+   */
+  public static void getYozioLinkAsync(String viralLoopName, String iosDestinationUrl,
+      String androidDestinationUrl, String nonMobileDestinationUrl, GetYozioLinkCallback callback) {
+    getYozioLinkAsync(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+        nonMobileDestinationUrl, null, callback);
+  }
+
+  /**
+   * Makes an asynchronous HTTP request to generate a Yozio link.
+   *
+   * Must be called from your application's main UI thread. The callback will
+   * also be executed on the main UI thread.
+   *
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
+   *                           for iOS devices.
+   * @param androidDestinationUrl URL that the generated Yozio link will redirect
+   *                              to for Android devices.
+   * @param nonMobileDestinationUrl  URL that the generated Yozio link will
+   *                                 redirect to for all other devices.
+   * @param properties  Arbitrary meta data to attach to the generated Yozio link.
+   * @param callback  Called when the HTTP request completes.
+   *                  The argument passed into the callback will be the Yozio
+   *                  link, or the destinationUrl if there is an error generating
+   *                  the Yozio link.
+   */
+  public static void getYozioLinkAsync(String viralLoopName, String iosDestinationUrl,
+      String androidDestinationUrl, String nonMobileDestinationUrl, JSONObject properties,
+      GetYozioLinkCallback callback) {
+    if (!validate()) {
+      callback.handleResponse(nonMobileDestinationUrl);
+    }
+    helper.getYozioLinkAsync(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+        nonMobileDestinationUrl, properties, callback);
   }
 
   /**
