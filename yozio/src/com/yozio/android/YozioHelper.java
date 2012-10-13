@@ -45,7 +45,7 @@ import com.yozio.android.YozioDataStore.Events;
 class YozioHelper {
 
   // SDK version
-  protected static final String YOZIO_SDK_VERSION = "ANDROID-v1.6";
+  protected static final String YOZIO_SDK_VERSION = "ANDROID-v2.1";
 
   // Android device type is 3.
   static final String DEVICE_TYPE = "3";
@@ -223,16 +223,6 @@ class YozioHelper {
   /**
    * Makes a blocking request to retrieve the Yozio link.
    *
-   * @return the Yozio link if the request was successful, or the
-   *         destinationUrl if unsuccessful.
-   */
-  String getYozioLink(String viralLoopName, String destinationUrl) {
-    return getYozioLink(viralLoopName, destinationUrl, null);
-  }
-
-  /**
-   * Makes a blocking request to retrieve the Yozio link.
-   *
    * @param externalProperties  meta-data Customer wants to attach to url
    * @return the Yozio link if the request was successful, or the destinationUrl if unsuccessful.
    */
@@ -243,18 +233,39 @@ class YozioHelper {
   }
 
   /**
-   * Makes a non-blocking request to retrieve the Yozio link.
+   * Makes a blocking request to retrieve the Yozio link.
+   *
+   * @param externalProperties  meta-data Customer wants to attach to url
+   * @return the Yozio link if the request was successful, or the destinationUrl if unsuccessful.
    */
-  void getYozioLinkAsync(String viralLoopName, String destinationUrl,
-      GetYozioLinkCallback callback) {
-    getYozioLinkAsync(viralLoopName, destinationUrl, null, callback);
+  String getYozioLink(String viralLoopName, String iosDestinationUrl, String androidDestinationUrl,
+      String nonMobileDestinationUrl, JSONObject externalProperties) {
+    String yozioLink = apiService.getYozioLink(
+        appKey, yozioUdid, viralLoopName, iosDestinationUrl, androidDestinationUrl,
+        nonMobileDestinationUrl, getYozioProperties(), externalProperties);
+    return yozioLink != null ? yozioLink : nonMobileDestinationUrl;
   }
 
+  /**
+   * Makes a non-blocking request to retrieve the Yozio link.
+   */
   void getYozioLinkAsync(String viralLoopName, String destinationUrl, JSONObject externalProperties,
       GetYozioLinkCallback callback) {
     JSONObject yozioProperties = getYozioProperties();
     new GetYozioLinkTask(
         viralLoopName, destinationUrl, yozioProperties, externalProperties, callback).execute();
+  }
+
+  /**
+   * Makes a non-blocking request to retrieve the Yozio link.
+   */
+  void getYozioLinkAsync(String viralLoopName, String iosDestinationUrl,
+      String androidDestinationUrl, String nonMobileDestinationUrl, JSONObject externalProperties,
+      GetYozioLinkCallback callback) {
+    JSONObject yozioProperties = getYozioProperties();
+    new GetYozioLinkTask(
+        viralLoopName, iosDestinationUrl, androidDestinationUrl, nonMobileDestinationUrl,
+        yozioProperties, externalProperties, callback).execute();
   }
 
   /**
@@ -497,6 +508,9 @@ class YozioHelper {
 
     private final String viralLoopName;
     private final String destinationUrl;
+    private final String iosDestinationUrl;
+    private final String androidDestinationUrl;
+    private final String nonMobileDestinationUrl;
     private final JSONObject externalProperties;
     private final JSONObject yozioProperties;
     private final GetYozioLinkCallback callback;
@@ -504,7 +518,23 @@ class YozioHelper {
     GetYozioLinkTask(String viralLoopName, String destinationUrl,
         JSONObject yozioProperties, JSONObject externalProperties, GetYozioLinkCallback callback) {
       this.viralLoopName = viralLoopName;
+      this.iosDestinationUrl = null;
+      this.androidDestinationUrl = null;
+      this.nonMobileDestinationUrl = null;
       this.destinationUrl = destinationUrl;
+      this.externalProperties = externalProperties;
+      this.yozioProperties = yozioProperties;
+      this.callback = callback;
+    }
+
+    GetYozioLinkTask(String viralLoopName, String iosDestinationUrl, String androidDestinationUrl,
+        String nonMobileDestinationUrl, JSONObject yozioProperties,
+        JSONObject externalProperties, GetYozioLinkCallback callback) {
+      this.viralLoopName = viralLoopName;
+      this.iosDestinationUrl = iosDestinationUrl;
+      this.androidDestinationUrl = androidDestinationUrl;
+      this.nonMobileDestinationUrl = nonMobileDestinationUrl;
+      this.destinationUrl = null;
       this.externalProperties = externalProperties;
       this.yozioProperties = yozioProperties;
       this.callback = callback;
@@ -512,8 +542,14 @@ class YozioHelper {
 
     @Override
     protected String doInBackground(Void... arg0) {
-      return apiService.getYozioLink(
-          appKey, yozioUdid, viralLoopName, destinationUrl, yozioProperties, externalProperties);
+      if (destinationUrl != null) {
+        return apiService.getYozioLink(
+            appKey, yozioUdid, viralLoopName, destinationUrl, yozioProperties, externalProperties);
+      } else {
+        return apiService.getYozioLink(
+            appKey, yozioUdid, viralLoopName, iosDestinationUrl, androidDestinationUrl,
+            nonMobileDestinationUrl, yozioProperties, externalProperties);
+      }
     }
 
     @Override

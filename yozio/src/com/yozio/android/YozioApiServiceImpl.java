@@ -54,6 +54,9 @@ class YozioApiServiceImpl implements YozioApiService {
   private static final String GET_CONFIGURATION_P_YOZIO_UDID = "yozio_udid";
   private static final String GET_URL_P_APP_KEY = "app_key";
   private static final String GET_URL_P_DEST_URL = "dest_url";
+  private static final String GET_URL_P_IOS_DEST_URL = "ios_dest_url";
+  private static final String GET_URL_P_ANDROID_DEST_URL = "android_dest_url";
+  private static final String GET_URL_P_NON_MOBILE_DEST_URL = "non_mobile_dest_url";
   private static final String GET_URL_P_DEVICE_TYPE = "device_type";
   private static final String GET_URL_P_EXTERNAL_PROPERTIES = "external_properties";
   private static final String GET_URL_P_LINK_NAME = "link_name";
@@ -88,6 +91,23 @@ class YozioApiServiceImpl implements YozioApiService {
     params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
     params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, viralLoopName));
     params.add(new BasicNameValuePair(GET_URL_P_DEST_URL, destinationUrl));
+    addParam(params, GET_URL_P_YOZIO_PROPERTIES, yozioProperties);
+    addParam(params, GET_URL_P_EXTERNAL_PROPERTIES, externalProperties);
+    Response response = doPostRequest(baseUrl + GET_URL_ROUTE, params);
+    return getJsonValue(response, GET_URL_R_URL);
+  }
+
+  public String getYozioLink(String appKey, String yozioUdid, String viralLoopName,
+      String iosDestinationUrl, String androidDestinationUrl, String nonMobileDestinationUrl,
+      JSONObject yozioProperties, JSONObject externalProperties) {
+    List<NameValuePair> params = new LinkedList<NameValuePair>();
+    params.add(new BasicNameValuePair(GET_URL_P_APP_KEY, appKey));
+    params.add(new BasicNameValuePair(GET_URL_P_YOZIO_UDID, yozioUdid));
+    params.add(new BasicNameValuePair(GET_URL_P_DEVICE_TYPE, YozioHelper.DEVICE_TYPE));
+    params.add(new BasicNameValuePair(GET_URL_P_LINK_NAME, viralLoopName));
+    params.add(new BasicNameValuePair(GET_URL_P_IOS_DEST_URL, iosDestinationUrl));
+    params.add(new BasicNameValuePair(GET_URL_P_ANDROID_DEST_URL, androidDestinationUrl));
+    params.add(new BasicNameValuePair(GET_URL_P_NON_MOBILE_DEST_URL, nonMobileDestinationUrl));
     addParam(params, GET_URL_P_YOZIO_PROPERTIES, yozioProperties);
     addParam(params, GET_URL_P_EXTERNAL_PROPERTIES, externalProperties);
     Response response = doPostRequest(baseUrl + GET_URL_ROUTE, params);

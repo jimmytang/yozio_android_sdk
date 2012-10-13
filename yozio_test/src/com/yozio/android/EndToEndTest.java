@@ -120,6 +120,87 @@ public class EndToEndTest extends InstrumentationTestCase {
   }
 
   /**
+   * Tests the the generated Yozio link is valid for multiple destination urls
+   * and makes sure that the click count goes up in the UI when the Yozio link is clicked.
+   */
+  public void testGetYozioLinkForMultipleDestUrls() {
+    final String yozioLink = Yozio.getYozioLink(LOOP_NAME,
+        "www.google.com", "www.bing.com", "www.yahoo.com");
+    assertTrue(yozioLink.startsWith(TEST_BASE_URL + "/r/"));
+    Runnable visitLink = new Runnable() {
+      public void run() {
+        String response = doGetRequest(yozioLink, "iphone");
+        assertTrue(response.contains("<title>Google</title>"));
+
+        response = doGetRequest(yozioLink, "android");
+        assertTrue(response.contains("<title>Bing</title>"));
+
+        response = doGetRequest(yozioLink, "other");
+        assertTrue(response.contains("<title>Yahoo!</title>"));
+      }
+    };
+    assertLoopEventCountChange(E_VIRAL_CLICK, 3, visitLink);
+  }
+
+  /**
+   * Tests the the generated Yozio link is valid for multiple destination urls
+   * when given invalid arguments.
+   */
+  public void testGetYozioLinkForMultipleDestUrlsWithInvalidArgs() {
+    final String yozioLink = Yozio.getYozioLink(LOOP_NAME,
+        null, "www.bing.com", "http://www.yahoo.com");
+    assertEquals("http://www.yahoo.com", yozioLink);
+    Runnable visitLink = new Runnable() {
+      public void run() {
+        String response = doGetRequest(yozioLink, "iphone");
+        assertTrue(response.contains("<title>Yahoo!</title>"));
+
+        response = doGetRequest(yozioLink, "android");
+        assertTrue(response.contains("<title>Yahoo!</title>"));
+
+        response = doGetRequest(yozioLink, "other");
+        assertTrue(response.contains("<title>Yahoo!</title>"));
+      }
+    };
+    assertLoopEventCountChange(E_VIRAL_CLICK, 0, visitLink);
+  }
+
+  /**
+   * Tests the the generated Yozio link is valid for multiple destination urls
+   * and makes sure that the click count goes up in the UI when the Yozio link is clicked.
+   */
+  public void testGetYozioLinkAsyncForMultipleDestinationUrls() throws Throwable {
+    final CountDownLatch signal = new CountDownLatch(1);
+    runTestOnUiThread(new Runnable() {
+      public void run() {
+        // Actual test
+        Yozio.getYozioLinkAsync(LOOP_NAME, "www.google.com", "www.bing.com",
+            "www.yahoo.com", new GetYozioLinkCallback() {
+          public void handleResponse(final String yozioLink) {
+            assertTrue(yozioLink.startsWith(TEST_BASE_URL + "/r/"));
+            Runnable visitLink = new Runnable() {
+              public void run() {
+                String response = doGetRequest(yozioLink, "iphone");
+                assertTrue(response.contains("<title>Google</title>"));
+
+                response = doGetRequest(yozioLink, "android");
+                assertTrue(response.contains("<title>Bing</title>"));
+
+                response = doGetRequest(yozioLink, "other");
+                assertTrue(response.contains("<title>Yahoo!</title>"));
+              }
+            };
+            assertLoopEventCountChange(E_VIRAL_CLICK, 3, visitLink);
+            signal.countDown();
+          }
+        });
+      }
+    });
+    signal.await(20, TimeUnit.SECONDS);
+  }
+
+
+  /**
    * Test the Entrances value in the UI goes up.
    */
   public void testEnteredViralLoop() {
@@ -149,7 +230,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    */
   public void testDiscardInvalidEvents() {
     assertEquals(0, dataStore.getNumEvents());
-    Yozio.enteredViralLoop("nonexistentname");
+    Yozio.enteredViralLoop("android test ignore me please");
     assertEquals(1, dataStore.getNumEvents());
     TestHelper.waitUntilEventSent(dataStore);
     assertEquals(0, dataStore.getNumEvents());
@@ -272,6 +353,12 @@ public class EndToEndTest extends InstrumentationTestCase {
 
   String doGetRequest(String url) {
     return doGetRequest(new HttpGet(url));
+  }
+
+  String doGetRequest(String url, String userAgent) {
+    HttpGet httpGet = new HttpGet(url);
+    httpGet.setHeader("User-Agent", userAgent);
+    return doGetRequest(httpGet);
   }
 
   String doGetRequest(HttpGet httpGet) {

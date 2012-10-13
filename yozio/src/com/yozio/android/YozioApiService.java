@@ -59,6 +59,28 @@ interface YozioApiService {
       JSONObject externalProperties);
 
   /**
+   * Makes a blocking HTTP request to Yozio to generate the Yozio link specific
+   * to the device for the given viralLoopName.
+   *
+   * @param appKey  the application specific key provided by Yozio.
+   * @param yozioUdid  a unique device identifier.
+   * @param viralLoopName  Name of the viral loop. Must match the name of one of
+   *                       the viral loops created on the Yozio dashboard.
+   * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
+   *                           for iOS devices.
+   * @param androidDestinationUrl URL that the generated Yozio link will redirect
+   *                              to for Android devices.
+   * @param nonMobileDestinationUrl  URL that the generated Yozio link will
+   *                                 redirect to for all other devices.
+   * @param yozioProperties a JSONObject of internal Yozio properties.
+   * @param properties  Arbitrary meta data to attach to the generated Yozio link.
+   * @return A Yozio link, or null if there is an error generating the Yozio link.
+   */
+  String getYozioLink(String appKey, String yozioUdid, String viralLoopName,
+      String iosDestinationUrl, String androidDestinationUrl, String nonMobileDestinationUrl,
+      JSONObject yozioProperties, JSONObject externalProperties);
+
+  /**
    * Makes a blocking HTTP request to download the experiment configurations
    *
    * @param appKey  the application specific key provided by Yozio.

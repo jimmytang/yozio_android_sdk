@@ -119,6 +119,29 @@ public class YozioApiServiceImplTest extends TestCase {
     }
   }
 
+  public void testGetYozioLinkWithMultipleDestUrls() {
+    String expectedYozioLink = "www.foobar.com";
+    String expectedIosDestUrl = "www.ios.com";
+    String expectedAndroidDestUrl = "www.android.com";
+    String expectedNonMobileDestUrl = "www.nonmobile.com";
+
+    fakeHttpClient.setHttpResonse(createJsonHttpResponse(200, "url", expectedYozioLink));
+
+    String yozioLink = apiService.getYozioLink(
+        APP_KEY, UDID, LOOP_NAME, expectedIosDestUrl, expectedAndroidDestUrl,
+        expectedNonMobileDestUrl, null, null);
+
+    Uri requestUri = fakeHttpClient.getLastRequestUri();
+    String iosDestUrl = requestUri.getQueryParameter("ios_dest_url");
+    String androidDestUrl = requestUri.getQueryParameter("android_dest_url");
+    String nonMobileDestUrl = requestUri.getQueryParameter("non_mobile_dest_url");
+
+    assertEquals(expectedIosDestUrl, iosDestUrl);
+    assertEquals(expectedAndroidDestUrl, androidDestUrl);
+    assertEquals(expectedNonMobileDestUrl, nonMobileDestUrl);
+    assertEquals(expectedYozioLink, yozioLink);
+  }
+
   public void testGetYozioLinkNonJsonResponse() {
     fakeHttpClient.setHttpResonse(createStringHttpResponse(200, "not {a : json} string"));
     String yozioLink = apiService.getYozioLink(APP_KEY, UDID, LOOP_NAME, DEST_URL, null, null);
