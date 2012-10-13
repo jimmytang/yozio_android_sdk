@@ -144,6 +144,29 @@ public class EndToEndTest extends InstrumentationTestCase {
 
   /**
    * Tests the the generated Yozio link is valid for multiple destination urls
+   * when given invalid arguments.
+   */
+  public void testGetYozioLinkForMultipleDestUrlsWithInvalidArgs() {
+    final String yozioLink = Yozio.getYozioLink(LOOP_NAME,
+        null, "www.bing.com", "http://www.yahoo.com");
+    assertEquals("http://www.yahoo.com", yozioLink);
+    Runnable visitLink = new Runnable() {
+      public void run() {
+        String response = doGetRequest(yozioLink, "iphone");
+        assertTrue(response.contains("<title>Yahoo!</title>"));
+
+        response = doGetRequest(yozioLink, "android");
+        assertTrue(response.contains("<title>Yahoo!</title>"));
+
+        response = doGetRequest(yozioLink, "other");
+        assertTrue(response.contains("<title>Yahoo!</title>"));
+      }
+    };
+    assertLoopEventCountChange(E_VIRAL_CLICK, 0, visitLink);
+  }
+
+  /**
+   * Tests the the generated Yozio link is valid for multiple destination urls
    * and makes sure that the click count goes up in the UI when the Yozio link is clicked.
    */
   public void testGetYozioLinkAsyncForMultipleDestinationUrls() throws Throwable {
@@ -207,7 +230,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    */
   public void testDiscardInvalidEvents() {
     assertEquals(0, dataStore.getNumEvents());
-    Yozio.enteredViralLoop("nonexistentname");
+    Yozio.enteredViralLoop("android test ignore me please");
     assertEquals(1, dataStore.getNumEvents());
     TestHelper.waitUntilEventSent(dataStore);
     assertEquals(0, dataStore.getNumEvents());
@@ -325,20 +348,20 @@ public class EndToEndTest extends InstrumentationTestCase {
   String doJsonGetRequest(String url) {
     HttpGet httpGet = new HttpGet(url);
     httpGet.setHeader("Accept","application/json");
-    return doGetRequest(httpGet, null);
+    return doGetRequest(httpGet);
   }
 
   String doGetRequest(String url) {
-    return doGetRequest(new HttpGet(url), null);
+    return doGetRequest(new HttpGet(url));
   }
 
   String doGetRequest(String url, String userAgent) {
     HttpGet httpGet = new HttpGet(url);
     httpGet.setHeader("User-Agent", userAgent);
-    return doGetRequest(httpGet, userAgent);
+    return doGetRequest(httpGet);
   }
 
-  String doGetRequest(HttpGet httpGet, String userAgent) {
+  String doGetRequest(HttpGet httpGet) {
     try {
       HttpResponse httpResponse = httpClient.execute(httpGet);
       HttpEntity httpEntity = httpResponse.getEntity();
