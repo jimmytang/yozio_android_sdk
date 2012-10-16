@@ -136,6 +136,8 @@ class YozioHelper {
     this.apiService = apiService;
     this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    // This executor MUST have pool size of 1 (1 task allowed to run at once).
+    // Otherwise, we might send the same event multiple times.
     executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
   }
