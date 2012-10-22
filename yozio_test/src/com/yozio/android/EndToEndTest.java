@@ -2,6 +2,7 @@ package com.yozio.android;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -49,9 +50,11 @@ public class EndToEndTest extends InstrumentationTestCase {
 
 
   private static final int E_VIRAL_CLICK = 31;
+  private static final int E_VIRAL_INSTALL = 41;
 
   private HttpClient httpClient;
   private Context context;
+  private YozioHelper helper;
   private YozioDataStoreImpl dataStore;
   private String yozioUdid;
 
@@ -65,15 +68,43 @@ public class EndToEndTest extends InstrumentationTestCase {
     apiService.setBaseUrl(TEST_BASE_URL);
     SQLiteOpenHelper dbHelper = new YozioDataStoreImpl.DatabaseHelper(context);
     dataStore = new YozioDataStoreImpl(dbHelper, APP_KEY);
-    YozioHelper helper = new YozioHelper(dataStore, apiService);
+    helper = new YozioHelper(dataStore, apiService);
     Yozio.setHelper(helper);
-    Yozio.configure(context, APP_KEY, SECRET_KEY);
-    // Wait for the OPEN event triggered by configure to be sent.
-    TestHelper.waitUntilEventSent(dataStore);
+    configureAndWait();
     // Login to the Yozio website.
     login();
+  }
 
-    this.yozioUdid = OpenUDID.getOpenUDIDInContext();
+  /**
+   * Tests that the OPEN event does not increase the INSTALL count.
+   *
+   * NOTE: This will fail the first time the test is run on a new device.
+   */
+  public void testNoInstall() {
+    testGetYozioLink();
+    Runnable sendOpen = new Runnable() {
+      public void run() {
+        helper.collect(Yozio.E_OPENED_APP, null);
+        TestHelper.waitUntilEventSent(dataStore);
+      }
+    };
+    assertLoopEventCountChange(E_VIRAL_INSTALL, 0, sendOpen);
+  }
+
+  /**
+   * Tests that the OPEN event increases the INSTALL count for new devices.
+   */
+  public void testInstall() {
+    testGetYozioLink();
+    Runnable sendOpen = new Runnable() {
+      public void run() {
+        String newYozioUdid = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        helper.setYozioUdid(newYozioUdid);
+        helper.collect(Yozio.E_OPENED_APP, null);
+        TestHelper.waitUntilEventSent(dataStore);
+      }
+    };
+    assertLoopEventCountChange(E_VIRAL_INSTALL, 1, sendOpen);
   }
 
   /**
@@ -231,6 +262,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   public void testDiscardInvalidEvents() {
     assertEquals(0, dataStore.getNumEvents());
     Yozio.enteredViralLoop("android test ignore me please");
+    TestHelper.waitUntilEventAdded(dataStore);
     assertEquals(1, dataStore.getNumEvents());
     TestHelper.waitUntilEventSent(dataStore);
     assertEquals(0, dataStore.getNumEvents());
@@ -297,18 +329,38 @@ public class EndToEndTest extends InstrumentationTestCase {
   /////////////////////////////////////////////////////////////////////////////
 
   /**
+   * Configures the app and waits until the OPEN event is sent before returning.
+   */
+  private void configureAndWait() {
+    Yozio.configure(context, APP_KEY, SECRET_KEY);
+    // DeviceId is available after Yozio is configured.
+    yozioUdid = helper.getYozioUdid();
+    // Wait for the OPEN event triggered by configure to be sent.
+    TestHelper.waitUntilEventSent(dataStore);
+  }
+
+  /**
    * Forces the a variation for the device running this test
    */
-  void forceVariation(String variationId) {
-    String queryString = "?device_id=" + this.yozioUdid + "&experiment_id=" + EXPERIMENT_ID +
+  private void forceVariation(String variationId) {
+    String queryString = "?device_id=" + yozioUdid + "&experiment_id=" + EXPERIMENT_ID +
         "&variation_id=" + variationId;
-    doJsonGetRequest(TEST_BASE_URL + "/demo/force_variation/" + queryString);
+    String response = doJsonGetRequest(TEST_BASE_URL + "/demo/force_variation/" + queryString);
+    try {
+      JSONObject responseObj = new JSONObject(response);
+      if (!responseObj.getString("status").equals("ok")) {
+        fail();
+      }
+    } catch (JSONException e) {
+      fail();
+    }
+    return;
   }
 
   /**
    * Asserts that the runnable changes the event type count by diff.
    */
-  void assertLoopEventCountChange(int eventType, int diff, Runnable runnable) {
+  private void assertLoopEventCountChange(int eventType, int diff, Runnable runnable) {
     JSONObject preAppStats = getAppStats();
     runnable.run();
     JSONObject postAppStats = getAppStats();
@@ -320,7 +372,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   /**
    * Gets the appStats from the Yozio website.
    */
-  JSONObject getAppStats() {
+  private JSONObject getAppStats() {
     String response = doJsonGetRequest(TEST_BASE_URL + "/viral_apps/" + APP_ID);
     try {
       return new JSONObject(response);
@@ -333,7 +385,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   /**
    * Parses appStats and returns the event count for the given event type.
    */
-  int getLoopEventCount(JSONObject appStats, int eventType) {
+  private int getLoopEventCount(JSONObject appStats, int eventType) {
     try {
       return appStats
           .getJSONObject("event_counts_per_link")
@@ -345,23 +397,23 @@ public class EndToEndTest extends InstrumentationTestCase {
     return -1;
   }
 
-  String doJsonGetRequest(String url) {
+  private String doJsonGetRequest(String url) {
     HttpGet httpGet = new HttpGet(url);
     httpGet.setHeader("Accept","application/json");
     return doGetRequest(httpGet);
   }
 
-  String doGetRequest(String url) {
+  private String doGetRequest(String url) {
     return doGetRequest(new HttpGet(url));
   }
 
-  String doGetRequest(String url, String userAgent) {
+  private String doGetRequest(String url, String userAgent) {
     HttpGet httpGet = new HttpGet(url);
     httpGet.setHeader("User-Agent", userAgent);
     return doGetRequest(httpGet);
   }
 
-  String doGetRequest(HttpGet httpGet) {
+  private String doGetRequest(HttpGet httpGet) {
     try {
       HttpResponse httpResponse = httpClient.execute(httpGet);
       HttpEntity httpEntity = httpResponse.getEntity();
@@ -383,7 +435,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   /**
    * Logs in to the Yozio website and persists the session in the shared httpClient.
    */
-  void login() {
+  private void login() {
     try {
       HttpPost httpPost = new HttpPost(TEST_BASE_URL + "/login");
       httpPost.setHeader(YozioHelper.H_SDK_VERSION, YozioHelper.YOZIO_SDK_VERSION);

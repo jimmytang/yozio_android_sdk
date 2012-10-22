@@ -288,6 +288,16 @@ class YozioHelper {
     executor.submit(new AddEventTask(event));
   }
 
+  // For testing
+  void setYozioUdid(String yozioUdid) {
+    this.yozioUdid = yozioUdid;
+  }
+
+  // For testing
+  String getYozioUdid() {
+    return yozioUdid;
+  }
+
   /**
    * Forces a flush attempt to the Yozio server.
    */
@@ -330,7 +340,7 @@ class YozioHelper {
     countryCode = Locale.getDefault().getCountry();
     hardware = android.os.Build.MODEL;
     languageCode = Locale.getDefault().getLanguage();
-    openUdid = this.yozioUdid;
+    openUdid = OpenUDID.getOpenUDIDInContext();
     osVersion = android.os.Build.VERSION.RELEASE;
     deviceManufacturer = android.os.Build.MANUFACTURER;
     setAppVersion();

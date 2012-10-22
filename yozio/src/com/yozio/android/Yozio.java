@@ -71,7 +71,7 @@ public final class Yozio {
     if (!validate()) {
       return;
     }
-    helper.collect(E_OPENED_APP, "");
+    helper.collect(E_OPENED_APP, null);
   }
 
   /**
@@ -156,7 +156,7 @@ public final class Yozio {
       return;
     }
     helper.setUserName(userName);
-    helper.collect(E_LOGIN, "", properties);
+    helper.collect(E_LOGIN, null, properties);
   }
 
   /**

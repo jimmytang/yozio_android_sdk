@@ -72,6 +72,9 @@ class YozioDataStoreImpl implements YozioDataStore {
         cv.put(APP_KEY, appKey);
         cv.put(DATA, event.toString());
         dbHelper.getWritableDatabase().insert(EVENTS_TABLE, null, cv);
+        if (listener != null) {
+          listener.onAdd();
+        }
         // Don't worry, finally will still be called.
         return true;
       } catch (SQLiteException e) {
@@ -139,8 +142,8 @@ class YozioDataStoreImpl implements YozioDataStore {
       try {
         dbHelper.getWritableDatabase().delete(EVENTS_TABLE,
             "_id <= " + lastEventId + " AND " + APP_KEY + " = '" + appKey + "'", null);
-        if (removeListener != null) {
-          removeListener.onRemove();
+        if (listener != null) {
+          listener.onRemove();
         }
         // Don't worry, finally will still be called.
         return true;
@@ -159,13 +162,14 @@ class YozioDataStoreImpl implements YozioDataStore {
 
   // For testing
 
-  private RemoveListener removeListener;
+  private DataStoreListener listener;
 
-  public void setRemoveListener(RemoveListener removeListener) {
-    this.removeListener = removeListener;
+  public void setListener(DataStoreListener listener) {
+    this.listener = listener;
   }
 
-  public static interface RemoveListener {
+  public static interface DataStoreListener {
+    void onAdd();
     void onRemove();
   }
 }
