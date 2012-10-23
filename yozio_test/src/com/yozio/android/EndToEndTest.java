@@ -31,7 +31,10 @@ import com.yozio.android.Yozio.InitializeExperimentsCallback;
 public class EndToEndTest extends InstrumentationTestCase {
 
   private static final String LOGTAG = "EndToEndTest";
-  private static final String TEST_BASE_URL = "http://yoz.io";
+  private static final String NODE_URL = "http://yoz.io";
+  private static final String RAILS_URL = "http://yoz.io";
+//  private static final String NODE_URL = "http://192.168.1.146:1337";
+//  private static final String RAILS_URL = "http://192.168.1.146:3000";
 
   private static final String LOGIN_EMAIL = "test@yozio.com";
   private static final String LOGIN_PASSWORD = "oogabooga";
@@ -65,7 +68,7 @@ public class EndToEndTest extends InstrumentationTestCase {
     context.deleteDatabase(YozioDataStoreImpl.DATABASE_NAME);
     httpClient = Yozio.threadSafeHttpClient();
     YozioApiServiceImpl apiService = new YozioApiServiceImpl(httpClient);
-    apiService.setBaseUrl(TEST_BASE_URL);
+    apiService.setBaseUrl(NODE_URL);
     SQLiteOpenHelper dbHelper = new YozioDataStoreImpl.DatabaseHelper(context);
     dataStore = new YozioDataStoreImpl(dbHelper, APP_KEY);
     helper = new YozioHelper(dataStore, apiService);
@@ -113,7 +116,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    */
   public void testGetYozioLink() {
     final String yozioLink = Yozio.getYozioLink(LOOP_NAME, "www.google.com");
-    assertTrue(yozioLink.startsWith(TEST_BASE_URL + "/r/"));
+    assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
     Runnable visitLink = new Runnable() {
       public void run() {
         String response = doGetRequest(yozioLink);
@@ -134,7 +137,7 @@ public class EndToEndTest extends InstrumentationTestCase {
         // Actual test
         Yozio.getYozioLinkAsync(LOOP_NAME, "www.yahoo.com", new GetYozioLinkCallback() {
           public void handleResponse(final String yozioLink) {
-            assertTrue(yozioLink.startsWith(TEST_BASE_URL + "/r/"));
+            assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
             Runnable visitLink = new Runnable() {
               public void run() {
                 String response = doGetRequest(yozioLink);
@@ -157,7 +160,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   public void testGetYozioLinkForMultipleDestUrls() {
     final String yozioLink = Yozio.getYozioLink(LOOP_NAME,
         "www.google.com", "www.bing.com", "www.yahoo.com");
-    assertTrue(yozioLink.startsWith(TEST_BASE_URL + "/r/"));
+    assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
     Runnable visitLink = new Runnable() {
       public void run() {
         String response = doGetRequest(yozioLink, "iphone");
@@ -208,7 +211,7 @@ public class EndToEndTest extends InstrumentationTestCase {
         Yozio.getYozioLinkAsync(LOOP_NAME, "www.google.com", "www.bing.com",
             "www.yahoo.com", new GetYozioLinkCallback() {
           public void handleResponse(final String yozioLink) {
-            assertTrue(yozioLink.startsWith(TEST_BASE_URL + "/r/"));
+            assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
             Runnable visitLink = new Runnable() {
               public void run() {
                 String response = doGetRequest(yozioLink, "iphone");
@@ -345,7 +348,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   private void forceVariation(String variationId) {
     String queryString = "?device_id=" + yozioUdid + "&experiment_id=" + EXPERIMENT_ID +
         "&variation_id=" + variationId;
-    String response = doJsonGetRequest(TEST_BASE_URL + "/demo/force_variation/" + queryString);
+    String response = doJsonGetRequest(RAILS_URL + "/demo/force_variation/" + queryString);
     try {
       JSONObject responseObj = new JSONObject(response);
       if (!responseObj.getString("status").equals("ok")) {
@@ -373,7 +376,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    * Gets the appStats from the Yozio website.
    */
   private JSONObject getAppStats() {
-    String response = doJsonGetRequest(TEST_BASE_URL + "/viral_apps/" + APP_ID);
+    String response = doJsonGetRequest(RAILS_URL + "/viral_apps/" + APP_ID);
     try {
       return new JSONObject(response);
     } catch (JSONException e) {
@@ -437,7 +440,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    */
   private void login() {
     try {
-      HttpPost httpPost = new HttpPost(TEST_BASE_URL + "/login");
+      HttpPost httpPost = new HttpPost(RAILS_URL + "/login");
       httpPost.setHeader(YozioHelper.H_SDK_VERSION, YozioHelper.YOZIO_SDK_VERSION);
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("email", LOGIN_EMAIL));
