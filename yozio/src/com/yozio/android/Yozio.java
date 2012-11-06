@@ -71,7 +71,7 @@ public final class Yozio {
     if (!validate()) {
       return;
     }
-    helper.collect(E_OPENED_APP, null);
+    helper.collect(E_OPENED_APP, null, null);
   }
 
   /**
@@ -156,7 +156,7 @@ public final class Yozio {
       return;
     }
     helper.setUserName(userName);
-    helper.collect(E_LOGIN, null, properties);
+    helper.collect(E_LOGIN, null, null, properties);
   }
 
   /**
@@ -164,12 +164,13 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param destinationUrl  URL that the generated Yozio link will redirect to.
    * @return A Yozio link, or the destinationUrl if there is an error generating
    *         the Yozio link.
    */
-  public static String getYozioLink(String viralLoopName, String destinationUrl) {
-    return getYozioLink(viralLoopName, destinationUrl, null);
+  public static String getYozioLink(String viralLoopName, String channel, String destinationUrl) {
+    return getYozioLink(viralLoopName, channel, destinationUrl, null);
   }
 
   /**
@@ -177,17 +178,18 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param destinationUrl  URL that the generated Yozio link will redirect to.
    * @param properties  Arbitrary meta data to attach to the generated Yozio link.
    * @return A Yozio link, or the destinationUrl if there is an error generating
    *         the Yozio link.
    */
-  public static String getYozioLink(String viralLoopName, String destinationUrl,
+  public static String getYozioLink(String viralLoopName, String channel, String destinationUrl,
       JSONObject properties) {
     if (!validate()) {
       return destinationUrl;
     }
-    return helper.getYozioLink(viralLoopName, destinationUrl, properties);
+    return helper.getYozioLink(viralLoopName, channel, destinationUrl, properties);
   }
 
   /**
@@ -195,6 +197,7 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
    *                           for iOS devices.
    * @param androidDestinationUrl URL that the generated Yozio link will redirect
@@ -204,9 +207,9 @@ public final class Yozio {
    * @return A Yozio link, or the destinationUrl if there is an error generating
    *         the Yozio link.
    */
-  public static String getYozioLink(String viralLoopName, String iosDestinationUrl,
+  public static String getYozioLink(String viralLoopName, String channel, String iosDestinationUrl,
       String androidDestinationUrl, String nonMobileDestinationUrl) {
-    return getYozioLink(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+    return getYozioLink(viralLoopName, channel, iosDestinationUrl, androidDestinationUrl,
         nonMobileDestinationUrl, null);
   }
 
@@ -215,6 +218,7 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
    *                           for iOS devices.
    * @param androidDestinationUrl URL that the generated Yozio link will redirect
@@ -225,12 +229,12 @@ public final class Yozio {
    * @return A Yozio link, or the destinationUrl if there is an error generating
    *         the Yozio link.
    */
-  public static String getYozioLink(String viralLoopName, String iosDestinationUrl,
+  public static String getYozioLink(String viralLoopName, String channel, String iosDestinationUrl,
       String androidDestinationUrl, String nonMobileDestinationUrl, JSONObject properties) {
     if (!validate()) {
       return nonMobileDestinationUrl;
     }
-    return helper.getYozioLink(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+    return helper.getYozioLink(viralLoopName, channel, iosDestinationUrl, androidDestinationUrl,
         nonMobileDestinationUrl, properties);
   }
 
@@ -242,15 +246,16 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param destinationUrl  URL that the generated Yozio link will redirect to.
    * @param callback  Called when the HTTP request completes.
    *                  The argument passed into the callback will be the Yozio
    *                  link, or the destinationUrl if there is an error generating
    *                  the Yozio link.
    */
-  public static void getYozioLinkAsync(String viralLoopName, String destinationUrl,
+  public static void getYozioLinkAsync(String viralLoopName, String channel, String destinationUrl,
       GetYozioLinkCallback callback) {
-    getYozioLinkAsync(viralLoopName, destinationUrl, null, callback);
+    getYozioLinkAsync(viralLoopName, channel, destinationUrl, null, callback);
   }
 
   /**
@@ -261,6 +266,7 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param destinationUrl  URL that the generated Yozio link will redirect to.
    * @param properties  Arbitrary meta data to attach to the generated Yozio link.
    * @param callback  Called when the HTTP request completes.
@@ -268,12 +274,12 @@ public final class Yozio {
    *                  link, or the destinationUrl if there is an error generating
    *                  the Yozio link.
    */
-  public static void getYozioLinkAsync(String viralLoopName, String destinationUrl,
+  public static void getYozioLinkAsync(String viralLoopName, String channel, String destinationUrl,
       JSONObject properties, GetYozioLinkCallback callback) {
     if (!validate()) {
       callback.handleResponse(destinationUrl);
     }
-    helper.getYozioLinkAsync(viralLoopName, destinationUrl, properties, callback);
+    helper.getYozioLinkAsync(viralLoopName, channel, destinationUrl, properties, callback);
   }
 
   /**
@@ -284,6 +290,7 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
    *                           for iOS devices.
    * @param androidDestinationUrl URL that the generated Yozio link will redirect
@@ -295,9 +302,10 @@ public final class Yozio {
    *                  link, or the destinationUrl if there is an error generating
    *                  the Yozio link.
    */
-  public static void getYozioLinkAsync(String viralLoopName, String iosDestinationUrl,
-      String androidDestinationUrl, String nonMobileDestinationUrl, GetYozioLinkCallback callback) {
-    getYozioLinkAsync(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+  public static void getYozioLinkAsync(String viralLoopName, String channel,
+      String iosDestinationUrl, String androidDestinationUrl, String nonMobileDestinationUrl,
+      GetYozioLinkCallback callback) {
+    getYozioLinkAsync(viralLoopName, channel, iosDestinationUrl, androidDestinationUrl,
         nonMobileDestinationUrl, null, callback);
   }
 
@@ -309,6 +317,7 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param iosDestinationUrl  URL that the generated Yozio link will redirect to
    *                           for iOS devices.
    * @param androidDestinationUrl URL that the generated Yozio link will redirect
@@ -321,13 +330,13 @@ public final class Yozio {
    *                  link, or the destinationUrl if there is an error generating
    *                  the Yozio link.
    */
-  public static void getYozioLinkAsync(String viralLoopName, String iosDestinationUrl,
-      String androidDestinationUrl, String nonMobileDestinationUrl, JSONObject properties,
-      GetYozioLinkCallback callback) {
+  public static void getYozioLinkAsync(String viralLoopName, String channel,
+      String iosDestinationUrl, String androidDestinationUrl, String nonMobileDestinationUrl,
+      JSONObject properties, GetYozioLinkCallback callback) {
     if (!validate()) {
       callback.handleResponse(nonMobileDestinationUrl);
     }
-    helper.getYozioLinkAsync(viralLoopName, iosDestinationUrl, androidDestinationUrl,
+    helper.getYozioLinkAsync(viralLoopName, channel, iosDestinationUrl, androidDestinationUrl,
         nonMobileDestinationUrl, properties, callback);
   }
 
@@ -342,9 +351,10 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    */
-  public static void enteredViralLoop(String viralLoopName) {
-    enteredViralLoop(viralLoopName, null);
+  public static void enteredViralLoop(String viralLoopName, String channel) {
+    enteredViralLoop(viralLoopName, channel, null);
   }
 
   /**
@@ -358,13 +368,14 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param properties  Arbitrary meta data to attach to the event.
    */
-  public static void enteredViralLoop(String viralLoopName, JSONObject properties) {
+  public static void enteredViralLoop(String viralLoopName, String channel, JSONObject properties) {
     if (!validate()) {
       return;
     }
-    helper.collect(E_VIEWED_LINK, viralLoopName, properties);
+    helper.collect(E_VIEWED_LINK, viralLoopName, channel, properties);
   }
 
   /**
@@ -375,9 +386,10 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    */
-  public static void sharedYozioLink(String viralLoopName) {
-    sharedYozioLink(viralLoopName, null);
+  public static void sharedYozioLink(String viralLoopName, String channel) {
+    sharedYozioLink(viralLoopName, channel, null);
   }
 
   /**
@@ -388,13 +400,14 @@ public final class Yozio {
    *
    * @param viralLoopName  Name of the viral loop. Must match the name of one of
    *                       the viral loops created on the Yozio dashboard.
+   * @param channel  Social channel of the viral loop.
    * @param properties  Arbitrary meta data to attach to the event.
    */
-  public static void sharedYozioLink(String viralLoopName, JSONObject properties) {
+  public static void sharedYozioLink(String viralLoopName, String channel, JSONObject properties) {
     if (!validate()) {
       return;
     }
-    helper.collect(E_SHARED_LINK, viralLoopName, properties);
+    helper.collect(E_SHARED_LINK, viralLoopName, channel, properties);
   }
 
   private static void initializeIfNeeded(Context context, String appKey) {

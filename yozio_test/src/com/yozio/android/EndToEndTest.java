@@ -45,6 +45,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   private static final String APP_KEY = "96d12600-f0fc-012f-2d87-12314000ac7c";
   private static final String SECRET_KEY = "96d13160-f0fc-012f-2d88-12314000ac7c";
   private static final String LOOP_NAME = "testloop";
+  private static final String FB_CHANNEL = "facebook";
 
   private static final String EXPERIMENT_ID = "50733c0fa6cc9f77e10030d3";
   private static final String CONTROL_VARIATION_ID = "50733c0fa6cc9f77e10030d2";
@@ -87,7 +88,7 @@ public class EndToEndTest extends InstrumentationTestCase {
     testGetYozioLink();
     Runnable sendOpen = new Runnable() {
       public void run() {
-        helper.collect(Yozio.E_OPENED_APP, null);
+        helper.collect(Yozio.E_OPENED_APP, null, null);
         TestHelper.waitUntilEventSent(dataStore);
       }
     };
@@ -103,7 +104,7 @@ public class EndToEndTest extends InstrumentationTestCase {
       public void run() {
         String newYozioUdid = String.valueOf(Calendar.getInstance().getTimeInMillis());
         helper.setYozioUdid(newYozioUdid);
-        helper.collect(Yozio.E_OPENED_APP, null);
+        helper.collect(Yozio.E_OPENED_APP, null, null);
         TestHelper.waitUntilEventSent(dataStore);
       }
     };
@@ -115,7 +116,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    * count goes up in the UI when the Yozio link is clicked.
    */
   public void testGetYozioLink() {
-    final String yozioLink = Yozio.getYozioLink(LOOP_NAME, "www.google.com");
+    final String yozioLink = Yozio.getYozioLink(LOOP_NAME, FB_CHANNEL, "www.google.com");
     assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
     Runnable visitLink = new Runnable() {
       public void run() {
@@ -135,7 +136,7 @@ public class EndToEndTest extends InstrumentationTestCase {
     runTestOnUiThread(new Runnable() {
       public void run() {
         // Actual test
-        Yozio.getYozioLinkAsync(LOOP_NAME, "www.yahoo.com", new GetYozioLinkCallback() {
+        Yozio.getYozioLinkAsync(LOOP_NAME, FB_CHANNEL, "www.yahoo.com", new GetYozioLinkCallback() {
           public void handleResponse(final String yozioLink) {
             assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
             Runnable visitLink = new Runnable() {
@@ -158,7 +159,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    * and makes sure that the click count goes up in the UI when the Yozio link is clicked.
    */
   public void testGetYozioLinkForMultipleDestUrls() {
-    final String yozioLink = Yozio.getYozioLink(LOOP_NAME,
+    final String yozioLink = Yozio.getYozioLink(LOOP_NAME, FB_CHANNEL,
         "www.google.com", "www.bing.com", "www.yahoo.com");
     assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
     Runnable visitLink = new Runnable() {
@@ -181,7 +182,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    * when given invalid arguments.
    */
   public void testGetYozioLinkForMultipleDestUrlsWithInvalidArgs() {
-    final String yozioLink = Yozio.getYozioLink(LOOP_NAME,
+    final String yozioLink = Yozio.getYozioLink(LOOP_NAME, FB_CHANNEL,
         null, "www.bing.com", "http://www.yahoo.com");
     assertEquals("http://www.yahoo.com", yozioLink);
     Runnable visitLink = new Runnable() {
@@ -208,7 +209,7 @@ public class EndToEndTest extends InstrumentationTestCase {
     runTestOnUiThread(new Runnable() {
       public void run() {
         // Actual test
-        Yozio.getYozioLinkAsync(LOOP_NAME, "www.google.com", "www.bing.com",
+        Yozio.getYozioLinkAsync(LOOP_NAME, FB_CHANNEL, "www.google.com", "www.bing.com",
             "www.yahoo.com", new GetYozioLinkCallback() {
           public void handleResponse(final String yozioLink) {
             assertTrue(yozioLink.startsWith(NODE_URL + "/r/"));
@@ -240,7 +241,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   public void testEnteredViralLoop() {
     assertLoopEventCountChange(Yozio.E_VIEWED_LINK, 1, new Runnable() {
       public void run() {
-        Yozio.enteredViralLoop(LOOP_NAME);
+        Yozio.enteredViralLoop(LOOP_NAME, FB_CHANNEL);
         TestHelper.waitUntilEventSent(dataStore);
       }
     });
@@ -252,7 +253,7 @@ public class EndToEndTest extends InstrumentationTestCase {
   public void testSharedYozioLink() {
     assertLoopEventCountChange(Yozio.E_SHARED_LINK, 1, new Runnable() {
       public void run() {
-        Yozio.sharedYozioLink(LOOP_NAME);
+        Yozio.sharedYozioLink(LOOP_NAME, FB_CHANNEL);
         TestHelper.waitUntilEventSent(dataStore);
       }
     });
@@ -264,7 +265,7 @@ public class EndToEndTest extends InstrumentationTestCase {
    */
   public void testDiscardInvalidEvents() {
     assertEquals(0, dataStore.getNumEvents());
-    Yozio.enteredViralLoop("android test ignore me please");
+    Yozio.enteredViralLoop("android test ignore me please", FB_CHANNEL);
     TestHelper.waitUntilEventAdded(dataStore);
     assertEquals(1, dataStore.getNumEvents());
     TestHelper.waitUntilEventSent(dataStore);

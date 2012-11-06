@@ -20,6 +20,7 @@ public class YozioTest extends AndroidTestCase {
 
   private static final String APP_KEY = "139b0e10-ba56-012f-e1d9-2837371df2a8";
   private static final String TEST_SECRET_KEY = "test secret key";
+  private static final String FB_CHANNEL = "facebook";
   private FakeYozioApiService apiService;
   private YozioDataStoreImpl dataStore;
 
@@ -38,7 +39,7 @@ public class YozioTest extends AndroidTestCase {
 
   public void testEnteredViralLoopWithoutExternalProperties() {
     try {
-      Yozio.enteredViralLoop("ooga");
+      Yozio.enteredViralLoop("ooga", FB_CHANNEL);
       TestHelper.waitUntilEventSent(dataStore);
       JSONArray events = apiService.getPayload().getJSONArray("payload");
       JSONObject event = events.getJSONObject(0);
@@ -51,7 +52,7 @@ public class YozioTest extends AndroidTestCase {
   public void testEnteredViralLoopWithExternalProperties() {
     try {
       JSONObject externalProperties = new JSONObject("{\"a\": \"b\"}");
-      Yozio.enteredViralLoop("ooga", externalProperties);
+      Yozio.enteredViralLoop("ooga", FB_CHANNEL, externalProperties);
       TestHelper.waitUntilEventSent(dataStore);
       JSONArray events = apiService.getPayload().getJSONArray("payload");
       JSONObject event = events.getJSONObject(0);
@@ -63,7 +64,7 @@ public class YozioTest extends AndroidTestCase {
 
   public void testSharedYozioLinkWithoutExternalProperties() {
     try {
-      Yozio.sharedYozioLink("ooga");
+      Yozio.sharedYozioLink("ooga", FB_CHANNEL);
       TestHelper.waitUntilEventSent(dataStore);
       JSONArray events = apiService.getPayload().getJSONArray("payload");
       JSONObject event = events.getJSONObject(0);
@@ -77,7 +78,7 @@ public class YozioTest extends AndroidTestCase {
     JSONObject externalProperties;
     try {
       externalProperties = new JSONObject("{\"a\": \"b\"}");
-      Yozio.sharedYozioLink("ooga", externalProperties);
+      Yozio.sharedYozioLink("ooga", FB_CHANNEL, externalProperties);
       TestHelper.waitUntilEventSent(dataStore);
       JSONArray events = apiService.getPayload().getJSONArray("payload");
       JSONObject event = events.getJSONObject(0);

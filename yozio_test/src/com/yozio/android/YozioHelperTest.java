@@ -26,6 +26,8 @@ public class YozioHelperTest extends InstrumentationTestCase {
 
   private static final String APP_KEY = "APP KEY";
   private static final String TEST_SECRET_KEY = "test secret key";
+  private static final String FB_CHANNEL = "facebook";
+
   private Context context;
   private FakeYozioApiService fakeApiService;
   private YozioDataStoreImpl dataStore;
@@ -140,11 +142,13 @@ public class YozioHelperTest extends InstrumentationTestCase {
       fail();
     }
     helper.initializeExperiments();
-    helper.getYozioLink("loop name", "www.ooga.booga", null);
+    helper.getYozioLink("loop name", FB_CHANNEL, "www.ooga.booga", null);
     try {
+      JSONObject apiYozioProperties = fakeApiService.getYozioProperties();
       assertEquals(
           experimentVariationSids.toString(),
-          fakeApiService.getYozioProperties().get("experiment_variation_sids").toString());
+          apiYozioProperties.get("experiment_variation_sids").toString());
+      assertEquals(FB_CHANNEL, apiYozioProperties.get("channel"));
     } catch (JSONException e) {
       fail();
     }
@@ -152,8 +156,14 @@ public class YozioHelperTest extends InstrumentationTestCase {
 
   public void testGetYozioLinkWithoutExperimentVariationSids() {
     helper.initializeExperiments();
-    helper.getYozioLink("loop name", "www.ooga.booga", null);
-    assertFalse(fakeApiService.getYozioProperties().has("experiment_variation_sids"));
+    helper.getYozioLink("loop name", FB_CHANNEL, "www.ooga.booga", null);
+    JSONObject apiYozioProperties = fakeApiService.getYozioProperties();
+    assertFalse(apiYozioProperties.has("experiment_variation_sids"));
+    try {
+      assertEquals(FB_CHANNEL, apiYozioProperties.get("channel"));
+    } catch (JSONException e) {
+      fail();
+    }
   }
 
   public void testGetYozioLinkWithExternalProperties() {
@@ -161,7 +171,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
     helper.initializeExperiments();
     try {
       JSONObject externalProperties = new JSONObject("{\"a\": \"b\"}");
-      helper.getYozioLink("loop name", "www.ooga.booga", externalProperties);
+      helper.getYozioLink("loop name", FB_CHANNEL, "www.ooga.booga", externalProperties);
       assertEquals("b", fakeApiService.getExternalProperties().get("a"));
     } catch (JSONException e) {
       fail();
@@ -169,13 +179,19 @@ public class YozioHelperTest extends InstrumentationTestCase {
   }
 
   public void testGetYozioLinkWithoutCallingInitializeExperiments() {
-    helper.getYozioLink("loop name", "www.ooga.booga", null);
-    assertEquals("{}", fakeApiService.getYozioProperties().toString());
+    helper.getYozioLink("loop name", FB_CHANNEL, "www.ooga.booga", null);
+    JSONObject apiYozioProperties = fakeApiService.getYozioProperties();
+    assertFalse(apiYozioProperties.has("experiment_variation_sids"));
+    try {
+      assertEquals(FB_CHANNEL, apiYozioProperties.get("channel"));
+    } catch (JSONException e) {
+      fail();
+    }
   }
 
   public void testCollect() {
     try {
-      helper.collect(11, "loop name");
+      helper.collect(11, "loop name", FB_CHANNEL);
       TestHelper.waitUntilEventSent(dataStore);
       JSONObject payload = fakeApiService.getPayload();
 
@@ -185,15 +201,31 @@ public class YozioHelperTest extends InstrumentationTestCase {
       // TODO(kevinliu): add assertions for the rest of the payload params
       assertNotNull(payload.getString("device_id"));
       assertNotNull(payload.getString("connection_type"));
+
+      JSONArray events = payload.getJSONArray("payload");
+      assertEquals(1, events.length());
+      JSONObject event = events.getJSONObject(0);
+      assertEquals(FB_CHANNEL, event.getString("channel"));
     } catch (JSONException e) {
       fail();
     }
   }
 
+  public void testCollectNoChannel() throws JSONException {
+    helper.collect(11, "loop name", null);
+    TestHelper.waitUntilEventSent(dataStore);
+    JSONObject payload = fakeApiService.getPayload();
+
+    JSONArray events = payload.getJSONArray("payload");
+    assertEquals(1, events.length());
+    JSONObject event = events.getJSONObject(0);
+    assertFalse(event.has("channel"));
+  }
+
   public void testCollectWithExternalProperties() {
     try {
       JSONObject externalProperties = new JSONObject("{\"ooga\": \"booga\"}");
-      helper.collect(11, "loop name", externalProperties);
+      helper.collect(11, "loop name", FB_CHANNEL, externalProperties);
       TestHelper.waitUntilEventSent(dataStore);
 
       JSONObject payload = fakeApiService.getPayload();
@@ -212,7 +244,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
   public void testCollectWithUserName() {
     try {
       helper.setUserName("spaceman");
-      helper.collect(123, "loop name");
+      helper.collect(123, "loop name", FB_CHANNEL);
       TestHelper.waitUntilEventSent(dataStore);
       JSONObject payload = fakeApiService.getPayload();
       assertEquals("spaceman", payload.getString("external_user_id"));
@@ -225,7 +257,7 @@ public class YozioHelperTest extends InstrumentationTestCase {
     try {
       fakeApiService.setExperimentVariationSids(new JSONObject().put("experiment1", "variation1"));
       helper.initializeExperiments();
-      helper.collect(123, "loop name");
+      helper.collect(123, "loop name", FB_CHANNEL);
       TestHelper.waitUntilEventSent(dataStore);
       JSONObject payload = fakeApiService.getPayload();
       String experimentVariationSids = payload.getString("experiment_variation_sids");

@@ -54,9 +54,8 @@ interface YozioApiService {
    * @param properties  Arbitrary meta data to attach to the generated Yozio link.
    * @return A Yozio link, or null if there is an error generating the Yozio link.
    */
-  String getYozioLink(String appKey, String yozioUdid,
-      String viralLoopName, String destinationUrl, JSONObject yozioProperties,
-      JSONObject externalProperties);
+  String getYozioLink(String appKey, String yozioUdid, String viralLoopName, String destinationUrl,
+      JSONObject yozioProperties, JSONObject externalProperties);
 
   /**
    * Makes a blocking HTTP request to Yozio to generate the Yozio link specific
