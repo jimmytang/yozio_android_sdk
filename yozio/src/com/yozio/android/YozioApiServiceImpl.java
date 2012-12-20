@@ -148,7 +148,7 @@ class YozioApiServiceImpl implements YozioApiService {
     try {
       HttpPost httpPost = new HttpPost(baseUrl);
       httpPost.setHeader(YozioHelper.H_SDK_VERSION, YozioHelper.YOZIO_SDK_VERSION);
-      httpPost.setEntity(new UrlEncodedFormEntity(params));
+      httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
       HttpResponse httpResponse = httpClient.execute(httpPost);
       HttpEntity httpEntity = httpResponse.getEntity();
       if (httpEntity != null) {
