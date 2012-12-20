@@ -45,7 +45,7 @@ import com.yozio.android.YozioDataStore.Events;
 class YozioHelper {
 
   // SDK version
-  protected static final String YOZIO_SDK_VERSION = "ANDROID-v2.1";
+  protected static final String YOZIO_SDK_VERSION = "ANDROID-v2.3";
 
   // Android device type is 3.
   static final String DEVICE_TYPE = "3";
