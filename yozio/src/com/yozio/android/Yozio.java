@@ -278,6 +278,7 @@ public final class Yozio {
       JSONObject properties, GetYozioLinkCallback callback) {
     if (!validate()) {
       callback.handleResponse(destinationUrl);
+      return;
     }
     helper.getYozioLinkAsync(viralLoopName, channel, destinationUrl, properties, callback);
   }
@@ -335,6 +336,7 @@ public final class Yozio {
       JSONObject properties, GetYozioLinkCallback callback) {
     if (!validate()) {
       callback.handleResponse(nonMobileDestinationUrl);
+      return;
     }
     helper.getYozioLinkAsync(viralLoopName, channel, iosDestinationUrl, androidDestinationUrl,
         nonMobileDestinationUrl, properties, callback);

@@ -16,6 +16,9 @@ import org.json.JSONObject;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.test.AndroidTestCase;
 
+import com.yozio.android.Yozio.GetYozioLinkCallback;
+import com.yozio.android.Yozio.InitializeExperimentsCallback;
+
 public class YozioTest extends AndroidTestCase {
 
   private static final String APP_KEY = "139b0e10-ba56-012f-e1d9-2837371df2a8";
@@ -33,12 +36,49 @@ public class YozioTest extends AndroidTestCase {
     dataStore = new YozioDataStoreImpl(dbHelper, APP_KEY);
     YozioHelper helper = new YozioHelper(dataStore, apiService);
     Yozio.setHelper(helper);
-    Yozio.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
-    TestHelper.waitUntilEventSent(dataStore);
+  }
+
+  public void testNullPointersWithoutConfigure() {
+    // Nothing should throw an exception.
+
+    Yozio.enteredViralLoop(null, null);
+    Yozio.enteredViralLoop(null, null, null);
+
+    assertNull(Yozio.getYozioLink(null, null, null));
+    assertNull(Yozio.getYozioLink(null, null, null, null));
+    assertNull(Yozio.getYozioLink(null, null, null, null, null));
+    assertNull(Yozio.getYozioLink(null, null, null, null, null, null));
+
+    GetYozioLinkCallback getCallback = new GetYozioLinkCallback() {
+      public void handleResponse(String yozioLink) {
+      }
+    };
+    Yozio.getYozioLinkAsync(null, null, null, getCallback);
+    Yozio.getYozioLinkAsync(null, null, null, null, getCallback);
+    Yozio.getYozioLinkAsync(null, null, null, null, null, getCallback);
+    Yozio.getYozioLinkAsync(null, null, null, null, null, null, getCallback);
+
+    InitializeExperimentsCallback initCallback = new InitializeExperimentsCallback() {
+      public void onComplete() {
+      }
+    };
+    Yozio.initializeExperiments();
+    Yozio.initializeExperimentsAsync(initCallback);
+
+    assertEquals(0, Yozio.intForKey(null, 0));
+    assertNull(Yozio.stringForKey(null, null));
+
+    Yozio.sharedYozioLink(null, null);
+    Yozio.sharedYozioLink(null, null, null);
+
+    Yozio.userLoggedIn(null);
+    Yozio.userLoggedIn(null, null);
   }
 
   public void testEnteredViralLoopWithoutExternalProperties() {
     try {
+      Yozio.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
+      TestHelper.waitUntilEventSent(dataStore);
       Yozio.enteredViralLoop("ooga", FB_CHANNEL);
       TestHelper.waitUntilEventSent(dataStore);
       JSONArray events = apiService.getPayload().getJSONArray("payload");
@@ -51,6 +91,8 @@ public class YozioTest extends AndroidTestCase {
 
   public void testEnteredViralLoopWithExternalProperties() {
     try {
+      Yozio.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
+      TestHelper.waitUntilEventSent(dataStore);
       JSONObject externalProperties = new JSONObject("{\"a\": \"b\"}");
       Yozio.enteredViralLoop("ooga", FB_CHANNEL, externalProperties);
       TestHelper.waitUntilEventSent(dataStore);
@@ -64,6 +106,8 @@ public class YozioTest extends AndroidTestCase {
 
   public void testSharedYozioLinkWithoutExternalProperties() {
     try {
+      Yozio.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
+      TestHelper.waitUntilEventSent(dataStore);
       Yozio.sharedYozioLink("ooga", FB_CHANNEL);
       TestHelper.waitUntilEventSent(dataStore);
       JSONArray events = apiService.getPayload().getJSONArray("payload");
@@ -77,6 +121,8 @@ public class YozioTest extends AndroidTestCase {
   public void testSharedYozioLinkWithExternalProperties() {
     JSONObject externalProperties;
     try {
+      Yozio.configure(getContext(), APP_KEY, TEST_SECRET_KEY);
+      TestHelper.waitUntilEventSent(dataStore);
       externalProperties = new JSONObject("{\"a\": \"b\"}");
       Yozio.sharedYozioLink("ooga", FB_CHANNEL, externalProperties);
       TestHelper.waitUntilEventSent(dataStore);
